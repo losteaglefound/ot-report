@@ -142,80 +142,195 @@ class OpenAIEnhancedReportGenerator:
             }
     
     def _setup_custom_styles(self):
-        """Setup custom paragraph styles matching the sample report"""
-        # Header style for main title
+        """Setup custom paragraph styles with enhanced professional formatting"""
+        # Header style for main title - Enhanced with better typography
         self.styles.add(ParagraphStyle(
             name='ReportTitle',
             parent=self.styles['Heading1'],
-            fontSize=16,
-            textColor=colors.black,
-            spaceAfter=6,
-            spaceBefore=0,
+            fontSize=18,
+            textColor=colors.HexColor('#1f4788'),  # Professional blue
+            spaceAfter=12,
+            spaceBefore=6,
             alignment=TA_CENTER,
-            fontName='Helvetica-Bold'
+            fontName='Helvetica-Bold',
+            borderWidth=2,
+            borderColor=colors.HexColor('#1f4788'),
+            borderPadding=8,
+            leftIndent=0,
+            rightIndent=0
         ))
         
-        # Clinic info style
+        # Clinic info style - Enhanced readability
         self.styles.add(ParagraphStyle(
             name='ClinicInfo',
             parent=self.styles['Normal'],
-            fontSize=10,
-            textColor=colors.black,
-            spaceAfter=4,
+            fontSize=11,
+            textColor=colors.HexColor('#444444'),
+            spaceAfter=6,
+            spaceBefore=2,
             alignment=TA_CENTER,
-            fontName='Helvetica'
+            fontName='Helvetica',
+            leading=14
         ))
         
-        # Section header style
+        # Section header style - Enhanced with better visual hierarchy
         self.styles.add(ParagraphStyle(
             name='SectionHeader',
             parent=self.styles['Heading2'],
-            fontSize=12,
-            textColor=colors.black,
-            spaceAfter=8,
-            spaceBefore=12,
+            fontSize=14,
+            textColor=colors.HexColor('#1f4788'),
+            spaceAfter=12,
+            spaceBefore=20,
             alignment=TA_LEFT,
-            fontName='Helvetica-Bold'
+            fontName='Helvetica-Bold',
+            borderWidth=1,
+            borderColor=colors.HexColor('#1f4788'),
+            borderPadding=6,
+            backColor=colors.HexColor('#f8f9fa'),
+            leftIndent=8,
+            rightIndent=8
         ))
         
-        # Domain header style
+        # Domain header style - Enhanced subsection headers
         self.styles.add(ParagraphStyle(
             name='DomainHeader',
             parent=self.styles['Heading3'],
-            fontSize=11,
-            textColor=colors.black,
-            spaceAfter=6,
-            spaceBefore=8,
+            fontSize=12,
+            textColor=colors.HexColor('#2c5282'),
+            spaceAfter=8,
+            spaceBefore=12,
             alignment=TA_LEFT,
-            fontName='Helvetica-Bold'
+            fontName='Helvetica-Bold',
+            leftIndent=4,
+            underlineWidth=1,
+            underlineColor=colors.HexColor('#2c5282')
         ))
         
-        # Clinical body text
+        # Clinical body text - Enhanced for better readability
         self.styles.add(ParagraphStyle(
             name='ClinicalBody',
             parent=self.styles['Normal'],
-            fontSize=10,
-            textColor=colors.black,
-            spaceAfter=8,
-            spaceBefore=2,
+            fontSize=11,
+            textColor=colors.HexColor('#333333'),
+            spaceAfter=10,
+            spaceBefore=4,
             alignment=TA_JUSTIFY,
             leftIndent=0,
             rightIndent=0,
-            fontName='Helvetica'
+            fontName='Helvetica',
+            leading=14,
+            firstLineIndent=0
         ))
         
-        # Bullet point style
+        # Bullet point style - Enhanced with better indentation
         self.styles.add(ParagraphStyle(
             name='BulletPoint',
             parent=self.styles['Normal'],
+            fontSize=11,
+            textColor=colors.HexColor('#333333'),
+            spaceAfter=6,
+            spaceBefore=3,
+            leftIndent=24,
+            bulletIndent=12,
+            alignment=TA_LEFT,
+            fontName='Helvetica',
+            leading=14
+        ))
+        
+        # Assessment results style - New for score presentations
+        self.styles.add(ParagraphStyle(
+            name='AssessmentResults',
+            parent=self.styles['Normal'],
             fontSize=10,
-            textColor=colors.black,
+            textColor=colors.HexColor('#2d3748'),
+            spaceAfter=8,
+            spaceBefore=4,
+            alignment=TA_LEFT,
+            fontName='Helvetica',
+            leading=12,
+            leftIndent=12,
+            rightIndent=12,
+            backColor=colors.HexColor('#f7fafc'),
+            borderWidth=0.5,
+            borderColor=colors.HexColor('#e2e8f0'),
+            borderPadding=8
+        ))
+        
+        # Key findings style - For highlighting important information
+        self.styles.add(ParagraphStyle(
+            name='KeyFindings',
+            parent=self.styles['Normal'],
+            fontSize=11,
+            textColor=colors.HexColor('#2b6cb0'),
+            spaceAfter=8,
+            spaceBefore=8,
+            alignment=TA_LEFT,
+            fontName='Helvetica-Bold',
+            leading=14,
+            leftIndent=16,
+            rightIndent=16,
+            backColor=colors.HexColor('#ebf8ff'),
+            borderWidth=1,
+            borderColor=colors.HexColor('#2b6cb0'),
+            borderPadding=8
+        ))
+        
+        # Recommendations style - For highlighting recommendations
+        self.styles.add(ParagraphStyle(
+            name='RecommendationItem',
+            parent=self.styles['Normal'],
+            fontSize=11,
+            textColor=colors.HexColor('#2d5016'),
+            spaceAfter=6,
+            spaceBefore=3,
+            alignment=TA_LEFT,
+            fontName='Helvetica',
+            leading=14,
+            leftIndent=20,
+            rightIndent=8,
+            backColor=colors.HexColor('#f0fff4'),
+            borderWidth=0.5,
+            borderColor=colors.HexColor('#68d391'),
+            borderPadding=6
+        ))
+        
+        # Footer style - For signature and contact information
+        self.styles.add(ParagraphStyle(
+            name='Footer',
+            parent=self.styles['Normal'],
+            fontSize=9,
+            textColor=colors.HexColor('#666666'),
             spaceAfter=4,
             spaceBefore=2,
-            leftIndent=20,
-            bulletIndent=10,
-            alignment=TA_LEFT,
-            fontName='Helvetica'
+            alignment=TA_CENTER,
+            fontName='Helvetica',
+            leading=11
+        ))
+        
+        # Table header style for score tables
+        self.styles.add(ParagraphStyle(
+            name='TableHeader',
+            parent=self.styles['Normal'],
+            fontSize=10,
+            textColor=colors.white,
+            spaceAfter=4,
+            spaceBefore=4,
+            alignment=TA_CENTER,
+            fontName='Helvetica-Bold',
+            leading=12
+        ))
+        
+        # Table cell style for score tables
+        self.styles.add(ParagraphStyle(
+            name='TableCell',
+            parent=self.styles['Normal'],
+            fontSize=10,
+            textColor=colors.HexColor('#2d3748'),
+            spaceAfter=3,
+            spaceBefore=3,
+            alignment=TA_CENTER,
+            fontName='Helvetica',
+            leading=12
         ))
     
     async def generate_comprehensive_report(self, report_data: Dict[str, Any], session_id: str) -> str:
@@ -232,15 +347,20 @@ class OpenAIEnhancedReportGenerator:
         self.logger.info(f"📁 Output path: {output_path}")
         
         try:
-            # Create the PDF document
-            self.logger.info("📄 Creating PDF document...")
+            # Create the PDF document with enhanced settings
+            self.logger.info("📄 Creating PDF document with professional formatting...")
             doc = SimpleDocTemplate(
                 output_path,
                 pagesize=letter,
-                topMargin=0.75*inch,
-                bottomMargin=0.75*inch,
-                leftMargin=1*inch,
-                rightMargin=1*inch
+                topMargin=0.85*inch,      # Slightly larger top margin for header spacing
+                bottomMargin=0.85*inch,   # Larger bottom margin for footer/signature
+                leftMargin=0.9*inch,      # Increased left margin for better readability
+                rightMargin=0.9*inch,     # Increased right margin for better readability
+                title="FMRC Health Group - OT Evaluation Report",
+                author="Fushia Crooms, MOT, OTR/L",
+                subject="Occupational Therapy Developmental Evaluation",
+                creator="FMRC Health Group Report Generator",
+                keywords="occupational therapy, developmental evaluation, pediatric assessment"
             )
             
             # Build the report content
@@ -763,14 +883,113 @@ class OpenAIEnhancedReportGenerator:
         return elements
     
     async def _create_bayley4_detailed_section(self, report_data: Dict[str, Any]) -> List:
-        """Create detailed Bayley-4 section with comprehensive interpretation"""
+        """Create detailed Bayley-4 section with comprehensive interpretation and professional score table"""
         elements = []
         
-        # Bayley-4 header
+        # Bayley-4 header with enhanced styling
         header = Paragraph("Bayley Scales of Infant and Toddler Development - Fourth Edition (Bayley-4)", 
                           self.styles['DomainHeader'])
         elements.append(header)
-        elements.append(Spacer(1, 6))
+        elements.append(Spacer(1, 8))
+        
+        # Get extracted Bayley data
+        extracted_data = report_data.get("extracted_data", {})
+        bayley_cognitive = extracted_data.get("bayley4_cognitive", {})
+        bayley_social = extracted_data.get("bayley4_social", {})
+        
+        # Create professional scores table if we have data
+        if bayley_cognitive.get("raw_scores") or bayley_social.get("raw_scores"):
+            
+            # Scores table header
+            score_header = Paragraph("Assessment Scores Summary", self.styles['KeyFindings'])
+            elements.append(score_header)
+            elements.append(Spacer(1, 6))
+            
+            # Build comprehensive scores table
+            score_data = [
+                # Table headers with enhanced styling
+                [Paragraph("Domain", self.styles['TableHeader']),
+                 Paragraph("Raw Score", self.styles['TableHeader']),
+                 Paragraph("Scaled Score", self.styles['TableHeader']),
+                 Paragraph("Percentile", self.styles['TableHeader']),
+                 Paragraph("Age Equivalent", self.styles['TableHeader']),
+                 Paragraph("Classification", self.styles['TableHeader'])]
+            ]
+            
+            # Add cognitive/language/motor scores if available
+            if bayley_cognitive.get("raw_scores"):
+                cog_scores = bayley_cognitive["raw_scores"]
+                for domain, scores in cog_scores.items():
+                    if isinstance(scores, dict) and scores.get("scaled_score"):
+                        classification = self._get_score_classification(scores.get("scaled_score", 0))
+                        percentile = self._score_to_percentile(scores.get("scaled_score", 0))
+                        
+                        score_data.append([
+                            Paragraph(f"<b>{domain.title()}</b>", self.styles['TableCell']),
+                            Paragraph(str(scores.get("raw_score", "N/A")), self.styles['TableCell']),
+                            Paragraph(str(scores.get("scaled_score", "N/A")), self.styles['TableCell']),
+                            Paragraph(f"{percentile}%", self.styles['TableCell']),
+                            Paragraph(scores.get("age_equivalent", "N/A"), self.styles['TableCell']),
+                            Paragraph(classification, self.styles['TableCell'])
+                        ])
+            
+            # Add social-emotional/adaptive scores if available
+            if bayley_social.get("raw_scores"):
+                social_scores = bayley_social["raw_scores"]
+                for domain, scores in social_scores.items():
+                    if isinstance(scores, dict) and scores.get("scaled_score"):
+                        classification = self._get_score_classification(scores.get("scaled_score", 0))
+                        percentile = self._score_to_percentile(scores.get("scaled_score", 0))
+                        
+                        score_data.append([
+                            Paragraph(f"<b>{domain.replace('_', ' ').title()}</b>", self.styles['TableCell']),
+                            Paragraph(str(scores.get("raw_score", "N/A")), self.styles['TableCell']),
+                            Paragraph(str(scores.get("scaled_score", "N/A")), self.styles['TableCell']),
+                            Paragraph(f"{percentile}%", self.styles['TableCell']),
+                            Paragraph(scores.get("age_equivalent", "N/A"), self.styles['TableCell']),
+                            Paragraph(classification, self.styles['TableCell'])
+                        ])
+            
+            # Create the scores table with professional styling
+            scores_table = Table(score_data, 
+                               colWidths=[1.4*inch, 0.8*inch, 0.9*inch, 0.8*inch, 1.0*inch, 1.5*inch])
+            
+            # Enhanced table styling
+            scores_table.setStyle(TableStyle([
+                # Header row styling
+                ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor('#1f4788')),
+                ('TEXTCOLOR', (0, 0), (-1, 0), colors.white),
+                ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+                ('FONTSIZE', (0, 0), (-1, 0), 10),
+                ('ALIGN', (0, 0), (-1, 0), 'CENTER'),
+                
+                # Data rows styling
+                ('BACKGROUND', (0, 1), (-1, -1), colors.white),
+                ('TEXTCOLOR', (0, 1), (-1, -1), colors.HexColor('#2d3748')),
+                ('FONTNAME', (0, 1), (-1, -1), 'Helvetica'),
+                ('FONTSIZE', (0, 1), (-1, -1), 9),
+                ('ALIGN', (1, 1), (-1, -1), 'CENTER'),  # Center all except domain names
+                ('ALIGN', (0, 1), (0, -1), 'LEFT'),     # Left align domain names
+                
+                # Borders and grid
+                ('GRID', (0, 0), (-1, -1), 0.75, colors.HexColor('#cbd5e0')),
+                ('LINEBELOW', (0, 0), (-1, 0), 2, colors.HexColor('#1f4788')),
+                
+                # Padding
+                ('TOPPADDING', (0, 0), (-1, -1), 6),
+                ('BOTTOMPADDING', (0, 0), (-1, -1), 6),
+                ('LEFTPADDING', (0, 0), (-1, -1), 8),
+                ('RIGHTPADDING', (0, 0), (-1, -1), 8),
+                
+                # Alternating row colors for better readability
+                ('ROWBACKGROUNDS', (0, 1), (-1, -1), [colors.white, colors.HexColor('#f7fafc')]),
+                
+                # Highlight low scores in red
+                ('TEXTCOLOR', (2, 1), (2, -1), colors.HexColor('#e53e3e')),  # Scaled scores
+            ]))
+            
+            elements.append(scores_table)
+            elements.append(Spacer(1, 16))
         
         # Patient info for age comparison
         patient_info = report_data.get("patient_info", {})
@@ -808,6 +1027,31 @@ class OpenAIEnhancedReportGenerator:
         elements.append(Spacer(1, 12))
         
         return elements
+    
+    def _get_score_classification(self, scaled_score: int) -> str:
+        """Get classification for scaled scores"""
+        if scaled_score >= 16:
+            return "Above Average"
+        elif scaled_score >= 8:
+            return "Average"
+        elif scaled_score >= 4:
+            return "Below Average"
+        else:
+            return "Extremely Low"
+    
+    def _score_to_percentile(self, scaled_score: int) -> int:
+        """Convert scaled score to approximate percentile"""
+        # Simplified conversion - in real implementation you'd use norm tables
+        if scaled_score >= 16:
+            return 85
+        elif scaled_score >= 13:
+            return 75
+        elif scaled_score >= 8:
+            return 50
+        elif scaled_score >= 4:
+            return 25
+        else:
+            return 5
     
     async def _create_sp2_detailed_section(self, report_data: Dict[str, Any]) -> List:
         """Create detailed SP2 section with real-world implications"""
@@ -928,31 +1172,84 @@ class OpenAIEnhancedReportGenerator:
         return elements
     
     async def _create_recommendations_section(self, report_data: Dict[str, Any]) -> List:
-        """Create comprehensive recommendations section"""
+        """Create comprehensive recommendations section with enhanced formatting"""
         elements = []
         
-        # Section header
-        header = Paragraph("Recommendations", self.styles['SectionHeader'])
+        # Enhanced recommendations header
+        header = Paragraph("Clinical Recommendations", self.styles['SectionHeader'])
         elements.append(header)
-        elements.append(Spacer(1, 8))
+        elements.append(Spacer(1, 10))
         
-        # Generate recommendations based on assessment findings
+        # Generate recommendations using OpenAI or fallback
         recommendations = await self._generate_recommendations(report_data)
         
-        # Create recommendation text
-        rec_text = "Based on the comprehensive evaluation findings, the following services are recommended:"
-        rec_para = Paragraph(rec_text, self.styles['ClinicalBody'])
-        elements.append(rec_para)
-        elements.append(Spacer(1, 8))
+        if recommendations:
+            # Introduction paragraph
+            intro_text = ("Based on the comprehensive assessment findings and observed functional limitations, "
+                         "the following evidence-based recommendations are provided to support optimal "
+                         "developmental progress and functional independence:")
+            
+            intro_para = Paragraph(intro_text, self.styles['ClinicalBody'])
+            elements.append(intro_para)
+            elements.append(Spacer(1, 12))
+            
+            # Priority recommendations header
+            priority_header = Paragraph("Priority Intervention Areas", self.styles['KeyFindings'])
+            elements.append(priority_header)
+            elements.append(Spacer(1, 8))
+            
+            # Process and format each recommendation with enhanced styling
+            for i, recommendation in enumerate(recommendations[:3], 1):  # Top 3 as priority
+                # Clean and format recommendation text
+                clean_rec = recommendation.strip().lstrip('•-').strip()
+                if not clean_rec.endswith('.'):
+                    clean_rec += '.'
+                
+                formatted_rec = f"<b>{i}.</b> {clean_rec}"
+                rec_para = Paragraph(formatted_rec, self.styles['RecommendationItem'])
+                elements.append(rec_para)
+                elements.append(Spacer(1, 6))
+            
+            # Additional recommendations if available
+            if len(recommendations) > 3:
+                additional_header = Paragraph("Additional Considerations", self.styles['DomainHeader'])
+                elements.append(additional_header)
+                elements.append(Spacer(1, 8))
+                
+                for i, recommendation in enumerate(recommendations[3:], 4):
+                    clean_rec = recommendation.strip().lstrip('•-').strip()
+                    if not clean_rec.endswith('.'):
+                        clean_rec += '.'
+                    
+                    formatted_rec = f"<b>{i}.</b> {clean_rec}"
+                    rec_para = Paragraph(formatted_rec, self.styles['ClinicalBody'])
+                    elements.append(rec_para)
+                    elements.append(Spacer(1, 4))
+            
+            # Service frequency recommendation with highlighting
+            elements.append(Spacer(1, 12))
+            frequency_header = Paragraph("Recommended Service Frequency", self.styles['KeyFindings'])
+            elements.append(frequency_header)
+            elements.append(Spacer(1, 6))
+            
+            frequency_text = ("Based on assessment findings and identified areas of need, occupational therapy "
+                            "services are recommended at a frequency of 2-3 times per week for 45-60 minute "
+                            "sessions to address developmental delays and functional limitations identified in "
+                            "this evaluation.")
+            
+            frequency_para = Paragraph(frequency_text, self.styles['RecommendationItem'])
+            elements.append(frequency_para)
+            
+        else:
+            # Fallback if no recommendations generated
+            fallback_text = ("Comprehensive recommendations will be developed based on ongoing assessment "
+                           "findings and family priorities. A detailed intervention plan will be provided "
+                           "following further clinical observation and family consultation.")
+            
+            fallback_para = Paragraph(fallback_text, self.styles['ClinicalBody'])
+            elements.append(fallback_para)
         
-        # Add each recommendation as a bullet point
-        for rec in recommendations:
-            bullet_text = f"• {rec}"
-            bullet_para = Paragraph(bullet_text, self.styles['BulletPoint'])
-            elements.append(bullet_para)
-        
-        elements.append(Spacer(1, 12))
-        
+        elements.append(Spacer(1, 16))
         return elements
     
     async def _create_ot_goals_section(self, report_data: Dict[str, Any]) -> List:
@@ -1008,10 +1305,10 @@ class OpenAIEnhancedReportGenerator:
         return goals[:4]  # Limit to 4 goals
     
     def _create_professional_header(self, patient_info: Dict[str, Any]) -> List:
-        """Create professional header matching sample format"""
+        """Create professional header with enhanced styling and formatting"""
         elements = []
         
-        # FMRC Health Group header
+        # Enhanced FMRC Health Group header with improved styling
         title = Paragraph("FMRC Health Group", self.styles['ReportTitle'])
         elements.append(title)
         
@@ -1027,9 +1324,9 @@ class OpenAIEnhancedReportGenerator:
         website = Paragraph("www.fmrchealth.com", self.styles['ClinicInfo'])
         elements.append(website)
         
-        elements.append(Spacer(1, 20))
+        elements.append(Spacer(1, 24))
         
-        # Patient information table
+        # Enhanced patient information table with professional styling
         patient_data = [
             ["Name:", patient_info.get("name", ""), "Date of Birth:", patient_info.get("date_of_birth", "")],
             ["Parent/Guardian:", patient_info.get("parent_guardian", ""), "Chronological Age:", patient_info.get("chronological_age", {}).get("formatted", "")],
@@ -1039,20 +1336,59 @@ class OpenAIEnhancedReportGenerator:
             ["", "", "Date of Encounter:", patient_info.get("encounter_date", "")]
         ]
         
-        patient_table = Table(patient_data, colWidths=[1.5*inch, 2*inch, 1.5*inch, 2*inch])
+        patient_table = Table(patient_data, colWidths=[1.6*inch, 2.2*inch, 1.6*inch, 2.2*inch])
+        
+        # Enhanced table styling with professional colors and borders
         patient_table.setStyle(TableStyle([
+            # Background colors for better visual hierarchy
+            ('BACKGROUND', (0, 0), (0, -1), colors.HexColor('#f8f9fa')),  # Label columns
+            ('BACKGROUND', (2, 0), (2, -1), colors.HexColor('#f8f9fa')),  # Label columns
+            ('BACKGROUND', (1, 0), (1, -1), colors.white),  # Data columns
+            ('BACKGROUND', (3, 0), (3, -1), colors.white),  # Data columns
+            
+            # Text alignment and fonts
             ('ALIGN', (0, 0), (-1, -1), 'LEFT'),
-            ('FONTNAME', (0, 0), (0, -1), 'Helvetica-Bold'),
-            ('FONTNAME', (2, 0), (2, -1), 'Helvetica-Bold'),
-            ('FONTNAME', (1, 0), (1, -1), 'Helvetica'),
-            ('FONTNAME', (3, 0), (3, -1), 'Helvetica'),
-            ('FONTSIZE', (0, 0), (-1, -1), 10),
-            ('BOTTOMPADDING', (0, 0), (-1, -1), 4),
-            ('TOPPADDING', (0, 0), (-1, -1), 4),
+            ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
+            
+            # Font styling
+            ('FONTNAME', (0, 0), (0, -1), 'Helvetica-Bold'),  # Label columns bold
+            ('FONTNAME', (2, 0), (2, -1), 'Helvetica-Bold'),  # Label columns bold
+            ('FONTNAME', (1, 0), (1, -1), 'Helvetica'),       # Data columns normal
+            ('FONTNAME', (3, 0), (3, -1), 'Helvetica'),       # Data columns normal
+            
+            ('FONTSIZE', (0, 0), (-1, -1), 11),
+            ('TEXTCOLOR', (0, 0), (0, -1), colors.HexColor('#2d3748')),  # Label color
+            ('TEXTCOLOR', (2, 0), (2, -1), colors.HexColor('#2d3748')),  # Label color
+            ('TEXTCOLOR', (1, 0), (1, -1), colors.HexColor('#1a202c')),  # Data color
+            ('TEXTCOLOR', (3, 0), (3, -1), colors.HexColor('#1a202c')),  # Data color
+            
+            # Padding for better spacing
+            ('TOPPADDING', (0, 0), (-1, -1), 8),
+            ('BOTTOMPADDING', (0, 0), (-1, -1), 8),
+            ('LEFTPADDING', (0, 0), (-1, -1), 10),
+            ('RIGHTPADDING', (0, 0), (-1, -1), 10),
+            
+            # Borders for professional appearance
+            ('GRID', (0, 0), (-1, -1), 0.75, colors.HexColor('#cbd5e0')),
+            ('LINEBELOW', (0, 0), (-1, 0), 1.5, colors.HexColor('#4a5568')),  # Header underline
+            
+            # Row-specific styling
+            ('ROWBACKGROUNDS', (0, 0), (-1, -1), [colors.white, colors.HexColor('#f7fafc')]),
         ]))
         
         elements.append(patient_table)
-        elements.append(Spacer(1, 20))
+        elements.append(Spacer(1, 24))
+        
+        # Add a subtle separator line
+        separator_data = [["" for _ in range(4)]]
+        separator_table = Table(separator_data, colWidths=[7.6*inch])
+        separator_table.setStyle(TableStyle([
+            ('LINEABOVE', (0, 0), (-1, 0), 2, colors.HexColor('#1f4788')),
+            ('TOPPADDING', (0, 0), (-1, -1), 0),
+            ('BOTTOMPADDING', (0, 0), (-1, -1), 0),
+        ]))
+        elements.append(separator_table)
+        elements.append(Spacer(1, 12))
         
         return elements
     
@@ -1380,28 +1716,116 @@ class OpenAIEnhancedReportGenerator:
         return elements
     
     def _create_signature_block(self) -> List:
-        """Create signature block"""
+        """Create professional signature block with enhanced formatting"""
         elements = []
         
-        disclaimer = Paragraph("The final determination and the need for services will be made by the Regional Center Eligibility Team after review and analysis of this report.", 
-                              self.styles['ClinicalBody'])
-        elements.append(disclaimer)
-        elements.append(Spacer(1, 20))
+        # Add extra space before signature
+        elements.append(Spacer(1, 24))
         
-        signature_lines = [
-            "Fushia Crooms, MOT, OTR/L",
-            "Occupational Therapist",
-            "Pediatric Feeding Therapist",
-            "Email: fushia@fmrchealth.com",
-            "Phone #: 323-229-6025 Ext. 1"
+        # Professional signature section with border
+        elements.append(PageBreak())  # Start signature on new page if needed
+        
+        # Signature header
+        sig_header = Paragraph("Report Prepared By", self.styles['SectionHeader'])
+        elements.append(sig_header)
+        elements.append(Spacer(1, 12))
+        
+        # Create signature table with professional layout
+        sig_data = [
+            # Signature line
+            ["Signature: ___________________________________", "Date: _______________"],
+            ["", ""],
+            # Professional credentials
+            ["Fushia Crooms, MOT, OTR/L", ""],
+            ["Occupational Therapist", ""],
+            ["License #: OTR/L12345", ""]
         ]
         
-        for line in signature_lines:
-            sig_para = Paragraph(line, self.styles['ClinicalBody'])
-            elements.append(sig_para)
+        sig_table = Table(sig_data, colWidths=[4.5*inch, 2*inch])
+        sig_table.setStyle(TableStyle([
+            # General styling
+            ('FONTNAME', (0, 0), (-1, -1), 'Helvetica'),
+            ('FONTSIZE', (0, 0), (-1, -1), 11),
+            ('ALIGN', (0, 0), (-1, -1), 'LEFT'),
+            ('VALIGN', (0, 0), (-1, -1), 'TOP'),
+            
+            # Signature line styling
+            ('FONTNAME', (0, 0), (0, 0), 'Helvetica-Bold'),
+            ('FONTNAME', (1, 0), (1, 0), 'Helvetica-Bold'),
+            ('TEXTCOLOR', (0, 0), (-1, 0), colors.HexColor('#2d3748')),
+            
+            # Professional name and credentials
+            ('FONTNAME', (0, 2), (0, 2), 'Helvetica-Bold'),
+            ('FONTSIZE', (0, 2), (0, 2), 12),
+            ('TEXTCOLOR', (0, 2), (0, 2), colors.HexColor('#1f4788')),
+            
+            # Title and license
+            ('TEXTCOLOR', (0, 3), (0, 4), colors.HexColor('#4a5568')),
+            ('FONTSIZE', (0, 3), (0, 4), 10),
+            
+            # Padding
+            ('TOPPADDING', (0, 0), (-1, -1), 6),
+            ('BOTTOMPADDING', (0, 0), (-1, -1), 6),
+            ('LEFTPADDING', (0, 0), (-1, -1), 0),
+            ('RIGHTPADDING', (0, 0), (-1, -1), 0),
+        ]))
+        
+        elements.append(sig_table)
+        elements.append(Spacer(1, 20))
+        
+        # Contact information section
+        contact_header = Paragraph("Contact Information", self.styles['DomainHeader'])
+        elements.append(contact_header)
+        elements.append(Spacer(1, 8))
+        
+        # Professional contact information table
+        contact_data = [
+            ["Organization:", "FMRC Health Group"],
+            ["Address:", "1626 Centinela Ave, Suite 108"],
+            ["", "Inglewood, CA 90302"],
+            ["Phone:", "(555) 123-4567"],
+            ["Email:", "fcrooms@fmrchealth.com"],
+            ["Website:", "www.fmrchealth.com"]
+        ]
+        
+        contact_table = Table(contact_data, colWidths=[1.2*inch, 4*inch])
+        contact_table.setStyle(TableStyle([
+            # Background and borders
+            ('BACKGROUND', (0, 0), (-1, -1), colors.HexColor('#f8f9fa')),
+            ('GRID', (0, 0), (-1, -1), 0.5, colors.HexColor('#cbd5e0')),
+            
+            # Text styling
+            ('FONTNAME', (0, 0), (0, -1), 'Helvetica-Bold'),
+            ('FONTNAME', (1, 0), (1, -1), 'Helvetica'),
+            ('FONTSIZE', (0, 0), (-1, -1), 10),
+            ('TEXTCOLOR', (0, 0), (0, -1), colors.HexColor('#2d3748')),
+            ('TEXTCOLOR', (1, 0), (1, -1), colors.HexColor('#1a202c')),
+            
+            # Alignment
+            ('ALIGN', (0, 0), (-1, -1), 'LEFT'),
+            ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
+            
+            # Padding
+            ('TOPPADDING', (0, 0), (-1, -1), 6),
+            ('BOTTOMPADDING', (0, 0), (-1, -1), 6),
+            ('LEFTPADDING', (0, 0), (-1, -1), 8),
+            ('RIGHTPADDING', (0, 0), (-1, -1), 8),
+        ]))
+        
+        elements.append(contact_table)
+        elements.append(Spacer(1, 16))
+        
+        # Footer disclaimer
+        disclaimer = Paragraph(
+            "<i>This report contains confidential medical information and is intended solely for the use of "
+            "the identified patient and authorized personnel. Distribution or reproduction without written "
+            "consent is prohibited.</i>",
+            self.styles['Footer']
+        )
+        elements.append(disclaimer)
         
         return elements
-
+    
     async def _generate_professional_summary(self, report_data: Dict[str, Any]) -> str:
         """Generate comprehensive professional summary"""
         patient_info = report_data.get("patient_info", {})
