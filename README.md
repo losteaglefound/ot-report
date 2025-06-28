@@ -1,300 +1,380 @@
-# Pediatric OT Report Generator - AI-Enhanced Professional System
+# 🩺 Pediatric OT Report Generator
 
-🚀 **NEW: OpenAI-Powered Professional Reports** - Generate detailed, clinical-quality OT evaluation reports matching professional standards using advanced AI.
+**AI-Enhanced Occupational Therapy Report Generation System**
 
-Automated generation of comprehensive pediatric occupational therapy evaluation reports from multiple assessment PDFs using AI-powered processing and professional report formatting.
+An advanced, configurable system for generating professional pediatric occupational therapy evaluation reports from multiple assessment PDFs with optional AI enhancement, Google Docs integration, and email notifications.
 
-## 🌟 AI-Enhanced Features
+## ✨ Key Features
 
-### Professional Report Generation with OpenAI
-- **🧠 AI-Generated Clinical Narratives**: Sophisticated clinical language and detailed behavioral observations
-- **📊 Intelligent Score Interpretation**: Evidence-based analysis of assessment results
-- **🎯 Professional Formatting**: Matches the format and quality of professional OT evaluation reports
-- **📋 SMART Goals Generation**: Specific, measurable treatment goals with timelines
-- **🔍 Clinical Terminology**: Advanced medical and therapeutic language
+- **📄 PDF Report Generation**: Always available core functionality
+- **🧠 AI-Enhanced Reports**: Professional clinical narratives using OpenAI (configurable)
+- **☁️ Google Docs Integration**: Cloud-based report creation and sharing (configurable)  
+- **📧 Email Notifications**: Automatic delivery notifications (configurable)
+- **📊 Multi-Assessment Support**: Bayley-4, SP2, ChOMPS, PediEAT, and more
+- **⚙️ Flexible Configuration**: Easy .env-based setup with optional features
 
-### Report Quality Comparison
+## 🚀 Quick Setup
 
-| Feature | Basic Report | Professional (AI-Enhanced) |
-|---------|-------------|----------------------------|
-| Clinical Narratives | Template-based | AI-generated, sophisticated |
-| Terminology | Standard | Advanced clinical language |
-| Observations | Generic | Detailed, personalized |
-| Score Interpretation | Basic | Evidence-based, comprehensive |
-| Goals | Template | SMART, specific, measurable |
-| Formatting | Standard | Professional clinical format |
-
-## 🌟 Enhanced Automation Features
-
-Based on the automation workflow requirements, this system now supports:
-
-### Multi-Assessment Processing
-- **Facesheet Processing**: Patient demographics and basic information
-- **Bayley-4 Assessments**: Cognitive, Language, Motor, Social-Emotional, and Adaptive Behavior
-- **Sensory Profile 2 (SP2)**: Sensory processing assessment
-- **ChOMPS**: Chicago Oral Motor and Feeding Assessment  
-- **PediEAT**: Pediatric Eating Assessment Tool
-- **Clinical Notes**: Observational notes and behavioral documentation
-
-### Intelligent Data Extraction
-- **Chronological Age Calculation**: Auto-calculates age in years, months, and days from DOB and encounter date
-- **Score Interpretation**: Comprehensive interpretation of standard scores, percentiles, and age equivalents
-- **Bullet-to-Narrative Conversion**: Transforms clinical observations into professional narrative format
-- **Multi-Domain Analysis**: Integrates findings across all assessment domains
-
-### Professional Output Options
-- **Google Docs Integration**: Creates editable reports directly in Google Docs
-- **PDF Generation**: Professional PDF reports with comprehensive formatting
-- **Email Notifications**: Automatic completion notifications with report links
-- **Session Management**: Secure handling of patient data with unique session IDs
-
-## 📋 Assessment Types Supported
-
-### Core Assessments (Required)
-1. **Patient Demographics (Facesheet)**
-   - Patient information, insurance, contact details
-   - Referral information and case history
-
-2. **Bayley-4 Cognitive, Language & Motor Scales**
-   - Cognitive composite scores and domain-specific results
-   - Language development (receptive and expressive)
-   - Fine and gross motor skill assessment
-
-3. **Bayley-4 Social-Emotional & Adaptive Behavior**
-   - Social-emotional development composite
-   - Adaptive behavior across multiple domains
-   - Self-care and community living skills
-
-### Additional Assessments (Optional)
-4. **Sensory Profile 2 (SP2)**
-   - Sensory processing quadrants analysis
-   - Behavioral response patterns
-   - Environmental impact assessment
-
-5. **ChOMPS Feeding Assessment**
-   - Oral motor and feeding skills evaluation
-   - Safety risk assessment
-   - Feeding behavior analysis
-
-6. **PediEAT Assessment**
-   - Eating and feeding difficulties
-   - Physiological and behavioral factors
-   - Mealtime behavior analysis
-
-7. **Clinical Observations & Notes**
-   - Behavioral observations during assessment
-   - Structured clinical notes
-   - Supplementary documentation
-
-## 🚀 Quick Start
-
-### 1. Environment Setup
+### Option 1: Interactive Configuration (Recommended)
 ```bash
-# Clone and navigate to project
-cd /home/lap-49/Documents/ot-report
-
-# Activate virtual environment
-source venv/ot-report/bin/activate
-
-# Install dependencies
+# 1. Clone and setup
+git clone <repository>
+cd ot-report
+python -m venv venv
+source venv/bin/activate  # On Windows: venv\Scripts\activate
 pip install -r requirements.txt
-```
 
-### 2. OpenAI Setup (for Professional Reports)
-```bash
-# Set your OpenAI API key for AI-enhanced reports
-export OPENAI_API_KEY="your-openai-api-key"
+# 2. Run interactive setup
+python setup_config.py
 
-# Or create .env file (recommended)
-echo "OPENAI_API_KEY=your-openai-api-key" > .env
-```
-**📖 See [config_setup.md](config_setup.md) for detailed configuration guide**
-
-### 3. Start the Application
-```bash
-# Start the server
+# 3. Start the application
 python main.py
-
-# Or use uvicorn directly
-uvicorn main:app --host localhost --port 8000 --reload
 ```
 
-### 4. Access the Application
-- Open your browser to: `http://localhost:8000`
-- Upload your assessment PDFs using the enhanced interface
-- Fill in patient information (auto-calculates chronological age)
-- **🎯 Select "Professional (AI-Enhanced)" for clinical-quality reports**
-- **⚡ Or choose "Basic Report" for standard template-based reports**
-- Select output preferences and notification email
-- Generate comprehensive reports
-
-## 📊 Report Generation Workflow
-
-### Input Processing
-1. **File Upload**: Multiple PDF assessments uploaded simultaneously
-2. **Patient Information**: Demographics with automatic age calculation
-3. **Data Extraction**: AI-powered parsing of assessment scores and observations
-4. **Integration**: Cross-assessment analysis and synthesis
-
-### Content Generation
-1. **Assessment Results**: Detailed scores, percentiles, and interpretations
-2. **Clinical Observations**: Professional narrative from bullet points
-3. **Strengths & Needs**: Evidence-based identification across domains
-4. **Recommendations**: Targeted intervention strategies
-5. **Treatment Goals**: Short-term and long-term objectives
-
-### Output Delivery
-1. **Google Docs**: Live, editable reports with professional formatting
-2. **PDF Download**: Print-ready comprehensive evaluation reports
-3. **Email Notification**: Automatic delivery with secure links
-4. **Session Management**: Secure data handling and cleanup
-
-## 🔧 Configuration Options
-
-### Google Docs Integration
-To enable Google Docs output, set up service account credentials:
-
+### Option 2: Manual Configuration
 ```bash
-# Set environment variable for credentials
-export GOOGLE_APPLICATION_CREDENTIALS="/path/to/service_account.json"
+# 1. Setup environment
+git clone <repository>
+cd ot-report
+python -m venv venv
+source venv/bin/activate
+pip install -r requirements.txt
+
+# 2. Configure manually
+cp .env.example .env
+# Edit .env with your preferred settings
+
+# 3. Start the application
+python main.py
 ```
 
-### Email Notifications
-Configure email settings using environment variables:
+## ⚙️ Configuration Options
 
+The application uses a `.env` file for configuration. All features are optional and can be enabled/disabled as needed.
+
+### 🧠 OpenAI Configuration (AI-Enhanced Reports)
 ```bash
-export EMAIL_USER="your-email@gmail.com"
-export EMAIL_PASSWORD="your-app-password"
-export SMTP_SERVER="smtp.gmail.com"
-export SMTP_PORT="587"
+OPENAI_API_KEY=your_openai_api_key_here
+OPENAI_MODEL=gpt-3.5-turbo
 ```
 
-### Optional Dependencies
-For enhanced features:
+**Setup Instructions:**
+1. Visit: https://platform.openai.com/api-keys
+2. Create an API key
+3. Add to your `.env` file
+
+**Benefits:** Professional clinical narratives, sophisticated interpretations, evidence-based content
+
+### 📧 Email Configuration (Notifications)
 ```bash
-pip install google-api-python-client google-auth yagmail
+EMAIL_ADDRESS=your_email@gmail.com
+EMAIL_PASSWORD=your_16_character_app_password
+SMTP_SERVER=smtp.gmail.com
+SMTP_PORT=587
+DEFAULT_RECIPIENT=fushia.crooms@gmail.com
 ```
 
-## 📁 Project Structure
+**Setup Instructions:**
+1. Enable 2-factor authentication on your Gmail account
+2. Generate an App Password: https://myaccount.google.com/apppasswords
+3. Use the 16-character app password (not your regular Gmail password)
 
+**Benefits:** Automatic email notifications when reports are generated and shared
+
+### 🔧 Google Docs Integration
+
+The system now supports **both** Google authentication methods:
+
+### 📱 **OAuth2 Client Credentials (Recommended for individual use)**
+✅ **CURRENTLY CONFIGURED AND WORKING**
+
+Your system is configured with OAuth2 client credentials and has been successfully authorized!
+
+**Setup Process:**
+1. ✅ Downloaded OAuth2 client credentials from Google Cloud Console  
+2. ✅ Set `GOOGLE_SERVICE_ACCOUNT_FILE` environment variable
+3. ✅ OAuth2 authorization flow completed automatically
+4. ✅ `token.json` file created with valid credentials
+
+**Files Created:**
+- `token.json` - Contains your authorized OAuth2 tokens (automatically refreshed)
+
+### 🔐 **Service Account (Alternative for server deployments)**
+Alternative method using service account JSON files for server-to-server authentication.
+
+**Authentication Methods Supported:**
+- ✅ OAuth2 Client Credentials (`client_secret_*.json`) - **Active**
+- ✅ Service Account Credentials (`service_account.json`) - Available
+- ✅ Automatic credential type detection
+- ✅ Token refresh and management
+- ✅ Comprehensive validation and error reporting
+
+**Google APIs Enabled:**
+- ✅ Google Docs API - For document creation
+- ✅ Google Drive API - For file sharing and permissions
+
+### 🔧 Application Settings
+```bash
+APP_HOST=127.0.0.1
+APP_PORT=8000
+DEBUG_MODE=false
+DEFAULT_REPORT_TYPE=professional
+DEFAULT_OUTPUT_FORMAT=pdf
+MAX_FILE_SIZE_MB=50
+LOG_LEVEL=INFO
+LOG_TO_FILE=true
 ```
-ot-report/
-├── main.py                     # Enhanced FastAPI application
-├── pdf_processor.py            # Multi-assessment PDF processing
-├── report_generator.py         # Comprehensive report generation
-├── google_docs_integration.py  # Google Docs API integration
-├── email_notifier.py          # Email notification system
-├── templates/
-│   ├── index.html             # Enhanced multi-upload interface
-│   └── result.html            # Results with multiple output options
-├── uploads/                   # Temporary file storage
-├── outputs/                   # Generated reports and logs
-├── requirements.txt           # All dependencies
-└── README.md                 # This file
+
+## 📊 Feature Comparison
+
+| Feature | Without Configuration | With Full Configuration |
+|---------|----------------------|------------------------|
+| **PDF Reports** | ✅ Basic professional reports | ✅ Enhanced professional reports |
+| **Clinical Narratives** | ✅ Enhanced fallback templates | 🧠 AI-generated clinical content |
+| **Report Delivery** | ✅ Download links | 📧 Email notifications + ☁️ Google Docs |
+| **Collaboration** | ❌ Local files only | ✅ Cloud sharing and editing |
+| **Customization** | ⚠️ Limited options | ✅ Full configuration control |
+
+## 📱 Usage
+
+1. **Start the application**: `python main.py`
+2. **Open browser**: Navigate to `http://localhost:8000`
+3. **Upload assessments**: 
+   - Required: Bayley-4 Cognitive/Language/Motor + Social-Emotional/Adaptive
+   - Optional: SP2, ChOMPS, PediEAT, Clinical Notes, Facesheet
+4. **Configure report**: Select report type and output format
+5. **Generate report**: System processes files and creates comprehensive evaluation
+
+## 🧪 Testing Features
+
+The application provides dedicated endpoints for testing individual features:
+
+### Test Email Integration
+```bash
+# Test email functionality (POST request)
+curl -X POST "http://localhost:8000/test/email" \
+  -F "recipient_email=test@example.com" \
+  -F "test_message=Custom test message"
+
+# Or use default recipient from config
+curl -X POST "http://localhost:8000/test/email"
 ```
 
-## 🎯 Key Features
+**Response includes:**
+- ✅ Success/failure status
+- 📧 SMTP server details  
+- 🔧 Troubleshooting information
+- 📝 Configuration validation
 
-### Enhanced Data Processing
-- **Multi-PDF Processing**: Simultaneous handling of different assessment types
-- **Intelligent Parsing**: Context-aware extraction of scores and observations
-- **Age Calculation**: Automatic chronological age computation
-- **Score Interpretation**: Professional-level analysis of assessment results
+### Test Google Docs Integration
+```bash
+# Test Google Docs document creation
+curl -X POST "http://localhost:8000/test/google-docs"
+```
 
-### Professional Report Generation
-- **Comprehensive Structure**: Background, results, observations, findings, recommendations
-- **Clinical Formatting**: Professional medical report standards
-- **Multi-Domain Integration**: Synthesis across all assessment areas
-- **Evidence-Based Content**: Research-informed interpretations and recommendations
+**Response includes:**
+- ✅ Success/failure status
+- 🔗 Generated document URL
+- 📄 Service account validation
+- 🔧 API permissions check
 
-### Modern User Experience
-- **Intuitive Interface**: Clear upload areas for different assessment types
-- **Progress Tracking**: Real-time processing updates
-- **Flexible Output**: Choice of Google Docs, PDF, or both
-- **Email Integration**: Automatic notifications with secure links
+### Test OpenAI Integration
+```bash
+# Test OpenAI API connection and text generation
+curl -X GET "http://localhost:8000/test/openai"
+```
 
-### Security & Compliance
-- **Session-Based Security**: Unique session IDs for data protection
-- **Temporary Storage**: Automatic cleanup of uploaded files
-- **HIPAA Considerations**: Secure handling of patient information
-- **Error Handling**: Comprehensive error reporting and recovery
+**Response includes:**
+- ✅ Success/failure status
+- 🤖 Generated sample text
+- 📊 Model information
+- 💰 API key validation
 
-## 📋 Usage Examples
+### Common Testing Scenarios
 
-### Basic Workflow
-1. **Access Application**: Navigate to `http://localhost:8000`
-2. **Enter Patient Info**: Name, DOB, encounter date (age auto-calculated)
-3. **Upload Assessments**: 
-   - Required: Facesheet, Bayley-4 Cognitive, Bayley-4 Social-Emotional
-   - Optional: SP2, ChOMPS, PediEAT, Clinical Notes
-4. **Set Preferences**: Output format and notification email
-5. **Generate Report**: Comprehensive processing and professional output
+**Email Testing:**
+- Verifies SMTP connectivity
+- Tests Gmail App Password authentication
+- Validates recipient delivery
+- Checks HTML/text formatting
 
-### Advanced Features
-- **Multiple Assessment Types**: Upload any combination of supported assessments
-- **Automatic Integration**: Synthesizes findings across all uploaded assessments
-- **Professional Narratives**: Converts clinical observations to narrative format
-- **Treatment Planning**: Evidence-based goals and recommendations
+**Google Docs Testing:**
+- Validates service account permissions
+- Tests document creation and sharing
+- Verifies API quota and access
+- Checks Drive folder permissions
 
-## 🔧 Troubleshooting
+**OpenAI Testing:**
+- Validates API key and credits
+- Tests model availability
+- Checks rate limiting
+- Verifies response generation
+
+### Troubleshooting with Test Endpoints
+
+**Email Issues:**
+```bash
+# Test with specific recipient
+curl -X POST "http://localhost:8000/test/email" \
+  -F "recipient_email=your-email@gmail.com"
+
+# Check response for specific error details
+```
+
+**Google Docs Issues:**
+```bash
+# Test document creation
+curl -X POST "http://localhost:8000/test/google-docs"
+
+# Check response for service account errors
+```
+
+**OpenAI Issues:**
+```bash
+# Test API connection
+curl -X GET "http://localhost:8000/test/openai"
+
+# Check response for model/credit issues
+```
+
+## 🔧 Supported Assessments
+
+| Assessment | Type | Description |
+|------------|------|-------------|
+| **Bayley-4 Cognitive/Language/Motor** | Required | Primary developmental assessment |
+| **Bayley-4 Social-Emotional/Adaptive** | Required | Social-emotional and adaptive behavior |
+| **Sensory Profile 2 (SP2)** | Optional | Sensory processing assessment |
+| **ChOMPS** | Optional | Feeding assessment tool |
+| **PediEAT** | Optional | Pediatric eating assessment |
+| **Clinical Notes** | Optional | Therapist observations |
+| **Patient Facesheet** | Optional | Demographics and basic info |
+
+## 📋 System Requirements
+
+- **Python**: 3.8 or higher
+- **Memory**: 2GB RAM minimum
+- **Storage**: 1GB free space
+- **Network**: Internet connection (for AI features)
+
+## 🔍 Health Monitoring
+
+The application provides comprehensive health monitoring:
+
+- **Health Check**: `GET /health` - System status and feature availability
+- **Configuration Status**: `GET /config` - Current configuration summary
+- **Startup Dashboard**: Detailed component status on application start
+
+## 🎛️ Configuration Management
+
+### Interactive Setup
+Run `python setup_config.py` for guided configuration with:
+- Step-by-step prompts
+- Default value suggestions
+- Feature explanation
+- Validation and backup
+
+### Manual Configuration
+Edit `.env` file directly or use environment variables:
+```bash
+export OPENAI_API_KEY="your-key-here"
+export DEFAULT_REPORT_TYPE="professional"
+python main.py
+```
+
+### Configuration Validation
+The system automatically:
+- ✅ Validates all configuration options
+- ⚠️ Warns about missing optional features
+- 📊 Shows available features on startup
+- 🔄 Gracefully handles missing configurations
+
+## 🚨 Troubleshooting
 
 ### Common Issues
 
-**PDF Processing Errors**
-- Ensure PDFs are text-based (not scanned images)
-- Verify files contain expected assessment data
-- Check file sizes (recommended < 10MB each)
+**"OpenAI client not available"**
+- Add `OPENAI_API_KEY` to `.env` file
+- Verify API key is valid and has sufficient credits
+- Reports will use enhanced fallback templates
 
-**Google Docs Integration**
-- Verify service account credentials are properly configured
-- Check Google API permissions and scopes
-- Ensure network connectivity for API calls
+**"Google Docs service not available"**
+- Add `service_account.json` file to project directory
+- Verify Google APIs are enabled in your project
+- Check service account permissions
 
-**Email Notifications**
-- Verify email credentials and SMTP settings
-- Check app-specific passwords for Gmail
-- Review firewall/network restrictions
+**"Email notifications disabled"**
+- Add `EMAIL_ADDRESS` and `EMAIL_PASSWORD` to `.env`
+- Use Gmail App Password, not regular password
+- Verify 2-factor authentication is enabled
 
-## 📞 Support & Development
+**Port already in use**
+- Change `APP_PORT` in `.env` file
+- Or kill existing process: `lsof -ti:8000 | xargs kill -9`
 
-### System Requirements
-- Python 3.8+
-- FastAPI framework
-- PDF processing libraries (pdfplumber, PyPDF2)
-- Optional: Google API libraries, email libraries
-
-### API Endpoints
-- `GET /`: Main upload interface
-- `POST /upload-files/`: Enhanced multi-file processing
-- `GET /download/{session_id}`: PDF download
-- `GET /download-text/{session_id}`: Text fallback
-- `GET /health`: System health check
-
-### Development Mode
+### Debug Mode
+Enable detailed logging:
 ```bash
-# Start with auto-reload for development
-uvicorn main:app --reload --host 0.0.0.0 --port 8000
+DEBUG_MODE=true
+LOG_LEVEL=DEBUG
 ```
 
-## 📄 Version History
+## 🔄 Migration from Previous Versions
 
-### v2.0.0 - Enhanced Automation
-- Multi-assessment PDF processing (Bayley-4, SP2, ChOMPS, PediEAT)
-- Google Docs integration with professional formatting
-- Email notification system
-- Chronological age auto-calculation
-- Bullet-to-narrative conversion
-- Enhanced UI with categorized uploads
-- Session-based security improvements
-- Comprehensive error handling
+If upgrading from a previous version:
 
-### v1.0.0 - Initial Release
-- Basic Bayley-4 report processing
-- PDF report generation
-- Simple web interface
-- Core assessment functionality
+1. **Backup existing configuration**:
+   ```bash
+   cp .env .env.backup  # If exists
+   ```
+
+2. **Run configuration setup**:
+   ```bash
+   python setup_config.py
+   ```
+
+3. **Start with new configuration**:
+   ```bash
+   python main.py
+   ```
+
+## 📈 Performance
+
+- **Startup Time**: < 5 seconds
+- **Report Generation**: 10-30 seconds (depending on features)
+- **File Processing**: Supports files up to 50MB (configurable)
+- **Concurrent Users**: Supports multiple simultaneous report generations
+
+## 🛡️ Security
+
+- **API Keys**: Stored securely in `.env` file (not committed to version control)
+- **File Handling**: Temporary files automatically cleaned up
+- **Service Accounts**: Google service account credentials isolated
+- **Network**: Configurable host/port binding
+
+## 📞 Support
+
+### Quick Start Issues
+1. Run `python setup_config.py` for guided setup
+2. Check `logs/app.log` for detailed error information
+3. Verify all requirements are installed: `pip install -r requirements.txt`
+
+### Feature-Specific Help
+- **OpenAI Issues**: Check API key validity and model availability
+- **Google Docs Issues**: Verify service account permissions and API enablement
+- **Email Issues**: Confirm App Password setup and 2FA enabled
+
+### Development
+- **Debug Mode**: Set `DEBUG_MODE=true` for detailed logging
+- **Log Files**: Check `logs/app.log` for system events
+- **Health Endpoint**: Monitor `/health` for component status
 
 ---
 
-**FMRC Health Group - Pediatric OT Report Generator**  
-*Automated Excellence in Pediatric Occupational Therapy Documentation* 
+## 🎯 Quick Feature Enable Guide
+
+**Want AI-enhanced reports?** → Add `OPENAI_API_KEY` to `.env`  
+**Want email notifications?** → Add `EMAIL_ADDRESS` and `EMAIL_PASSWORD` to `.env`  
+**Want Google Docs integration?** → Add `service_account.json` file  
+**Want all features?** → Run `python setup_config.py` for guided setup  
+
+The system works with any combination of features - enable what you need, when you need it! 🚀 

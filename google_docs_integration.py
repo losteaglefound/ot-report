@@ -6,6 +6,8 @@ import logging
 
 try:
     from google.oauth2 import service_account
+    from google.oauth2.credentials import Credentials
+    from google_auth_oauthlib.flow import InstalledAppFlow
     from googleapiclient.discovery import build
     from googleapiclient.errors import HttpError
     GOOGLE_APIS_AVAILABLE = True
@@ -27,38 +29,57 @@ class GoogleDocsReportGenerator:
         self.logger = logging.getLogger(f"{__name__}.{self.__class__.__name__}")
         self.logger.info("📄 Initializing Google Docs Report Generator...")
         
+        # Check for Google API availability first
+        if not GOOGLE_APIS_AVAILABLE:
+            self.logger.error("❌ Google API libraries not available")
+            self.service = None
+            self.drive_service = None
+            return
+        
+        # Set up credentials path
+        self.credentials_path = os.getenv('GOOGLE_SERVICE_ACCOUNT_FILE', 'service_account.json')
+        
         self.service = None
         self.drive_service = None
         self.template_doc_id = None  # Template document ID if using templates
         self._initialize_google_services()
     
     def _initialize_google_services(self):
-        """Initialize Google Docs and Drive services"""
+        """Initialize Google Docs and Drive services with enhanced validation"""
         self.logger.info("🔑 Initializing Google services...")
         
-        if not GOOGLE_APIS_AVAILABLE:
-            self.logger.error("❌ Google API libraries not available")
-            return
-        
-        # Check for service account credentials
-        credentials_path = os.getenv('GOOGLE_APPLICATION_CREDENTIALS', 'service_account.json')
+        credentials_path = self.credentials_path
         self.logger.info(f"🔍 Looking for credentials at: {credentials_path}")
         
         if not os.path.exists(credentials_path):
-            self.logger.warning(f"⚠️ Service account file not found at {credentials_path}")
+            self.logger.warning(f"⚠️ Credentials file not found at {credentials_path}")
             self.logger.info("💡 Google Docs integration will be unavailable")
             return
         
         try:
-            # Load service account credentials
-            self.logger.info("📋 Loading service account credentials...")
-            credentials = service_account.Credentials.from_service_account_file(
-                credentials_path,
-                scopes=[
-                    'https://www.googleapis.com/auth/documents',
-                    'https://www.googleapis.com/auth/drive'
-                ]
-            )
+            # First, validate and detect the credentials file type
+            self.logger.info("🔍 Validating credentials file format...")
+            validation_result = self._validate_credentials_file(credentials_path)
+            
+            if not validation_result['valid']:
+                self.logger.error(f"❌ Credentials file validation failed: {validation_result['error']}")
+                self.logger.info("💡 Please check your Google credentials JSON file format")
+                return
+            
+            self.logger.info(f"✅ Credentials file format validated: {validation_result['type']}")
+            
+            # Initialize based on credentials type
+            if validation_result['type'] == 'service_account':
+                credentials = self._initialize_service_account(credentials_path)
+            elif validation_result['type'] == 'oauth_client':
+                credentials = self._initialize_oauth_client(credentials_path)
+            else:
+                self.logger.error(f"❌ Unsupported credentials type: {validation_result['type']}")
+                return
+            
+            if not credentials:
+                self.logger.error("❌ Failed to obtain valid credentials")
+                return
             
             # Build services
             self.logger.info("🔨 Building Google Docs service...")
@@ -83,6 +104,239 @@ class GoogleDocsReportGenerator:
             self.logger.error(f"❌ Failed to initialize Google services: {e}")
             self.service = None
             self.drive_service = None
+    
+    def _initialize_service_account(self, credentials_path: str):
+        """Initialize using service account credentials"""
+        try:
+            self.logger.info("🔑 Loading service account credentials...")
+            credentials = service_account.Credentials.from_service_account_file(
+                credentials_path,
+                scopes=[
+                    'https://www.googleapis.com/auth/documents',
+                    'https://www.googleapis.com/auth/drive'
+                ]
+            )
+            self.logger.info("✅ Service account credentials loaded")
+            return credentials
+        except Exception as e:
+            self.logger.error(f"❌ Failed to load service account credentials: {e}")
+            return None
+    
+    def _initialize_oauth_client(self, credentials_path: str):
+        """Initialize using OAuth2 client credentials"""
+        try:
+            self.logger.info("🔑 Loading OAuth2 client credentials...")
+            
+            # Check if we have existing token file
+            token_file = 'token.json'
+            credentials = None
+            
+            if os.path.exists(token_file):
+                self.logger.info("🎫 Found existing token file, loading credentials...")
+                try:
+                    credentials = Credentials.from_authorized_user_file(
+                        token_file,
+                        scopes=[
+                            'https://www.googleapis.com/auth/documents',
+                            'https://www.googleapis.com/auth/drive'
+                        ]
+                    )
+                    if credentials and credentials.valid:
+                        self.logger.info("✅ Existing credentials are valid")
+                        return credentials
+                    elif credentials and credentials.expired and credentials.refresh_token:
+                        self.logger.info("🔄 Refreshing expired credentials...")
+                        credentials.refresh()
+                        # Save refreshed credentials
+                        with open(token_file, 'w') as token:
+                            token.write(credentials.to_json())
+                        self.logger.info("✅ Credentials refreshed successfully")
+                        return credentials
+                except Exception as e:
+                    self.logger.warning(f"⚠️ Failed to load existing credentials: {e}")
+            
+            # Need to run OAuth flow
+            self.logger.info("🔐 Starting OAuth2 authorization flow...")
+            self.logger.info("⚠️ This will open a browser window for authorization")
+            
+            flow = InstalledAppFlow.from_client_secrets_file(
+                credentials_path,
+                scopes=[
+                    'https://www.googleapis.com/auth/documents',
+                    'https://www.googleapis.com/auth/drive'
+                ]
+            )
+            
+            # Run local server for authorization
+            credentials = flow.run_local_server(port=0)
+            
+            # Save credentials for future use
+            with open(token_file, 'w') as token:
+                token.write(credentials.to_json())
+            
+            self.logger.info("✅ OAuth2 authorization completed and credentials saved")
+            return credentials
+            
+        except Exception as e:
+            self.logger.error(f"❌ Failed to initialize OAuth2 credentials: {e}")
+            self.logger.info("💡 Make sure you have a valid client_secret.json file and can access a web browser")
+            return None
+    
+    def _validate_credentials_file(self, file_path: str) -> Dict[str, Any]:
+        """Validate and detect the type of Google credentials JSON file"""
+        try:
+            with open(file_path, 'r') as f:
+                content = f.read().strip()
+            
+            # Check if file is empty
+            if not content:
+                return {
+                    'valid': False,
+                    'error': 'Credentials file is empty'
+                }
+            
+            # Try to parse JSON
+            try:
+                credentials_data = json.loads(content)
+            except json.JSONDecodeError as e:
+                return {
+                    'valid': False,
+                    'error': f'Invalid JSON format: {e}'
+                }
+            
+            # Check if it's a dictionary
+            if not isinstance(credentials_data, dict):
+                return {
+                    'valid': False,
+                    'error': 'Credentials file must contain a JSON object'
+                }
+            
+            # Detect credentials type
+            if 'type' in credentials_data and credentials_data.get('type') == 'service_account':
+                # Service account credentials
+                return self._validate_service_account_credentials(credentials_data)
+            elif 'installed' in credentials_data or 'web' in credentials_data or ('client_id' in credentials_data and 'client_secret' in credentials_data):
+                # OAuth2 client credentials (check for 'installed'/'web' first, then direct format)
+                return self._validate_oauth_client_credentials(credentials_data)
+            else:
+                return {
+                    'valid': False,
+                    'error': 'Unknown credentials type. Expected either service account or OAuth2 client credentials',
+                    'help': 'File should be either a service account JSON or OAuth2 client secrets JSON',
+                    'found_fields': list(credentials_data.keys())
+                }
+            
+        except Exception as e:
+            return {
+                'valid': False,
+                'error': f'Error reading credentials file: {e}'
+            }
+    
+    def _validate_service_account_credentials(self, credentials_data: Dict[str, Any]) -> Dict[str, Any]:
+        """Validate service account credentials format"""
+        required_fields = [
+            'type',
+            'project_id',
+            'private_key_id',
+            'private_key',
+            'client_email',
+            'client_id',
+            'auth_uri',
+            'token_uri',
+            'auth_provider_x509_cert_url',
+            'client_x509_cert_url'
+        ]
+        
+        missing_fields = []
+        for field in required_fields:
+            if field not in credentials_data:
+                missing_fields.append(field)
+        
+        if missing_fields:
+            return {
+                'valid': False,
+                'type': 'service_account',
+                'error': f'Missing required service account fields: {", ".join(missing_fields)}',
+                'missing_fields': missing_fields,
+                'found_fields': list(credentials_data.keys()),
+                'help': 'This should be a Google Cloud service account JSON file downloaded from the Google Cloud Console'
+            }
+        
+        # Additional validation for key fields
+        if not credentials_data.get('client_email', '').endswith('@'):
+            return {
+                'valid': False,
+                'type': 'service_account',
+                'error': 'Invalid client_email format - should be a valid email address'
+            }
+        
+        if not credentials_data.get('private_key', '').startswith('-----BEGIN'):
+            return {
+                'valid': False,
+                'type': 'service_account',
+                'error': 'Invalid private_key format - should start with "-----BEGIN"'
+            }
+        
+        return {
+            'valid': True,
+            'type': 'service_account',
+            'project_id': credentials_data.get('project_id'),
+            'client_email': credentials_data.get('client_email')
+        }
+    
+    def _validate_oauth_client_credentials(self, credentials_data: Dict[str, Any]) -> Dict[str, Any]:
+        """Validate OAuth2 client credentials format"""
+        
+        # Check if it has the 'installed' or 'web' application type
+        app_type = None
+        app_data = None
+        
+        if 'installed' in credentials_data:
+            app_type = 'installed'
+            app_data = credentials_data['installed']
+        elif 'web' in credentials_data:
+            app_type = 'web'
+            app_data = credentials_data['web']
+        else:
+            # Check for direct client credentials (older format)
+            if 'client_id' in credentials_data and 'client_secret' in credentials_data:
+                app_type = 'direct'
+                app_data = credentials_data
+        
+        if not app_data:
+            return {
+                'valid': False,
+                'type': 'oauth_client',
+                'error': 'OAuth2 client credentials must have "installed", "web", or direct client_id/client_secret fields',
+                'found_fields': list(credentials_data.keys()),
+                'help': 'This should be a Google OAuth2 client secrets JSON file downloaded from Google Cloud Console'
+            }
+        
+        # Required fields for OAuth2 client
+        required_fields = ['client_id', 'client_secret']
+        missing_fields = []
+        
+        for field in required_fields:
+            if field not in app_data:
+                missing_fields.append(field)
+        
+        if missing_fields:
+            return {
+                'valid': False,
+                'type': 'oauth_client',
+                'error': f'Missing required OAuth2 client fields: {", ".join(missing_fields)}',
+                'missing_fields': missing_fields,
+                'found_fields': list(app_data.keys()),
+                'help': 'OAuth2 client credentials must include client_id and client_secret'
+            }
+        
+        return {
+            'valid': True,
+            'type': 'oauth_client',
+            'app_type': app_type,
+            'client_id': app_data.get('client_id'),
+            'project_id': app_data.get('project_id', 'Unknown')
+        }
     
     async def create_report(self, report_data: Dict[str, Any], session_id: str) -> str:
         """Create a comprehensive OT report in Google Docs"""
@@ -612,4 +866,172 @@ class GoogleDocsReportGenerator:
         content.extend(self._format_recommendations(report_data))
         content.extend(self._format_summary(report_data))
         
-        return content 
+        return content
+    
+    def _create_header_requests(self, report_data: Dict[str, Any]) -> List[Dict]:
+        """Create header section requests for Google Docs"""
+        requests = []
+        patient_info = report_data['patient_info']
+        
+        # Header content
+        header_text = f"""PEDIATRIC OCCUPATIONAL THERAPY EVALUATION REPORT
+
+FMRC Health Group
+
+Client Name: {patient_info.get('name', '')}
+Date of Birth: {patient_info.get('date_of_birth', '')}
+Chronological Age: {patient_info.get('chronological_age', {}).get('formatted', '')}
+UCI Number: {patient_info.get('uci_number', '')}
+Sex: {patient_info.get('sex', '')}
+Language: {patient_info.get('language', '')}
+Parent/Guardian: {patient_info.get('parent_guardian', '')}
+Date of Encounter: {patient_info.get('encounter_date', '')}
+Date of Report: {patient_info.get('report_date', '')}
+
+"""
+        
+        # Insert header text
+        requests.append({
+            'insertText': {
+                'location': {'index': 1},
+                'text': header_text
+            }
+        })
+        
+        return requests
+    
+    def _create_patient_info_requests(self, report_data: Dict[str, Any]) -> List[Dict]:
+        """Create patient information section requests"""
+        requests = []
+        patient_info = report_data['patient_info']
+        
+        info_text = f"""PATIENT INFORMATION
+
+Name: {patient_info.get('name', '')}
+Date of Birth: {patient_info.get('date_of_birth', '')}
+Age: {patient_info.get('chronological_age', {}).get('formatted', '')}
+Parent/Guardian: {patient_info.get('parent_guardian', '')}
+UCI Number: {patient_info.get('uci_number', '')}
+
+"""
+        
+        requests.append({
+            'insertText': {
+                'location': {'index': 1},
+                'text': info_text
+            }
+        })
+        
+        return requests
+    
+    def _create_background_requests(self, report_data: Dict[str, Any]) -> List[Dict]:
+        """Create background section requests"""
+        requests = []
+        patient_name = report_data['patient_info'].get('name', 'the client')
+        
+        background_text = f"""BACKGROUND INFORMATION
+
+This pediatric occupational therapy evaluation was conducted to assess {patient_name}'s developmental skills and functional abilities across multiple domains. The comprehensive assessment included standardized testing using validated pediatric assessment tools to evaluate cognitive, motor, sensory processing, feeding, and adaptive behavior skills.
+
+"""
+        
+        requests.append({
+            'insertText': {
+                'location': {'index': 1},
+                'text': background_text
+            }
+        })
+        
+        return requests
+    
+    def _create_assessment_results_requests(self, report_data: Dict[str, Any]) -> List[Dict]:
+        """Create assessment results section requests"""
+        requests = []
+        assessments = report_data.get('assessments', {})
+        
+        results_text = "ASSESSMENT RESULTS\n\n"
+        
+        # Add Bayley-4 results if available
+        if assessments.get('bayley4'):
+            bayley_content = self._format_bayley4_results(assessments['bayley4'])
+            results_text += ''.join(bayley_content)
+        
+        # Add SP2 results if available
+        if assessments.get('sp2'):
+            sp2_content = self._format_sp2_results(assessments['sp2'])
+            results_text += ''.join(sp2_content)
+        
+        # Add ChOMPS results if available
+        if assessments.get('chomps'):
+            chomps_content = self._format_chomps_results(assessments['chomps'])
+            results_text += ''.join(chomps_content)
+        
+        # Add PediEAT results if available
+        if assessments.get('pedieat'):
+            pedieat_content = self._format_pedieat_results(assessments['pedieat'])
+            results_text += ''.join(pedieat_content)
+        
+        # Add clinical observations
+        clinical_content = self._format_clinical_observations(report_data)
+        results_text += ''.join(clinical_content)
+        
+        requests.append({
+            'insertText': {
+                'location': {'index': 1},
+                'text': results_text
+            }
+        })
+        
+        return requests
+    
+    def _create_recommendations_requests(self, report_data: Dict[str, Any]) -> List[Dict]:
+        """Create recommendations section requests"""
+        requests = []
+        
+        recommendations_content = self._format_recommendations(report_data)
+        recommendations_text = ''.join(recommendations_content)
+        
+        requests.append({
+            'insertText': {
+                'location': {'index': 1},
+                'text': recommendations_text
+            }
+        })
+        
+        return requests
+    
+    def _create_goals_requests(self, report_data: Dict[str, Any]) -> List[Dict]:
+        """Create treatment goals section requests"""
+        requests = []
+        
+        goals_content = self._format_treatment_goals(report_data)
+        goals_text = ''.join(goals_content)
+        
+        requests.append({
+            'insertText': {
+                'location': {'index': 1},
+                'text': goals_text
+            }
+        })
+        
+        return requests
+    
+    def _create_signature_requests(self) -> List[Dict]:
+        """Create signature block requests"""
+        requests = []
+        
+        signature_text = f"""
+_________________________________
+Occupational Therapist
+FMRC Health Group
+Date: {datetime.now().strftime('%B %d, %Y')}
+"""
+        
+        requests.append({
+            'insertText': {
+                'location': {'index': 1},
+                'text': signature_text
+            }
+        })
+        
+        return requests 

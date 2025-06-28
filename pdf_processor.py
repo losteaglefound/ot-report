@@ -247,9 +247,8 @@ class EnhancedPDFProcessor:
         
         return text_content
     
-    async def _extract_facesheet_data(self, pdf_path: str) -> Dict[str, Any]:
+    async def _extract_facesheet_data(self, text_content: str) -> Dict[str, Any]:
         """Extract patient demographics and basic information from facesheet"""
-        text = await self._extract_text_from_pdf(pdf_path)
         
         data = {
             "report_type": "facesheet",
@@ -275,19 +274,20 @@ class EnhancedPDFProcessor:
         
         for field, pattern_list in patterns.items():
             for pattern in pattern_list:
-                match = re.search(pattern, text, re.IGNORECASE)
+                match = re.search(pattern, text_content, re.IGNORECASE)
                 if match:
                     data["patient_info"][field] = match.group(1).strip()
                     break
         
         return data
     
-    async def _extract_bayley4_data(self, pdf_path: str, assessment_type: str) -> Dict[str, Any]:
-        """Extract Bayley-4 assessment data with enhanced interpretation"""
-        text = await self._extract_text_from_pdf(pdf_path)
+    async def _extract_bayley4_data(self, text_content: str, assessment_type: str) -> Dict[str, Any]:
+        """Extract Bayley-4 assessment data with enhanced pattern recognition"""
+        self.logger.info(f"🔍 Extracting Bayley-4 data from {assessment_type}")
         
         data = {
             "report_type": assessment_type,
+            "patient_info": {},
             "raw_scores": {},
             "scaled_scores": {},
             "composite_scores": {},
@@ -300,70 +300,194 @@ class EnhancedPDFProcessor:
             "recommendations": []
         }
         
+        # Extract patient information first
+        patient_patterns = {
+            "name": [r"Name:\s*([^\n\r]+)", r"Examinee.*?Name:\s*([^\n\r]+)"],
+            "birth_date": [r"Birth Date:\s*([^\n\r]+)", r"Date of Birth:\s*([^\n\r]+)"],
+            "test_date": [r"Test Date:\s*([^\n\r]+)"],
+            "test_age": [r"Test Age.*?(\d+:\d+)", r"Chronological Age.*?(\d+ Months)"],
+            "examiner": [r"Examiner Name:\s*([^\n\r]+)"],
+            "gender": [r"Gender:\s*([^\n\r]+)"]
+        }
+        
+        for field, patterns in patient_patterns.items():
+            for pattern in patterns:
+                match = re.search(pattern, text_content, re.IGNORECASE)
+                if match:
+                    data["patient_info"][field] = match.group(1).strip()
+                    self.logger.info(f"✅ Extracted {field}: {match.group(1).strip()}")
+                    break
+        
         if "cognitive" in assessment_type:
-            # Extract cognitive, language, and motor data
-            domains = [
-                "Cognitive", "Visual Reception", "Fine Motor", 
-                "Receptive Communication", "Expressive Communication", "Gross Motor"
-            ]
+            # Extract cognitive, language, and motor domains
+            domains = {
+                "Cognitive": ["CG", "Cognitive"],
+                "Receptive Communication": ["RC", "Receptive"],
+                "Expressive Communication": ["EC", "Expressive"],
+                "Fine Motor": ["FM", "Fine Motor"],
+                "Gross Motor": ["GM", "Gross Motor"]
+            }
             
-            composite_domains = [
-                "Cognitive Composite", "Language Composite", "Motor Composite"
-            ]
+            composite_domains = {
+                "Cognitive Composite": ["Cognitive"],
+                "Language Composite": ["Language"],
+                "Motor Composite": ["Motor"]
+            }
             
         else:  # social-emotional
-            # Extract social-emotional and adaptive behavior data
-            domains = [
-                "Social-Emotional", "Self-Control", "Compliance",
-                "Communication", "Community Use", "Functional Pre-Academics",
-                "Home Living", "Health and Safety", "Leisure", 
-                "Self-Care", "Self-Direction", "Social", "Motor"
-            ]
+            domains = {
+                "Social-Emotional": ["SE", "Social-Emotional"],
+                "Self-Control": ["Self-Control"],
+                "Compliance": ["Compliance"],
+                "Communication": ["Communication"],
+                "Community Use": ["Community"],
+                "Functional Pre-Academics": ["Pre-Academics"],
+                "Home Living": ["Home Living"],
+                "Health and Safety": ["Health"],
+                "Leisure": ["Leisure"],
+                "Self-Care": ["Self-Care"],
+                "Self-Direction": ["Self-Direction"],
+                "Social": ["Social"],
+                "Motor": ["Motor"]
+            }
             
-            composite_domains = [
-                "Social-Emotional Composite", "Adaptive Behavior Composite"
-            ]
+            composite_domains = {
+                "Social-Emotional Composite": ["Social-Emotional"],
+                "Adaptive Behavior Composite": ["Adaptive"]
+            }
         
-        # Extract scores for each domain
-        for domain in domains:
-            # Raw scores
-            raw_pattern = rf"{re.escape(domain)}.*?Raw Score[:\s]*(\d+)"
-            raw_match = re.search(raw_pattern, text, re.IGNORECASE)
-            if raw_match:
-                data["raw_scores"][domain] = int(raw_match.group(1))
-            
-            # Scaled scores
-            scaled_pattern = rf"{re.escape(domain)}.*?Scaled Score[:\s]*(\d+)"
-            scaled_match = re.search(scaled_pattern, text, re.IGNORECASE)
-            if scaled_match:
-                data["scaled_scores"][domain] = int(scaled_match.group(1))
-            
-            # Age equivalents
-            age_pattern = rf"{re.escape(domain)}.*?Age Equivalent[:\s]*(\d+;\d+|\d+\s*years?\s*\d*\s*months?)"
-            age_match = re.search(age_pattern, text, re.IGNORECASE)
-            if age_match:
-                data["age_equivalents"][domain] = age_match.group(1)
+        # Enhanced score extraction patterns
+        score_table_patterns = [
+            # Look for score tables with specific format
+            r"(\w+(?:\s+\w+)*)\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+:\d+)",  # Domain Raw Scaled Percentile Age
+            r"(\w+(?:\s+\w+)*)\s+(\d+)\s+(\d+)\s+(\d+)",  # Domain Raw Scaled Percentile
+            # Look for individual score lines
+            r"(\w+(?:\s+\w+)*)[:\s]+.*?(\d+)[^\d]*(\d+)[^\d]*(\d+)",
+        ]
+        
+        # Extract scores using multiple patterns
+        self.logger.info("🔍 Searching for score patterns...")
+        scores_found = 0
+        
+        for domain_name, aliases in domains.items():
+            for alias in aliases:
+                # Try different score extraction patterns
+                patterns = [
+                    rf"{alias}[:\s]+.*?Raw Score[:\s]*(\d+).*?Scaled Score[:\s]*(\d+)",
+                    rf"{alias}[:\s]+.*?(\d+)[^\d]+(\d+)[^\d]+(\d+)",
+                    rf"({alias})\s+(\d+)\s+(\d+)\s+(\d+)"
+                ]
+                
+                for pattern in patterns:
+                    matches = re.finditer(pattern, text_content, re.IGNORECASE | re.DOTALL)
+                    for match in matches:
+                        if len(match.groups()) >= 3:
+                            try:
+                                raw_score = int(match.group(2)) if match.group(2).isdigit() else None
+                                scaled_score = int(match.group(3)) if match.group(3).isdigit() else None
+                                percentile = int(match.group(4)) if len(match.groups()) > 3 and match.group(4) and match.group(4).isdigit() else None
+                                
+                                if raw_score:
+                                    data["raw_scores"][domain_name] = raw_score
+                                    scores_found += 1
+                                    self.logger.info(f"✅ {domain_name} Raw Score: {raw_score}")
+                                
+                                if scaled_score:
+                                    data["scaled_scores"][domain_name] = scaled_score
+                                    self.logger.info(f"✅ {domain_name} Scaled Score: {scaled_score}")
+                                
+                                if percentile:
+                                    data["percentiles"][domain_name] = percentile
+                                    self.logger.info(f"✅ {domain_name} Percentile: {percentile}")
+                                
+                                break
+                            except (ValueError, IndexError) as e:
+                                self.logger.warning(f"⚠️ Error parsing scores for {domain_name}: {e}")
         
         # Extract composite scores
-        for composite in composite_domains:
-            composite_pattern = rf"{re.escape(composite)}[:\s]*(\d+)"
-            composite_match = re.search(composite_pattern, text, re.IGNORECASE)
-            if composite_match:
-                score = int(composite_match.group(1))
-                data["composite_scores"][composite] = score
-                data["interpretations"][composite] = self._interpret_composite_score(score)
+        for composite, aliases in composite_domains.items():
+            for alias in aliases:
+                patterns = [
+                    rf"{alias}\s+Composite[:\s]*(\d+)",
+                    rf"{alias}[:\s]+.*?(\d+)",
+                    rf"Composite.*?{alias}.*?(\d+)"
+                ]
+                
+                for pattern in patterns:
+                    match = re.search(pattern, text_content, re.IGNORECASE)
+                    if match:
+                        try:
+                            score = int(match.group(1))
+                            data["composite_scores"][composite] = score
+                            data["interpretations"][composite] = self._interpret_composite_score(score)
+                            self.logger.info(f"✅ {composite}: {score}")
+                            break
+                        except (ValueError, IndexError):
+                            continue
         
-        # Extract clinical observations
-        data["clinical_observations"] = self._extract_clinical_observations(text)
-        data["strengths"] = self._extract_strengths(text)
-        data["needs"] = self._extract_needs(text)
-        data["recommendations"] = self._extract_recommendations(text)
+        # If no scores found, try alternative extraction methods
+        if scores_found == 0:
+            self.logger.warning("⚠️ No scores found with standard patterns, trying alternative extraction...")
+            data = await self._extract_bayley4_alternative(text_content, assessment_type)
+        
+        self.logger.info(f"📊 Total scores extracted: {scores_found}")
+        self.logger.info(f"📋 Raw scores: {len(data['raw_scores'])}")
+        self.logger.info(f"📋 Scaled scores: {len(data['scaled_scores'])}")
+        self.logger.info(f"📋 Composite scores: {len(data['composite_scores'])}")
         
         return data
     
-    async def _extract_sp2_data(self, pdf_path: str) -> Dict[str, Any]:
+    async def _extract_bayley4_alternative(self, text_content: str, assessment_type: str) -> Dict[str, Any]:
+        """Alternative Bayley-4 extraction method for complex layouts"""
+        self.logger.info("🔄 Using alternative Bayley-4 extraction method...")
+        
+        data = {
+            "report_type": assessment_type,
+            "raw_scores": {},
+            "scaled_scores": {},
+            "composite_scores": {},
+            "percentiles": {},
+            "age_equivalents": {},
+            "interpretations": {},
+            "clinical_observations": [],
+            "patient_info": {}
+        }
+        
+        # Extract all numbers in sequence and try to map them to domains
+        lines = text_content.split('\n')
+        score_lines = []
+        
+        for line in lines:
+            # Look for lines that might contain scores
+            if re.search(r'\d+\s+\d+\s+\d+', line):
+                score_lines.append(line.strip())
+        
+        self.logger.info(f"🔍 Found {len(score_lines)} potential score lines")
+        
+        # Try to extract specific score table data
+        table_pattern = r'(\w+(?:\s+\w+)*)\s+(\d+)\s+(\d+)\s+(\d+)(?:\s+(\d+:\d+))?'
+        
+        for line in score_lines:
+            match = re.match(table_pattern, line)
+            if match:
+                domain = match.group(1)
+                raw_score = int(match.group(2))
+                scaled_score = int(match.group(3))
+                percentile = int(match.group(4))
+                age_equiv = match.group(5) if match.group(5) else None
+                
+                data["raw_scores"][domain] = raw_score
+                data["scaled_scores"][domain] = scaled_score
+                data["percentiles"][domain] = percentile
+                if age_equiv:
+                    data["age_equivalents"][domain] = age_equiv
+                
+                self.logger.info(f"✅ Alternative extraction - {domain}: {raw_score}/{scaled_score}/{percentile}")
+        
+        return data
+    
+    async def _extract_sp2_data(self, text_content: str) -> Dict[str, Any]:
         """Extract Sensory Profile 2 data"""
-        text = await self._extract_text_from_pdf(pdf_path)
         
         data = {
             "report_type": "sp2",
@@ -380,7 +504,7 @@ class EnhancedPDFProcessor:
         for quadrant in quadrants:
             # Look for raw scores and classifications
             score_pattern = rf"{quadrant}.*?(\d+).*?(Much (?:More|Less) Than Most|More Than Most|Less Than Most|Typical Performance)"
-            match = re.search(score_pattern, text, re.IGNORECASE | re.DOTALL)
+            match = re.search(score_pattern, text_content, re.IGNORECASE | re.DOTALL)
             if match:
                 data["quadrant_scores"][quadrant] = {
                     "raw_score": int(match.group(1)),
@@ -389,13 +513,12 @@ class EnhancedPDFProcessor:
                 }
         
         # Extract behavioral implications
-        data["clinical_implications"] = self._extract_sp2_implications(text)
+        data["clinical_implications"] = self._extract_sp2_implications(text_content)
         
         return data
     
-    async def _extract_chomps_data(self, pdf_path: str) -> Dict[str, Any]:
+    async def _extract_chomps_data(self, text_content: str) -> Dict[str, Any]:
         """Extract ChOMPS feeding assessment data"""
-        text = await self._extract_text_from_pdf(pdf_path)
         
         data = {
             "report_type": "chomps",
@@ -415,7 +538,7 @@ class EnhancedPDFProcessor:
         for domain in domains:
             # Extract domain scores and risk levels
             domain_pattern = rf"{domain}.*?Score[:\s]*(\d+).*?Risk[:\s]*(Low|Moderate|High)"
-            match = re.search(domain_pattern, text, re.IGNORECASE | re.DOTALL)
+            match = re.search(domain_pattern, text_content, re.IGNORECASE | re.DOTALL)
             if match:
                 score = int(match.group(1))
                 risk = match.group(2)
@@ -423,14 +546,13 @@ class EnhancedPDFProcessor:
                 data["risk_levels"][domain] = risk
         
         # Extract feeding concerns
-        data["feeding_concerns"] = self._extract_feeding_concerns(text)
-        data["safety_issues"] = self._extract_safety_concerns(text)
+        data["feeding_concerns"] = self._extract_feeding_concerns(text_content)
+        data["safety_issues"] = self._extract_safety_concerns(text_content)
         
         return data
     
-    async def _extract_pedieat_data(self, pdf_path: str) -> Dict[str, Any]:
+    async def _extract_pedieat_data(self, text_content: str) -> Dict[str, Any]:
         """Extract PediEAT assessment data"""
-        text = await self._extract_text_from_pdf(pdf_path)
         
         data = {
             "report_type": "pedieat",
@@ -451,8 +573,8 @@ class EnhancedPDFProcessor:
             score_pattern = rf"{domain}.*?T-Score[:\s]*(\d+)"
             level_pattern = rf"{domain}.*?(?:Elevated|Typical|Atypical)"
             
-            score_match = re.search(score_pattern, text, re.IGNORECASE)
-            level_match = re.search(level_pattern, text, re.IGNORECASE)
+            score_match = re.search(score_pattern, text_content, re.IGNORECASE)
+            level_match = re.search(level_pattern, text_content, re.IGNORECASE)
             
             if score_match:
                 data["domain_scores"][domain] = int(score_match.group(1))
@@ -461,9 +583,8 @@ class EnhancedPDFProcessor:
         
         return data
     
-    async def _extract_clinical_notes(self, pdf_path: str) -> Dict[str, Any]:
+    async def _extract_clinical_notes(self, text_content: str) -> Dict[str, Any]:
         """Extract and process clinical observations and notes"""
-        text = await self._extract_text_from_pdf(pdf_path)
         
         data = {
             "report_type": "clinical_notes",
@@ -474,7 +595,7 @@ class EnhancedPDFProcessor:
         }
         
         # Extract bullet points
-        bullet_points = self._extract_bullet_points(text)
+        bullet_points = self._extract_bullet_points(text_content)
         data["bullet_points"] = bullet_points
         
         # Convert bullet points to narrative
@@ -483,7 +604,7 @@ class EnhancedPDFProcessor:
         ]
         
         # Extract structured observations
-        data["raw_observations"] = self._extract_structured_observations(text)
+        data["raw_observations"] = self._extract_structured_observations(text_content)
         
         return data
     

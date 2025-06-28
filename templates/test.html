@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OT Report Generator - Feature Testing</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            border-radius: 10px;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .test-section {
+            background: white;
+            padding: 25px;
+            margin-bottom: 25px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .test-button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 12px 25px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 10px 5px;
+            transition: background-color 0.3s;
+        }
+        .test-button:hover {
+            background-color: #45a049;
+        }
+        .test-button:disabled {
+            background-color: #cccccc;
+            cursor: not-allowed;
+        }
+        .result-box {
+            background-color: #f9f9f9;
+            border: 1px solid #ddd;
+            padding: 15px;
+            margin-top: 15px;
+            border-radius: 5px;
+            font-family: monospace;
+            white-space: pre-wrap;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        .success {
+            border-color: #4CAF50;
+            background-color: #f0fff0;
+        }
+        .error {
+            border-color: #f44336;
+            background-color: #fff0f0;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        .form-group input, .form-group textarea {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+        .status-indicator {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 8px;
+        }
+        .status-enabled { background-color: #4CAF50; }
+        .status-disabled { background-color: #f44336; }
+        .feature-status {
+            background: #e8f5e8;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 25px;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🧪 OT Report Generator - Feature Testing</h1>
+        <p>Test individual features and integrations</p>
+    </div>
+
+    <!-- Feature Status Dashboard -->
+    <div class="feature-status">
+        <h2>📊 Feature Status</h2>
+        <div id="feature-status">Loading feature status...</div>
+    </div>
+
+    <!-- Email Testing -->
+    <div class="test-section">
+        <h2>📧 Email Integration Testing</h2>
+        <p>Test email functionality and SMTP configuration</p>
+        
+        <div class="form-group">
+            <label for="recipient-email">Recipient Email:</label>
+            <input type="email" id="recipient-email" placeholder="test@example.com">
+            <small>Leave empty to use default recipient from configuration</small>
+        </div>
+        
+        <div class="form-group">
+            <label for="test-message">Test Message:</label>
+            <textarea id="test-message" rows="3" placeholder="Custom test message (optional)"></textarea>
+        </div>
+        
+        <div class="form-group">
+            <label for="smtp-port">SMTP Port (optional):</label>
+            <select id="smtp-port">
+                <option value="">Use default from configuration</option>
+                <option value="587">587 (STARTTLS - recommended for Gmail)</option>
+                <option value="465">465 (SSL/TLS - alternative for Gmail)</option>
+                <option value="25">25 (Plain text - not recommended)</option>
+            </select>
+            <small>Different ports use different encryption methods. Try both 587 and 465 for Gmail if you have SSL issues.</small>
+        </div>
+        
+        <button class="test-button" onclick="testEmail()">📧 Send Test Email</button>
+        <div id="email-result" class="result-box" style="display: none;"></div>
+    </div>
+
+    <!-- Google Docs Testing -->
+    <div class="test-section">
+        <h2>📄 Google Docs Integration Testing</h2>
+        <p>Test Google Docs document creation and service account configuration</p>
+        
+        <button class="test-button" onclick="testGoogleDocs()">📄 Create Test Document</button>
+        <div id="google-docs-result" class="result-box" style="display: none;"></div>
+    </div>
+
+    <!-- OpenAI Testing -->
+    <div class="test-section">
+        <h2>🧠 OpenAI Integration Testing</h2>
+        <p>Test OpenAI API connectivity and text generation</p>
+        
+        <button class="test-button" onclick="testOpenAI()">🧠 Test AI Generation</button>
+        <div id="openai-result" class="result-box" style="display: none;"></div>
+    </div>
+
+    <!-- Health Check -->
+    <div class="test-section">
+        <h2>🏥 System Health Check</h2>
+        <p>Check overall system status and component health</p>
+        
+        <button class="test-button" onclick="checkHealth()">🏥 Check System Health</button>
+        <div id="health-result" class="result-box" style="display: none;"></div>
+    </div>
+
+    <script>
+        // Load feature status on page load
+        window.onload = function() {
+            loadFeatureStatus();
+        };
+
+        async function loadFeatureStatus() {
+            try {
+                const response = await fetch('/config');
+                const data = await response.json();
+                
+                let statusHTML = '<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 15px;">';
+                
+                const features = [
+                    { key: 'pdf_reports', name: 'PDF Reports', always: true },
+                    { key: 'ai_enhanced_reports', name: 'AI-Enhanced Reports' },
+                    { key: 'email_notifications', name: 'Email Notifications' },
+                    { key: 'google_docs_integration', name: 'Google Docs Integration' }
+                ];
+                
+                features.forEach(feature => {
+                    const enabled = feature.always || data.features[feature.key];
+                    const statusClass = enabled ? 'status-enabled' : 'status-disabled';
+                    const statusText = enabled ? 'Enabled' : 'Disabled';
+                    
+                    statusHTML += `
+                        <div style="padding: 10px; border: 1px solid #ddd; border-radius: 5px;">
+                            <span class="status-indicator ${statusClass}"></span>
+                            <strong>${feature.name}</strong><br>
+                            <small>${statusText}</small>
+                        </div>
+                    `;
+                });
+                
+                statusHTML += '</div>';
+                document.getElementById('feature-status').innerHTML = statusHTML;
+                
+            } catch (error) {
+                document.getElementById('feature-status').innerHTML = 'Error loading feature status: ' + error.message;
+            }
+        }
+
+        async function testEmail() {
+            const button = event.target;
+            const resultDiv = document.getElementById('email-result');
+            
+            button.disabled = true;
+            button.textContent = '📧 Sending...';
+            resultDiv.style.display = 'block';
+            resultDiv.className = 'result-box';
+            resultDiv.textContent = 'Sending test email...';
+            
+            try {
+                const formData = new FormData();
+                const email = document.getElementById('recipient-email').value;
+                const message = document.getElementById('test-message').value;
+                const port = document.getElementById('smtp-port').value;
+                
+                if (email) formData.append('recipient_email', email);
+                if (message) formData.append('test_message', message);
+                if (port) formData.append('smtp_port', port);
+                
+                const response = await fetch('/test/email', {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    resultDiv.className = 'result-box success';
+                    resultDiv.textContent = `✅ Success!\n\nMessage: ${result.message}\nRecipient: ${result.recipient}\nSMTP Server: ${result.smtp_server}\n\n${result.instructions}`;
+                } else {
+                    resultDiv.className = 'result-box error';
+                    resultDiv.textContent = `❌ Failed!\n\nError: ${result.error}\nMessage: ${result.message}\n\nTroubleshooting:\n${JSON.stringify(result.troubleshooting || {}, null, 2)}`;
+                }
+            } catch (error) {
+                resultDiv.className = 'result-box error';
+                resultDiv.textContent = `❌ Request failed: ${error.message}`;
+            } finally {
+                button.disabled = false;
+                button.textContent = '📧 Send Test Email';
+            }
+        }
+
+        async function testGoogleDocs() {
+            const button = event.target;
+            const resultDiv = document.getElementById('google-docs-result');
+            
+            button.disabled = true;
+            button.textContent = '📄 Creating...';
+            resultDiv.style.display = 'block';
+            resultDiv.className = 'result-box';
+            resultDiv.textContent = 'Creating test Google Docs document...';
+            
+            try {
+                const response = await fetch('/test/google-docs', {
+                    method: 'POST'
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    resultDiv.className = 'result-box success';
+                    let successText = `✅ Success!\n\nMessage: ${result.message}\nDocument URL: ${result.document_url}\n\n${result.instructions}`;
+                    
+                    if (result.service_account_info) {
+                        successText += `\n\nService Account Info:\n- Project ID: ${result.service_account_info.project_id}\n- Client Email: ${result.service_account_info.client_email}`;
+                    }
+                    
+                    resultDiv.textContent = successText;
+                } else {
+                    resultDiv.className = 'result-box error';
+                    let errorText = `❌ Failed!\n\nError: ${result.error}\nMessage: ${result.message}`;
+                    
+                    if (result.troubleshooting) {
+                        errorText += '\n\n🔧 TROUBLESHOOTING GUIDE:\n';
+                        const troubleshooting = result.troubleshooting;
+                        
+                        // Service account setup instructions
+                        if (troubleshooting.service_account_setup) {
+                            errorText += '\n📋 Service Account Setup:\n';
+                            troubleshooting.service_account_setup.forEach((step, index) => {
+                                errorText += `${step}\n`;
+                            });
+                        }
+                        
+                        // File validation details
+                        if (troubleshooting.file_validation) {
+                            const validation = troubleshooting.file_validation;
+                            errorText += '\n🔍 File Validation Results:\n';
+                            if (!validation.valid) {
+                                errorText += `❌ ${validation.error}\n`;
+                                if (validation.missing_fields && validation.missing_fields.length > 0) {
+                                    errorText += `Missing fields: ${validation.missing_fields.join(', ')}\n`;
+                                }
+                                if (validation.found_fields && validation.found_fields.length > 0) {
+                                    errorText += `Found fields: ${validation.found_fields.join(', ')}\n`;
+                                }
+                                if (validation.help) {
+                                    errorText += `Help: ${validation.help}\n`;
+                                }
+                            }
+                        }
+                        
+                        // Fix suggestions
+                        if (troubleshooting.fix_suggestions) {
+                            errorText += '\n💡 How to Fix:\n';
+                            troubleshooting.fix_suggestions.forEach((suggestion) => {
+                                errorText += `• ${suggestion}\n`;
+                            });
+                        }
+                        
+                        // Missing file help
+                        if (troubleshooting.missing_file_help) {
+                            errorText += '\n📁 Missing File - Setup Instructions:\n';
+                            troubleshooting.missing_file_help.forEach((instruction) => {
+                                errorText += `• ${instruction}\n`;
+                            });
+                        }
+                        
+                        // File existence check
+                        if (troubleshooting.service_account_file) {
+                            errorText += `\n📂 File Location: ${troubleshooting.service_account_file}`;
+                            errorText += `\n📂 File Exists: ${troubleshooting.file_exists ? 'Yes' : 'No'}`;
+                        }
+                        
+                        // Specific error type troubleshooting
+                        if (troubleshooting.auth_issue) {
+                            errorText += '\n🔐 Authentication Issue Detected:\n';
+                            if (troubleshooting.auth_solutions) {
+                                troubleshooting.auth_solutions.forEach((solution) => {
+                                    errorText += `• ${solution}\n`;
+                                });
+                            }
+                        }
+                        
+                        if (troubleshooting.permission_issue) {
+                            errorText += '\n🚫 Permission Issue Detected:\n';
+                            if (troubleshooting.permission_solutions) {
+                                troubleshooting.permission_solutions.forEach((solution) => {
+                                    errorText += `• ${solution}\n`;
+                                });
+                            }
+                        }
+                        
+                        if (troubleshooting.api_issue) {
+                            errorText += '\n🔧 API Service Issue Detected:\n';
+                            if (troubleshooting.api_solutions) {
+                                troubleshooting.api_solutions.forEach((solution) => {
+                                    errorText += `• ${solution}\n`;
+                                });
+                            }
+                        }
+                        
+                        // Common solutions
+                        if (troubleshooting.common_solutions) {
+                            errorText += '\n🛠️ General Solutions:\n';
+                            troubleshooting.common_solutions.forEach((solution) => {
+                                errorText += `• ${solution}\n`;
+                            });
+                        }
+                    }
+                    
+                    resultDiv.textContent = errorText;
+                }
+            } catch (error) {
+                resultDiv.className = 'result-box error';
+                resultDiv.textContent = `❌ Request failed: ${error.message}`;
+            } finally {
+                button.disabled = false;
+                button.textContent = '📄 Create Test Document';
+            }
+        }
+
+        async function testOpenAI() {
+            const button = event.target;
+            const resultDiv = document.getElementById('openai-result');
+            
+            button.disabled = true;
+            button.textContent = '🧠 Testing...';
+            resultDiv.style.display = 'block';
+            resultDiv.className = 'result-box';
+            resultDiv.textContent = 'Testing OpenAI API connection...';
+            
+            try {
+                const response = await fetch('/test/openai');
+                const result = await response.json();
+                
+                if (result.success) {
+                    resultDiv.className = 'result-box success';
+                    resultDiv.textContent = `✅ Success!\n\nMessage: ${result.message}\nModel: ${result.model}\nCharacter Count: ${result.character_count}\n\nGenerated Text:\n"${result.generated_text}"\n\n${result.instructions}`;
+                } else {
+                    resultDiv.className = 'result-box error';
+                    resultDiv.textContent = `❌ Failed!\n\nError: ${result.error}\nMessage: ${result.message}\n\nTroubleshooting:\n${JSON.stringify(result.troubleshooting || {}, null, 2)}`;
+                }
+            } catch (error) {
+                resultDiv.className = 'result-box error';
+                resultDiv.textContent = `❌ Request failed: ${error.message}`;
+            } finally {
+                button.disabled = false;
+                button.textContent = '🧠 Test AI Generation';
+            }
+        }
+
+        async function checkHealth() {
+            const button = event.target;
+            const resultDiv = document.getElementById('health-result');
+            
+            button.disabled = true;
+            button.textContent = '🏥 Checking...';
+            resultDiv.style.display = 'block';
+            resultDiv.className = 'result-box';
+            resultDiv.textContent = 'Checking system health...';
+            
+            try {
+                const response = await fetch('/health');
+                const result = await response.json();
+                
+                resultDiv.className = 'result-box success';
+                resultDiv.textContent = `System Status: ${result.status}\nVersion: ${result.version}\nTimestamp: ${result.timestamp}\n\nComponents:\n${JSON.stringify(result.components, null, 2)}\n\nFeatures:\n${JSON.stringify(result.features, null, 2)}\n\nConfiguration:\n${JSON.stringify(result.configuration, null, 2)}`;
+                
+            } catch (error) {
+                resultDiv.className = 'result-box error';
+                resultDiv.textContent = `❌ Request failed: ${error.message}`;
+            } finally {
+                button.disabled = false;
+                button.textContent = '🏥 Check System Health';
+            }
+        }
+    </script>
+
+    <div style="text-align: center; padding: 20px; color: #666;">
+        <p><a href="/" style="color: #667eea; text-decoration: none;">← Back to Main Application</a></p>
+        <p>OT Report Generator - Feature Testing Dashboard</p>
+    </div>
+</body>
+</html> 
