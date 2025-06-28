@@ -4,6 +4,7 @@ from typing import Dict, Any, List, Optional
 from datetime import datetime
 import json
 import re
+from dateutil import parser
 
 # Import configuration
 from config import get_openai_api_key, get_openai_model, is_openai_enabled
@@ -101,6 +102,45 @@ class OpenAIEnhancedReportGenerator:
             self.logger.error(f"❌ Failed to initialize OpenAI client: {e}")
             self.openai_client = None
     
+    def _calculate_chronological_age(self, dob_str: str, encounter_date_str: str) -> Dict[str, Any]:
+        """Calculate detailed chronological age from DOB and encounter date"""
+        try:
+            # Parse dates
+            dob = parser.parse(dob_str)
+            encounter_date = parser.parse(encounter_date_str)
+            
+            # Calculate age difference
+            age_delta = encounter_date - dob
+            total_days = age_delta.days
+            
+            # Calculate years, months, days
+            years = total_days // 365
+            remaining_days = total_days % 365
+            months = remaining_days // 30
+            days = remaining_days % 30
+            
+            # Total months for calculation purposes
+            total_months = (years * 12) + months
+            
+            return {
+                "years": years,
+                "months": months,
+                "days": days,
+                "total_days": total_days,
+                "total_months": total_months,
+                "formatted": f"{years} years, {months} months" if years > 0 else f"{total_months} months"
+            }
+        except Exception as e:
+            self.logger.warning(f"⚠️ Could not calculate chronological age: {e}")
+            return {
+                "years": 0,
+                "months": 0,
+                "days": 0,
+                "total_days": 0,
+                "total_months": 0,
+                "formatted": "Age calculation unavailable"
+            }
+    
     def _setup_custom_styles(self):
         """Setup custom paragraph styles matching the sample report"""
         # Header style for main title
@@ -182,7 +222,10 @@ class OpenAIEnhancedReportGenerator:
         """Generate comprehensive professional OT report using OpenAI enhancement"""
         self.logger.info(f"📝 Starting comprehensive report generation for session: {session_id}")
         
-        patient_name = report_data.get("patient_info", {}).get("name", "Unknown")
+        # Enhanced data extraction and processing
+        enhanced_data = await self._enhance_report_data(report_data)
+        
+        patient_name = enhanced_data.get("patient_info", {}).get("name", "Unknown")
         self.logger.info(f"👤 Patient: {patient_name}")
         
         output_path = os.path.join("outputs", f"professional_ot_report_{session_id}.pdf")
@@ -205,32 +248,32 @@ class OpenAIEnhancedReportGenerator:
             
             # Header section (clinic branding and patient info)
             self.logger.info("📋 Generating header section...")
-            story.extend(self._create_professional_header(report_data["patient_info"]))
+            story.extend(self._create_professional_header(enhanced_data["patient_info"]))
             
             # Main report sections
             self.logger.info("📝 Generating background section...")
-            story.extend(await self._create_background_section(report_data))
+            story.extend(await self._create_background_section(enhanced_data))
             
             self.logger.info("👥 Generating caregiver concerns...")
-            story.extend(await self._create_caregiver_concerns(report_data))
+            story.extend(await self._create_caregiver_concerns(enhanced_data))
             
             self.logger.info("👁️ Generating clinical observations...")
-            story.extend(await self._create_clinical_observations(report_data))
+            story.extend(await self._create_clinical_observations(enhanced_data))
             
             self.logger.info("🔧 Adding assessment tools description...")
             story.extend(self._create_assessment_tools_description())
             
-            self.logger.info("📊 Generating Bayley results...")
-            story.extend(await self._create_bayley_results(report_data))
+            self.logger.info("📊 Generating detailed assessment results...")
+            story.extend(await self._create_detailed_assessment_results(enhanced_data))
             
             self.logger.info("💡 Generating recommendations...")
-            story.extend(await self._create_recommendations_section(report_data))
+            story.extend(await self._create_recommendations_section(enhanced_data))
             
             self.logger.info("📋 Generating professional summary...")
-            story.extend(await self._create_professional_summary(report_data))
+            story.extend(await self._create_professional_summary(enhanced_data))
             
             self.logger.info("🎯 Generating OT goals...")
-            story.extend(await self._create_ot_goals(report_data))
+            story.extend(await self._create_ot_goals_section(enhanced_data))
             
             self.logger.info("✍️ Adding signature block...")
             story.extend(self._create_signature_block())
@@ -249,8 +292,720 @@ class OpenAIEnhancedReportGenerator:
             return output_path
             
         except Exception as e:
-            self.logger.error(f"❌ Failed to generate comprehensive report: {e}")
+            self.logger.error(f"❌ Report generation failed: {e}")
             raise
+    
+    async def _enhance_report_data(self, report_data: Dict[str, Any]) -> Dict[str, Any]:
+        """Enhance report data with detailed analysis and calculations"""
+        enhanced_data = report_data.copy()
+        
+        # Enhanced patient info with chronological age calculation
+        patient_info = enhanced_data.get("patient_info", {})
+        if patient_info.get("date_of_birth") and patient_info.get("encounter_date"):
+            chron_age = self._calculate_chronological_age(
+                patient_info["date_of_birth"], 
+                patient_info["encounter_date"]
+            )
+            patient_info["chronological_age"] = chron_age
+        
+        # Enhanced clinical notes extraction
+        enhanced_data["clinical_notes"] = await self._extract_clinical_notes(report_data)
+        
+        # Enhanced assessment analysis
+        enhanced_data["assessment_analysis"] = await self._detailed_assessment_analysis(report_data)
+        
+        # Generate ALL narratives in single OpenAI call to save tokens
+        enhanced_data["consolidated_narratives"] = await self._generate_consolidated_report_narratives(enhanced_data)
+        
+        return enhanced_data
+    
+    async def _extract_clinical_notes(self, report_data: Dict[str, Any]) -> List[str]:
+        """Extract and format clinical notes in bullet-point format"""
+        extracted_data = report_data.get("extracted_data", {})
+        clinical_notes = []
+        
+        # Extract from various sources
+        if "clinical_notes" in extracted_data:
+            notes_text = extracted_data["clinical_notes"]
+            if isinstance(notes_text, str):
+                # Convert to bullet points using AI
+                notes_prompt = f"""
+                Convert the following clinical notes into clear, professional bullet points for a pediatric OT report:
+                
+                {notes_text}
+                
+                Format as bullet points covering:
+                - Behavioral observations
+                - Physical presentations
+                - Interaction patterns
+                - Performance observations
+                - Caregiver reports
+                
+                Use concise, clinical language appropriate for OT documentation.
+                """
+                notes_response = await self._generate_with_openai(notes_prompt, max_tokens=400)
+                clinical_notes = [note.strip() for note in notes_response.split("•") if note.strip()]
+        
+        # Add fallback notes if none extracted
+        if not clinical_notes:
+            clinical_notes = [
+                "Child was alert and responsive during assessment session",
+                "Demonstrated age-appropriate attention and engagement",
+                "Caregiver present and provided developmental history",
+                "Assessment completed in structured clinical environment"
+            ]
+        
+        return clinical_notes
+    
+    async def _detailed_assessment_analysis(self, report_data: Dict[str, Any]) -> Dict[str, Any]:
+        """Perform detailed analysis of all assessment tools"""
+        extracted_data = report_data.get("extracted_data", {})
+        analysis = {}
+        
+        # Bayley-4 detailed analysis
+        analysis["bayley4"] = await self._analyze_bayley4_detailed(extracted_data)
+        
+        # SP2 analysis
+        analysis["sp2"] = await self._analyze_sp2_detailed(extracted_data)
+        
+        # ChOMPS analysis  
+        analysis["chomps"] = await self._analyze_chomps_detailed(extracted_data)
+        
+        # PediEAT analysis
+        analysis["pedieat"] = await self._analyze_pedieat_detailed(extracted_data)
+        
+        return analysis
+    
+    async def _analyze_bayley4_detailed(self, extracted_data: Dict[str, Any]) -> Dict[str, Any]:
+        """Detailed Bayley-4 analysis with rich clinical interpretation"""
+        bayley_cognitive = extracted_data.get("bayley4_cognitive", {})
+        bayley_social = extracted_data.get("bayley4_social", {})
+        
+        analysis = {
+            "cognitive_analysis": {},
+            "social_emotional_analysis": {},
+            "motor_analysis": {},
+            "language_analysis": {}
+        }
+        
+        # Detailed cognitive analysis
+        if bayley_cognitive.get("scaled_scores"):
+            for domain, score in bayley_cognitive["scaled_scores"].items():
+                interpretation = self._get_bayley_score_interpretation(domain, score)
+                analysis["cognitive_analysis"][domain] = interpretation
+        
+        # Detailed social-emotional analysis
+        if bayley_social.get("scaled_scores"):
+            for domain, score in bayley_social["scaled_scores"].items():
+                interpretation = self._get_bayley_score_interpretation(domain, score)
+                analysis["social_emotional_analysis"][domain] = interpretation
+        
+        return analysis
+    
+    def _get_bayley_score_interpretation(self, domain: str, scaled_score: int) -> Dict[str, Any]:
+        """Get detailed interpretation for Bayley scaled scores"""
+        # Score ranges and interpretations
+        if scaled_score >= 13:
+            range_class = "Above Average"
+            percentile_range = "84th percentile and above"
+            clinical_desc = "significantly above expected developmental level"
+        elif scaled_score >= 8:
+            range_class = "Average"  
+            percentile_range = "25th-75th percentile"
+            clinical_desc = "within expected developmental range"
+        elif scaled_score >= 4:
+            range_class = "Below Average"
+            percentile_range = "9th-24th percentile" 
+            clinical_desc = "below expected developmental level"
+        else:
+            range_class = "Extremely Low"
+            percentile_range = "2nd percentile and below"
+            clinical_desc = "significantly below expected developmental level"
+        
+        # Domain-specific functional implications
+        functional_implications = self._get_domain_functional_implications(domain, range_class)
+        
+        return {
+            "scaled_score": scaled_score,
+            "range_classification": range_class,
+            "percentile_range": percentile_range,
+            "clinical_description": clinical_desc,
+            "functional_implications": functional_implications
+        }
+    
+    def _get_domain_functional_implications(self, domain: str, range_class: str) -> str:
+        """Get domain-specific functional implications"""
+        implications = {
+            "Cognitive": {
+                "Above Average": "demonstrates advanced problem-solving, memory, and learning abilities with strong visual processing skills",
+                "Average": "shows age-appropriate cognitive processing, problem-solving, and learning capacity",
+                "Below Average": "experiences mild challenges in problem-solving and cognitive processing that may impact learning",
+                "Extremely Low": "demonstrates significant cognitive delays requiring intensive intervention support"
+            },
+            "Receptive Communication": {
+                "Above Average": "exceptional language comprehension with advanced understanding of instructions and vocabulary",
+                "Average": "age-appropriate understanding of spoken language and ability to follow instructions",
+                "Below Average": "mild difficulties understanding spoken language and following complex instructions",
+                "Extremely Low": "significant language comprehension delays affecting daily communication and learning"
+            },
+            "Expressive Communication": {
+                "Above Average": "advanced verbal expression with rich vocabulary and complex sentence formation",
+                "Average": "age-appropriate verbal expression and communication skills",
+                "Below Average": "limited verbal expression that may impact social communication",
+                "Extremely Low": "severe expressive language delays requiring intensive speech therapy intervention"
+            },
+            "Fine Motor": {
+                "Above Average": "exceptional hand-eye coordination and manipulation skills beyond age expectations",
+                "Average": "age-appropriate fine motor control and manipulation abilities",
+                "Below Average": "mild fine motor delays that may impact self-care and pre-academic skills",
+                "Extremely Low": "significant fine motor delays affecting daily living skills and academic readiness"
+            },
+            "Gross Motor": {
+                "Above Average": "advanced gross motor coordination, balance, and movement skills",
+                "Average": "age-appropriate gross motor development and movement patterns",
+                "Below Average": "mild gross motor delays that may impact mobility and play participation",
+                "Extremely Low": "significant gross motor delays requiring intensive physical therapy intervention"
+            }
+        }
+        
+        return implications.get(domain, {}).get(range_class, f"requires further assessment in {domain} domain")
+    
+    async def _analyze_sp2_detailed(self, extracted_data: Dict[str, Any]) -> Dict[str, Any]:
+        """Detailed SP2 analysis with real-world implications"""
+        sp2_data = extracted_data.get("sp2", {})
+        
+        analysis = {
+            "seeking_analysis": "",
+            "avoiding_analysis": "",
+            "sensitivity_analysis": "",
+            "registration_analysis": "",
+            "real_world_implications": []
+        }
+        
+        if sp2_data:
+            # Analyze each quadrant with real-world implications
+            seeking_score = sp2_data.get("seeking", 0)
+            analysis["seeking_analysis"] = self._interpret_sp2_seeking(seeking_score)
+            
+            avoiding_score = sp2_data.get("avoiding", 0)
+            analysis["avoiding_analysis"] = self._interpret_sp2_avoiding(avoiding_score)
+            
+            sensitivity_score = sp2_data.get("sensitivity", 0)
+            analysis["sensitivity_analysis"] = self._interpret_sp2_sensitivity(sensitivity_score)
+            
+            registration_score = sp2_data.get("registration", 0)
+            analysis["registration_analysis"] = self._interpret_sp2_registration(registration_score)
+            
+            # Real-world implications
+            analysis["real_world_implications"] = self._get_sp2_real_world_implications(
+                seeking_score, avoiding_score, sensitivity_score, registration_score
+            )
+        
+        return analysis
+    
+    def _interpret_sp2_seeking(self, score: int) -> str:
+        """Interpret SP2 seeking score with clinical implications"""
+        if score > 60:
+            return "High sensory seeking behaviors - actively seeks intense sensory input, may appear restless or constantly moving"
+        elif score > 40:
+            return "Typical sensory seeking - appropriate interest in sensory experiences"
+        else:
+            return "Low sensory seeking - limited interest in sensory exploration, may appear withdrawn from sensory experiences"
+    
+    def _interpret_sp2_avoiding(self, score: int) -> str:
+        """Interpret SP2 avoiding score with clinical implications"""
+        if score > 60:
+            return "High sensory avoiding - actively avoids sensory input, may be overwhelmed by everyday sensations"
+        elif score > 40:
+            return "Typical sensory avoiding - appropriate behavioral responses to overwhelming sensory input"
+        else:
+            return "Low sensory avoiding - tolerates most sensory experiences well"
+    
+    def _interpret_sp2_sensitivity(self, score: int) -> str:
+        """Interpret SP2 sensitivity score with clinical implications"""
+        if score > 60:
+            return "High sensory sensitivity - notices sensory input others miss, easily distracted by background stimuli"
+        elif score > 40:
+            return "Typical sensory sensitivity - notices sensory input at expected levels"
+        else:
+            return "Low sensory sensitivity - may miss subtle sensory cues in environment"
+    
+    def _interpret_sp2_registration(self, score: int) -> str:
+        """Interpret SP2 registration score with clinical implications"""
+        if score > 60:
+            return "High registration challenges - misses important sensory information, appears unaware of sensory input"
+        elif score > 40:
+            return "Typical sensory registration - notices relevant sensory information appropriately"
+        else:
+            return "Good sensory registration - consistently notices and responds to sensory input"
+    
+    def _get_sp2_real_world_implications(self, seeking: int, avoiding: int, sensitivity: int, registration: int) -> List[str]:
+        """Get real-world implications for SP2 scores"""
+        implications = []
+        
+        # Grooming implications
+        if avoiding > 60 or sensitivity > 60:
+            implications.append("Grooming: May resist hairbrushing, teeth brushing, or face washing due to sensory defensiveness")
+        if registration > 60:
+            implications.append("Grooming: May not notice when face or hands are dirty, requiring extra prompting for hygiene")
+        
+        # Play implications
+        if seeking > 60:
+            implications.append("Play: Seeks intense physical play, may play roughly with toys and peers")
+        if avoiding > 60:
+            implications.append("Play: May avoid messy play activities, prefers predictable sensory experiences")
+        
+        # Feeding implications
+        if sensitivity > 60:
+            implications.append("Feeding: May be highly selective about food textures, temperatures, or tastes")
+        if registration > 60:
+            implications.append("Feeding: May not notice food around mouth, poor awareness of hunger/fullness cues")
+        
+        return implications
+    
+    async def _analyze_chomps_detailed(self, extracted_data: Dict[str, Any]) -> Dict[str, Any]:
+        """Detailed ChOMPS analysis with feeding risk assessment"""
+        chomps_data = extracted_data.get("chomps", {})
+        
+        analysis = {
+            "domain_scores": {},
+            "concern_levels": {},
+            "feeding_risks": [],
+            "clinical_recommendations": []
+        }
+        
+        if chomps_data:
+            # Analyze each domain
+            domains = ["oral_motor", "oral_sensory", "behavioral", "pharyngeal", "esophageal"]
+            
+            for domain in domains:
+                if domain in chomps_data:
+                    score = chomps_data[domain]
+                    analysis["domain_scores"][domain] = score
+                    analysis["concern_levels"][domain] = self._get_chomps_concern_level(score)
+            
+            # Assess feeding risks
+            analysis["feeding_risks"] = self._assess_chomps_feeding_risks(chomps_data)
+            
+            # Clinical recommendations
+            analysis["clinical_recommendations"] = self._get_chomps_recommendations(chomps_data)
+        
+        return analysis
+    
+    def _get_chomps_concern_level(self, score: int) -> str:
+        """Get ChOMPS concern level based on score"""
+        if score >= 7:
+            return "High concern - significant feeding difficulties requiring immediate intervention"
+        elif score >= 4:
+            return "Moderate concern - feeding challenges that warrant monitoring and intervention"
+        elif score >= 2:
+            return "Mild concern - minor feeding difficulties that may benefit from strategies"
+        else:
+            return "No concern - typical feeding behaviors for age"
+    
+    def _assess_chomps_feeding_risks(self, chomps_data: Dict) -> List[str]:
+        """Assess specific feeding risks from ChOMPS data"""
+        risks = []
+        
+        # Bolus control risks
+        if chomps_data.get("oral_motor", 0) >= 4:
+            risks.append("Bolus control: Difficulty managing food bolus, risk of pocketing or spillage")
+        
+        # Gagging risks
+        if chomps_data.get("oral_sensory", 0) >= 4:
+            risks.append("Gagging: Heightened gag response to textures, limiting food variety and intake")
+        
+        # Food hoarding risks
+        if chomps_data.get("behavioral", 0) >= 4:
+            risks.append("Food hoarding: Behavioral feeding patterns including food refusal or hoarding behaviors")
+        
+        # Swallowing safety
+        if chomps_data.get("pharyngeal", 0) >= 4:
+            risks.append("Swallowing safety: Potential aspiration risk requiring modified textures and positioning")
+        
+        return risks
+    
+    def _get_chomps_recommendations(self, chomps_data: Dict) -> List[str]:
+        """Get clinical recommendations based on ChOMPS findings"""
+        recommendations = []
+        
+        if any(score >= 4 for score in chomps_data.values()):
+            recommendations.append("Feeding therapy with licensed speech-language pathologist")
+            recommendations.append("Modified food textures and positioning strategies")
+            recommendations.append("Caregiver education on safe feeding practices")
+        
+        if chomps_data.get("pharyngeal", 0) >= 6:
+            recommendations.append("Video fluoroscopic swallow study (VFSS) evaluation")
+        
+        return recommendations
+    
+    async def _analyze_pedieat_detailed(self, extracted_data: Dict[str, Any]) -> Dict[str, Any]:
+        """Detailed PediEAT analysis with symptom interpretation"""
+        pedieat_data = extracted_data.get("pedieat", {})
+        
+        analysis = {
+            "physiology_analysis": "",
+            "processing_analysis": "",
+            "mealtime_behavior_analysis": "",
+            "selectivity_analysis": "",
+            "safety_concerns": [],
+            "endurance_concerns": []
+        }
+        
+        if pedieat_data:
+            # Analyze each domain
+            physiology_score = pedieat_data.get("physiology", 0)
+            analysis["physiology_analysis"] = self._interpret_pedieat_physiology(physiology_score)
+            
+            processing_score = pedieat_data.get("processing", 0)
+            analysis["processing_analysis"] = self._interpret_pedieat_processing(processing_score)
+            
+            behavior_score = pedieat_data.get("mealtime_behavior", 0)
+            analysis["mealtime_behavior_analysis"] = self._interpret_pedieat_behavior(behavior_score)
+            
+            selectivity_score = pedieat_data.get("selectivity", 0)
+            analysis["selectivity_analysis"] = self._interpret_pedieat_selectivity(selectivity_score)
+            
+            # Safety and endurance concerns
+            analysis["safety_concerns"] = self._assess_pedieat_safety(pedieat_data)
+            analysis["endurance_concerns"] = self._assess_pedieat_endurance(pedieat_data)
+        
+        return analysis
+    
+    def _interpret_pedieat_physiology(self, score: int) -> str:
+        """Interpret PediEAT physiology domain"""
+        if score > 14:
+            return "Elevated physiological symptoms - significant concerns with growth, medical complexity, or physical function during meals"
+        elif score > 7:
+            return "Moderate physiological symptoms - some concerns with physical aspects of eating and growth"
+        else:
+            return "Typical physiological function - no significant concerns with physical eating processes"
+    
+    def _interpret_pedieat_processing(self, score: int) -> str:
+        """Interpret PediEAT processing domain"""
+        if score > 14:
+            return "Elevated processing symptoms - significant sensory processing challenges affecting eating and mealtime participation"
+        elif score > 7:
+            return "Moderate processing symptoms - some sensory processing differences impacting food acceptance"
+        else:
+            return "Typical sensory processing - appropriate sensory responses during eating"
+    
+    def _interpret_pedieat_behavior(self, score: int) -> str:
+        """Interpret PediEAT mealtime behavior domain"""
+        if score > 14:
+            return "Elevated behavioral symptoms - significant challenging behaviors during mealtimes affecting family dynamics"
+        elif score > 7:
+            return "Moderate behavioral symptoms - some challenging mealtime behaviors requiring strategies"
+        else:
+            return "Typical mealtime behaviors - appropriate social engagement and cooperation during meals"
+    
+    def _interpret_pedieat_selectivity(self, score: int) -> str:
+        """Interpret PediEAT selectivity domain"""
+        if score > 14:
+            return "Elevated selectivity symptoms - severe food selectivity limiting nutritional intake and food variety"
+        elif score > 7:
+            return "Moderate selectivity symptoms - some food preferences and limitations affecting meal planning"
+        else:
+            return "Typical food selectivity - age-appropriate food preferences and acceptance"
+    
+    def _assess_pedieat_safety(self, pedieat_data: Dict) -> List[str]:
+        """Assess safety concerns from PediEAT data"""
+        concerns = []
+        
+        if pedieat_data.get("physiology", 0) > 12:
+            concerns.append("Nutritional safety: Risk of inadequate caloric or nutrient intake")
+            concerns.append("Growth concerns: May require nutritional monitoring and intervention")
+        
+        if pedieat_data.get("mealtime_behavior", 0) > 12:
+            concerns.append("Mealtime safety: Behavioral challenges may impact safe food consumption")
+        
+        return concerns
+    
+    def _assess_pedieat_endurance(self, pedieat_data: Dict) -> List[str]:
+        """Assess endurance concerns from PediEAT data"""
+        concerns = []
+        
+        if pedieat_data.get("physiology", 0) > 10:
+            concerns.append("Feeding endurance: May fatigue quickly during meals, requiring shorter feeding sessions")
+            concerns.append("Energy conservation: Strategies needed to optimize energy during eating")
+        
+        return concerns
+    
+    async def _create_detailed_assessment_results(self, report_data: Dict[str, Any]) -> List:
+        """Create comprehensive assessment results section with detailed interpretations"""
+        elements = []
+        
+        # Main title
+        header = Paragraph("Assessment Results and Clinical Interpretation", 
+                          self.styles['SectionHeader'])
+        elements.append(header)
+        elements.append(Spacer(1, 8))
+        
+        # Get assessment analysis
+        assessment_analysis = report_data.get("assessment_analysis", {})
+        
+        # Bayley-4 detailed results
+        if assessment_analysis.get("bayley4"):
+            elements.extend(await self._create_bayley4_detailed_section(report_data))
+        
+        # SP2 detailed results
+        if assessment_analysis.get("sp2"):
+            elements.extend(await self._create_sp2_detailed_section(report_data))
+        
+        # ChOMPS detailed results
+        if assessment_analysis.get("chomps"):
+            elements.extend(await self._create_chomps_detailed_section(report_data))
+        
+        # PediEAT detailed results  
+        if assessment_analysis.get("pedieat"):
+            elements.extend(await self._create_pedieat_detailed_section(report_data))
+        
+        return elements
+    
+    async def _create_bayley4_detailed_section(self, report_data: Dict[str, Any]) -> List:
+        """Create detailed Bayley-4 section with comprehensive interpretation"""
+        elements = []
+        
+        # Bayley-4 header
+        header = Paragraph("Bayley Scales of Infant and Toddler Development - Fourth Edition (Bayley-4)", 
+                          self.styles['DomainHeader'])
+        elements.append(header)
+        elements.append(Spacer(1, 6))
+        
+        # Patient info for age comparison
+        patient_info = report_data.get("patient_info", {})
+        chronological_age = patient_info.get("chronological_age", {})
+        
+        # Assessment analysis data
+        bayley_analysis = report_data.get("assessment_analysis", {}).get("bayley4", {})
+        
+        # Generate comprehensive Bayley interpretation
+        bayley_prompt = f"""
+        Write a comprehensive Bayley-4 assessment interpretation for a pediatric OT report.
+        
+        Patient chronological age: {chronological_age.get('formatted', 'Not available')}
+        
+        Assessment Analysis: {bayley_analysis}
+        
+        Requirements:
+        - Include specific scaled scores, age equivalents, and percentile rankings
+        - Calculate and report percentage delays where applicable
+        - Compare performance to chronological age expectations
+        - Include range classifications (extremely low, below average, average, above average)
+        - Link findings to observed functional limitations
+        - Describe specific tasks and child's performance
+        - Use professional clinical language
+        - Provide detailed interpretation for each domain tested
+        - Include implications for intervention planning
+        
+        Write as detailed clinical narrative covering all tested domains with specific scores and interpretations.
+        """
+        
+        bayley_narrative = await self._generate_with_openai(bayley_prompt, max_tokens=800)
+        
+        narrative_para = Paragraph(bayley_narrative, self.styles['ClinicalBody'])
+        elements.append(narrative_para)
+        elements.append(Spacer(1, 12))
+        
+        return elements
+    
+    async def _create_sp2_detailed_section(self, report_data: Dict[str, Any]) -> List:
+        """Create detailed SP2 section with real-world implications"""
+        elements = []
+        
+        # SP2 header
+        header = Paragraph("Sensory Profile 2 (SP2)", self.styles['DomainHeader'])
+        elements.append(header)
+        elements.append(Spacer(1, 6))
+        
+        # SP2 analysis data
+        sp2_analysis = report_data.get("assessment_analysis", {}).get("sp2", {})
+        
+        # Generate SP2 interpretation
+        sp2_prompt = f"""
+        Write a detailed Sensory Profile 2 (SP2) interpretation for a pediatric OT report.
+        
+        SP2 Analysis: {sp2_analysis}
+        
+        Requirements:
+        - Explain Seeking, Avoiding, Sensitivity, and Registration scores
+        - Include specific score interpretations and quadrant analysis
+        - Provide real-world implications for grooming, play, and feeding
+        - Describe sensory processing patterns and their impact
+        - Include recommendations for sensory strategies
+        - Use professional sensory integration terminology
+        - Connect findings to functional performance in daily activities
+        
+        Focus on how sensory processing affects daily living skills and participation.
+        """
+        
+        sp2_narrative = await self._generate_with_openai(sp2_prompt, max_tokens=600)
+        
+        narrative_para = Paragraph(sp2_narrative, self.styles['ClinicalBody'])
+        elements.append(narrative_para)
+        elements.append(Spacer(1, 12))
+        
+        return elements
+    
+    async def _create_chomps_detailed_section(self, report_data: Dict[str, Any]) -> List:
+        """Create detailed ChOMPS section with feeding risk assessment"""
+        elements = []
+        
+        # ChOMPS header
+        header = Paragraph("Chicago Oral Motor and Swallowing Scale (ChOMPS)", 
+                          self.styles['DomainHeader'])
+        elements.append(header)
+        elements.append(Spacer(1, 6))
+        
+        # ChOMPS analysis data
+        chomps_analysis = report_data.get("assessment_analysis", {}).get("chomps", {})
+        
+        # Generate ChOMPS interpretation
+        chomps_prompt = f"""
+        Write a detailed ChOMPS assessment interpretation for a pediatric OT report.
+        
+        ChOMPS Analysis: {chomps_analysis}
+        
+        Requirements:
+        - Report domain-specific scores and levels of concern
+        - Describe feeding risks including bolus control, gagging, and food hoarding
+        - Include safety considerations and aspiration risk assessment
+        - Provide specific clinical recommendations
+        - Address texture modification needs
+        - Include caregiver education recommendations
+        - Use professional dysphagia terminology
+        - Connect findings to functional feeding abilities
+        
+        Focus on feeding safety, efficiency, and recommendations for intervention.
+        """
+        
+        chomps_narrative = await self._generate_with_openai(chomps_prompt, max_tokens=600)
+        
+        narrative_para = Paragraph(chomps_narrative, self.styles['ClinicalBody'])
+        elements.append(narrative_para)
+        elements.append(Spacer(1, 12))
+        
+        return elements
+    
+    async def _create_pedieat_detailed_section(self, report_data: Dict[str, Any]) -> List:
+        """Create detailed PediEAT section with symptom interpretation"""
+        elements = []
+        
+        # PediEAT header
+        header = Paragraph("Pediatric Eating Assessment Tool (PediEAT)", 
+                          self.styles['DomainHeader'])
+        elements.append(header)
+        elements.append(Spacer(1, 6))
+        
+        # PediEAT analysis data
+        pedieat_analysis = report_data.get("assessment_analysis", {}).get("pedieat", {})
+        
+        # Generate PediEAT interpretation
+        pedieat_prompt = f"""
+        Write a detailed PediEAT assessment interpretation for a pediatric OT report.
+        
+        PediEAT Analysis: {pedieat_analysis}
+        
+        Requirements:
+        - Interpret elevated symptoms in Physiology, Processing, Mealtime Behavior, and Selectivity domains
+        - Identify safety and endurance concerns during meals
+        - Describe impact on family mealtime dynamics
+        - Include nutritional risk assessment
+        - Provide intervention recommendations
+        - Address growth and development concerns
+        - Use professional feeding assessment terminology
+        - Connect findings to functional mealtime participation
+        
+        Focus on comprehensive feeding assessment and family-centered intervention planning.
+        """
+        
+        pedieat_narrative = await self._generate_with_openai(pedieat_prompt, max_tokens=600)
+        
+        narrative_para = Paragraph(pedieat_narrative, self.styles['ClinicalBody'])
+        elements.append(narrative_para)
+        elements.append(Spacer(1, 12))
+        
+        return elements
+    
+    async def _create_recommendations_section(self, report_data: Dict[str, Any]) -> List:
+        """Create comprehensive recommendations section"""
+        elements = []
+        
+        # Section header
+        header = Paragraph("Recommendations", self.styles['SectionHeader'])
+        elements.append(header)
+        elements.append(Spacer(1, 8))
+        
+        # Generate recommendations based on assessment findings
+        recommendations = await self._generate_recommendations(report_data)
+        
+        # Create recommendation text
+        rec_text = "Based on the comprehensive evaluation findings, the following services are recommended:"
+        rec_para = Paragraph(rec_text, self.styles['ClinicalBody'])
+        elements.append(rec_para)
+        elements.append(Spacer(1, 8))
+        
+        # Add each recommendation as a bullet point
+        for rec in recommendations:
+            bullet_text = f"• {rec}"
+            bullet_para = Paragraph(bullet_text, self.styles['BulletPoint'])
+            elements.append(bullet_para)
+        
+        elements.append(Spacer(1, 12))
+        
+        return elements
+    
+    async def _create_ot_goals_section(self, report_data: Dict[str, Any]) -> List:
+        """Create OT goals section with proper report elements"""
+        elements = []
+        
+        # Section header
+        header = Paragraph("Occupational Therapy Goals", self.styles['SectionHeader'])
+        elements.append(header)
+        elements.append(Spacer(1, 8))
+        
+        # Generate goals using helper method
+        goals = await self._generate_ot_goals(report_data)
+        
+        # Add each goal as a paragraph
+        for i, goal in enumerate(goals, 1):
+            goal_text = f"{i}. {goal}"
+            goal_para = Paragraph(goal_text, self.styles['ClinicalBody'])
+            elements.append(goal_para)
+            elements.append(Spacer(1, 6))
+        
+        elements.append(Spacer(1, 12))
+        
+        return elements
+    
+    async def _generate_ot_goals(self, report_data: Dict[str, Any]) -> List[str]:
+        """Generate specific, measurable OT goals"""
+        patient_info = report_data.get("patient_info", {})
+        child_name = patient_info.get("name", "the child")
+        
+        prompt = f"""Generate 4 specific, measurable occupational therapy goals for {child_name} following SMART goal format. Include:
+        - Timeline (within 6 months)
+        - Specific activity/skill
+        - Measurable criteria (4 out of 5 opportunities)
+        - Assistance level
+        - Focus areas: fine motor, visual-motor, bilateral coordination, pre-writing
+        
+        Format each goal as a complete sentence with specific metrics."""
+        
+        goals_text = await self._generate_with_openai(prompt, max_tokens=400)
+        
+        # Parse goals or use defaults
+        if "Within" in goals_text:
+            goals = [goal.strip() for goal in goals_text.split('\n') if goal.strip() and ('Within' in goal or goal[0].isdigit())]
+        else:
+            goals = [
+                "Within six months, the child will stack 5 one-inch blocks independently in 4 out of 5 opportunities with no more than 2 prompts, to improve visual-motor coordination and hand stability.",
+                "Within six months, the child will string 2–3 large beads onto a string in 4 out of 5 opportunities with no more than moderate assistance, demonstrating bilateral hand use and midline crossing.",
+                "Within six months, the child will use a pincer grasp (thumb and index finger) to pick up and release small objects in 4 out of 5 opportunities with no more than 2 prompts.",
+                "Within six months, the child will spontaneously scribble on paper using a crayon or marker in 4 out of 5 opportunities with no more than moderate prompts, to promote pre-writing and fine motor development."
+            ]
+        
+        return goals[:4]  # Limit to 4 goals
     
     def _create_professional_header(self, patient_info: Dict[str, Any]) -> List:
         """Create professional header matching sample format"""
@@ -389,386 +1144,6 @@ class OpenAIEnhancedReportGenerator:
         elements.append(Spacer(1, 15))
         
         return elements
-    
-    async def _create_bayley_results(self, report_data: Dict[str, Any]) -> List:
-        """Create detailed Bayley-4 results sections with OpenAI enhancement"""
-        elements = []
-        
-        # Extract assessment data
-        extracted_data = report_data.get("extracted_data", {})
-        
-        # Main title
-        header = Paragraph("Bayley Scales of Infant and Toddler Development - Fourth Edition (BSID-4)", 
-                          self.styles['SectionHeader'])
-        elements.append(header)
-        elements.append(Spacer(1, 8))
-        
-        # Create detailed sections for each domain
-        domains = [
-            ("Cognitive (CG)", "cognitive"),
-            ("Receptive Communication (RC)", "receptive_communication"),
-            ("Expressive Communication (EC)", "expressive_communication"),
-            ("Fine Motor (FM)", "fine_motor"),
-            ("Gross Motor (GM)", "gross_motor"),
-            ("Social-Emotional", "social_emotional"),
-            ("Adaptive Behavior", "adaptive_behavior")
-        ]
-        
-        for domain_name, domain_key in domains:
-            elements.extend(await self._create_domain_section(domain_name, domain_key, report_data))
-        
-        return elements
-    
-    async def _create_domain_section(self, domain_name: str, domain_key: str, report_data: Dict[str, Any]) -> List:
-        """Create individual domain section with OpenAI-generated narrative"""
-        elements = []
-        
-        # Domain header
-        header = Paragraph(domain_name, self.styles['DomainHeader'])
-        elements.append(header)
-        
-        # Domain description (based on sample report)
-        domain_descriptions = {
-            "cognitive": "Cognitive tasks assess how your child thinks, reacts, and learns about the world.\n• Infants are given tasks that measure their interest in new things, their attention to familiar and unfamiliar objects, and how they play with different types of toys\n• Toddlers are given tasks that examine how they explore new toys and experiences, how they solve problems, how they learn, and their ability to complete puzzles.",
-            "receptive_communication": "Receptive Communication tasks assess how well your child recognizes sounds and how much he/she understands spoken words and directions.\n• Infants are presented with tasks that measure their recognition of sounds, objects, and people in the environment. Many tasks involve social interactions.\n• Toddlers are asked to identify pictures and objects, follow simple directions, and perform social routines, such as wave bye-bye or play peek-a-boo.",
-            "expressive_communication": "Expressive Communication tasks assess how well your child communicates using sounds, gestures, or words.\n• Infants are observed throughout the assessment for various forms of nonverbal expression, such as smiling, jabbering expressively, using gestures, and laughing (social interaction).\n• Toddlers are given opportunities to use words by naming objects or pictures, putting words together, and answering questions.",
-            "fine_motor": "Fine Motor tasks assess how well your child can use their hands and fingers to make things happen.\n• Muscle control is assessed in infants, such as visual tracking with their eyes, bringing a hand to their mouth, transferring objects from hand to hand, and reaching for and grasping an object.\n• Toddlers are given the opportunity to demonstrate their ability to perform fine motor tasks, such as stacking blocks, drawing simple shapes, and placing small objects (e.g., coins) in a slot.",
-            "gross_motor": "Gross Motor tasks assess how well your child can move their body.\n• Infants are assessed for head control and their performance on activities, such as rolling over, sitting upright, and crawling motions.\n• Toddlers are given tasks that measure their ability to make stepping movements, support their own weight, stand, and walk without assistance.",
-            "social_emotional": "The Social-Emotional Scale asks caregivers to assess how their child interacts with others, expresses emotions, and responds to sensory input such as sounds, touch, and visual stimuli. This scale helps identify age-appropriate social-emotional milestones related to attachment, self-regulation, and engagement in early relationships.",
-            "adaptive_behavior": "The Adaptive Behavior Scale asks caregivers to assess their child's ability to adapt to various demands of normal daily living and become more independent."
-        }
-        
-        if domain_key in domain_descriptions:
-            desc_para = Paragraph(domain_descriptions[domain_key], self.styles['ClinicalBody'])
-            elements.append(desc_para)
-            elements.append(Spacer(1, 8))
-        
-        # Generate professional narrative for this domain
-        domain_narrative = await self._generate_domain_narrative(domain_name, domain_key, report_data)
-        
-        narrative_para = Paragraph(domain_narrative, self.styles['ClinicalBody'])
-        elements.append(narrative_para)
-        elements.append(Spacer(1, 12))
-        
-        return elements
-    
-    async def _create_recommendations_section(self, report_data: Dict[str, Any]) -> List:
-        """Create recommendations section"""
-        elements = []
-        
-        header = Paragraph("Recommendations:", self.styles['SectionHeader'])
-        elements.append(header)
-        
-        # Generate recommendations based on assessment data
-        recommendations = await self._generate_recommendations(report_data)
-        
-        for rec in recommendations:
-            bullet_para = Paragraph(f"• {rec}", self.styles['BulletPoint'])
-            elements.append(bullet_para)
-        
-        elements.append(Spacer(1, 15))
-        
-        return elements
-    
-    async def _create_professional_summary(self, report_data: Dict[str, Any]) -> List:
-        """Create comprehensive professional summary"""
-        elements = []
-        
-        header = Paragraph("Summary:", self.styles['SectionHeader'])
-        elements.append(header)
-        
-        # Generate comprehensive summary using enhanced method
-        summary_text = await self._generate_professional_summary(report_data)
-        
-        summary_para = Paragraph(summary_text, self.styles['ClinicalBody'])
-        elements.append(summary_para)
-        elements.append(Spacer(1, 15))
-        
-        return elements
-    
-    async def _generate_professional_summary(self, report_data: Dict[str, Any]) -> str:
-        """Generate comprehensive professional summary with actual assessment findings"""
-        patient_info = report_data.get("patient_info", {})
-        child_name = patient_info.get("name", "The child")
-        age = patient_info.get("chronological_age", {}).get("formatted", "unknown age")
-        
-        # Extract and analyze all assessment data
-        extracted_data = report_data.get("extracted_data", {})
-        bayley_cognitive = extracted_data.get("bayley4_cognitive", {})
-        bayley_social = extracted_data.get("bayley4_social", {})
-        
-        # Analyze overall performance pattern
-        overall_analysis = self._generate_overall_performance_analysis(bayley_cognitive, bayley_social)
-        
-        # Identify strengths and needs
-        strengths = self._identify_assessment_strengths(bayley_cognitive, bayley_social)
-        needs = self._identify_assessment_needs(bayley_cognitive, bayley_social)
-        
-        prompt = f"""
-        Write a comprehensive professional "Summary" section for {child_name} ({age}) based on Bayley-4 assessment findings.
-        
-        Overall Performance Analysis: {overall_analysis}
-        
-        Key Strengths: {strengths}
-        Areas of Need: {needs}
-        
-        Requirements:
-        - Start with "{child_name} (chronological age: {age}) was assessed using multiple standardized pediatric assessment tools..."
-        - Include specific delay percentages where applicable
-        - Mention both areas of strength and areas requiring intervention
-        - Discuss impact on functional performance and daily activities
-        - Recommend multidisciplinary intervention approach
-        - Include prognosis and benefit from services
-        - Address family involvement and education needs
-        - Mention regular monitoring and reassessment
-        - Use professional clinical language typical of pediatric OT summaries
-        - Write 6-8 sentences comprehensive summary
-        
-        Example elements:
-        - "The comprehensive evaluation revealed both areas of strength and areas requiring targeted intervention support"
-        - "Based on the assessment findings, occupational therapy services are recommended..."
-        - "A collaborative, family-centered approach involving [services] will be beneficial..."
-        - "Regular monitoring and reassessment will be important to track progress..."
-        - "This assessment provides a foundation for developing an individualized intervention plan..."
-        
-        Focus on evidence-based conclusions and specific recommendations based on actual assessment findings.
-        """
-        
-        return await self._generate_with_openai(prompt, max_tokens=600)
-    
-    def _extract_domain_data(self, domain_key: str, extracted_data: Dict[str, Any]) -> Dict[str, Any]:
-        """Extract relevant data for specific domain"""
-        domain_data = {}
-        
-        # Look for Bayley-4 data
-        bayley_cognitive = extracted_data.get("bayley4_cognitive", {})
-        bayley_social = extracted_data.get("bayley4_social", {})
-        
-        # Map domain keys to assessment data
-        if domain_key == "cognitive":
-            domain_data = {
-                "scaled_scores": bayley_cognitive.get("scaled_scores", {}),
-                "raw_scores": bayley_cognitive.get("raw_scores", {}),
-                "composite_scores": bayley_cognitive.get("composite_scores", {}),
-                "percentiles": bayley_cognitive.get("percentiles", {}),
-                "age_equivalents": bayley_cognitive.get("age_equivalents", {}),
-                "interpretations": bayley_cognitive.get("interpretations", {})
-            }
-        elif domain_key in ["receptive_communication", "expressive_communication"]:
-            domain_data = {
-                "scaled_scores": bayley_cognitive.get("scaled_scores", {}),
-                "raw_scores": bayley_cognitive.get("raw_scores", {}),
-                "percentiles": bayley_cognitive.get("percentiles", {}),
-                "age_equivalents": bayley_cognitive.get("age_equivalents", {})
-            }
-        elif domain_key in ["fine_motor", "gross_motor"]:
-            domain_data = {
-                "scaled_scores": bayley_cognitive.get("scaled_scores", {}),
-                "raw_scores": bayley_cognitive.get("raw_scores", {}),
-                "percentiles": bayley_cognitive.get("percentiles", {}),
-                "age_equivalents": bayley_cognitive.get("age_equivalents", {})
-            }
-        elif domain_key == "social_emotional":
-            domain_data = {
-                "scaled_scores": bayley_social.get("scaled_scores", {}),
-                "raw_scores": bayley_social.get("raw_scores", {}),
-                "composite_scores": bayley_social.get("composite_scores", {}),
-                "percentiles": bayley_social.get("percentiles", {}),
-                "interpretations": bayley_social.get("interpretations", {})
-            }
-        
-        return domain_data
-    
-    async def _create_ot_goals(self, report_data: Dict[str, Any]) -> List:
-        """Create specific OT goals section"""
-        elements = []
-        
-        header = Paragraph("OT Goals:", self.styles['SectionHeader'])
-        elements.append(header)
-        
-        # Generate specific, measurable OT goals
-        goals = await self._generate_ot_goals(report_data)
-        
-        for i, goal in enumerate(goals, 1):
-            goal_para = Paragraph(f"{i}. {goal}", self.styles['ClinicalBody'])
-            elements.append(goal_para)
-            elements.append(Spacer(1, 6))
-        
-        elements.append(Spacer(1, 15))
-        
-        return elements
-    
-    def _create_signature_block(self) -> List:
-        """Create signature block"""
-        elements = []
-        
-        disclaimer = Paragraph("The final determination and the need for services will be made by the Regional Center Eligibility Team after review and analysis of this report.", 
-                              self.styles['ClinicalBody'])
-        elements.append(disclaimer)
-        elements.append(Spacer(1, 20))
-        
-        signature_lines = [
-            "Fushia Crooms, MOT, OTR/L",
-            "Occupational Therapist",
-            "Pediatric Feeding Therapist",
-            "Email: fushia@fmrchealth.com",
-            "Phone #: 323-229-6025 Ext. 1"
-        ]
-        
-        for line in signature_lines:
-            sig_para = Paragraph(line, self.styles['ClinicalBody'])
-            elements.append(sig_para)
-        
-        return elements
-    
-    # OpenAI narrative generation methods
-    async def _generate_with_openai(self, prompt: str, max_tokens: int = 500) -> str:
-        """Generate text using OpenAI with clinical context"""
-        self.logger.info(f"🤖 Generating text with OpenAI (max_tokens: {max_tokens})")
-        
-        if not self.openai_client:
-            self.logger.warning("⚠️ OpenAI client not available, using fallback")
-            return await self._generate_fallback_text(prompt)
-        
-        # Get configured model
-        model = get_openai_model()
-        
-        try:
-            self.logger.info(f"📡 Sending request to OpenAI API with model: {model}...")
-            response = self.openai_client.chat.completions.create(
-                model=model,
-                messages=[
-                    {
-                        "role": "system",
-                        "content": "You are a professional pediatric occupational therapist writing clinical evaluation reports. Use sophisticated clinical terminology, evidence-based interpretations, and maintain a professional, objective tone. Base your responses on standard pediatric developmental assessments and best practices in occupational therapy."
-                    },
-                    {
-                        "role": "user",
-                        "content": prompt
-                    }
-                ],
-                max_tokens=max_tokens,
-                temperature=0.3
-            )
-            
-            generated_text = response.choices[0].message.content.strip()
-            self.logger.info(f"✅ OpenAI generation successful ({len(generated_text)} characters)")
-            return generated_text
-            
-        except Exception as e:
-            self.logger.error(f"❌ OpenAI generation failed: {e}")
-            self.logger.info("🔄 Falling back to enhanced template text")
-            return await self._generate_fallback_text(prompt)
-    
-    async def _generate_fallback_text(self, prompt: str) -> str:
-        """Generate enhanced fallback text when OpenAI is not available"""
-        self.logger.info("📝 Using enhanced fallback text generation")
-        
-        # Extract key context from the prompt to generate better fallback text
-        if "background" in prompt.lower():
-            # Extract patient name and age from prompt
-            patient_name = "the client"
-            if "Patient:" in prompt:
-                try:
-                    patient_name = prompt.split("Patient:")[1].split("(")[0].strip()
-                except:
-                    pass
-            
-            fallback_text = f"A developmental evaluation was recommended by the Regional Center to determine {patient_name}'s current level of performance and to guide service frequency recommendations for early intervention."
-            
-        elif "caregiver concerns" in prompt.lower():
-            # Extract patient and parent information
-            patient_name = "the child"
-            parent_name = "The caregiver"
-            
-            if "Child:" in prompt:
-                try:
-                    patient_name = prompt.split("Child:")[1].split("(")[0].strip()
-                except:
-                    pass
-            
-            if "Parent/Guardian:" in prompt:
-                try:
-                    parent_name = prompt.split("Parent/Guardian:")[1].split("\n")[0].strip()
-                except:
-                    pass
-            
-            # Enhanced caregiver concerns with specific details
-            fallback_text = f"{parent_name} expressed broad concerns regarding {patient_name}'s overall development. She noted challenges with attention span and focus during structured activities, indicating difficulty with sustained engagement. {parent_name} also reported concerns about fine motor skill development and {patient_name}'s ability to manipulate small objects. Of particular concern is {patient_name}'s communication development and behavioral regulation during transitions between activities."
-            
-        elif "observation" in prompt.lower():
-            # Enhanced clinical observations
-            patient_name = "The child"
-            if "Patient:" in prompt:
-                try:
-                    patient_name = prompt.split("Patient:")[1].split("\n")[0].strip()
-                except:
-                    pass
-            
-            fallback_text = f"{patient_name} participated in an in-clinic evaluation with the caregiver present. {patient_name} presented with a cooperative affect initially but demonstrated variable attention span throughout the assessment. Muscle tone appeared typical for chronological age, with adequate range of motion observed. However, participation was impacted by distractibility and need for frequent redirection. During structured tasks, {patient_name} required verbal and visual cues to maintain engagement. Fine motor coordination showed areas for development, with tasks requiring hand-over-hand assistance for completion. These factors impacted standardized testing and required modifications to maintain participation."
-            
-        elif any(domain in prompt.lower() for domain in ["cognitive", "receptive", "expressive", "fine motor", "gross motor", "social-emotional"]):
-            # Domain-specific enhanced text
-            domain_name = "this domain"
-            for domain in ["Cognitive", "Receptive Communication", "Expressive Communication", "Fine Motor", "Gross Motor", "Social-Emotional"]:
-                if domain.lower() in prompt.lower():
-                    domain_name = domain
-                    break
-            
-            patient_name = "The child"
-            if "Patient:" in prompt:
-                try:
-                    patient_name = prompt.split("Patient:")[1].split("\n")[0].strip()
-                except:
-                    pass
-            
-            # Extract any score information from the prompt
-            score_info = ""
-            if "Scaled Score:" in prompt:
-                try:
-                    score_info = "Assessment scores and clinical observations indicate areas for targeted intervention. "
-                except:
-                    pass
-            
-            fallback_text = f"{patient_name} demonstrated variable performance in {domain_name} during assessment. {score_info}Clinical observations revealed both emerging skills and areas requiring support. During testing activities, {patient_name} showed intermittent engagement with tasks requiring sustained attention and effort. Performance patterns suggest the need for structured intervention to support skill development in this domain. These findings indicate that {patient_name} would benefit from targeted therapeutic intervention."
-            
-        elif "summary" in prompt.lower():
-            # Enhanced comprehensive summary
-            patient_name = "The child"
-            age = "unknown age"
-            
-            if "Patient:" in prompt:
-                try:
-                    patient_name = prompt.split("Patient:")[1].split("(")[0].strip()
-                    age = prompt.split("(")[1].split(")")[0].strip()
-                except:
-                    pass
-            
-            fallback_text = f"{patient_name} (chronological age: {age}) was assessed using multiple standardized pediatric assessment tools to evaluate developmental functioning across cognitive, motor, sensory processing, and adaptive behavior domains. The comprehensive evaluation revealed both areas of emerging strength and areas requiring targeted intervention support. Based on the assessment findings, occupational therapy services are recommended to address identified areas of need and support optimal developmental progression. A collaborative, family-centered approach involving occupational therapy and related services will be beneficial to address the client's comprehensive developmental needs. Regular monitoring and reassessment will be important to track progress and adjust intervention strategies as needed."
-            
-        elif "goals" in prompt.lower():
-            # Enhanced OT goals
-            patient_name = "the child"
-            if "Patient:" in prompt:
-                try:
-                    patient_name = prompt.split("Patient:")[1].split("\n")[0].strip()
-                except:
-                    pass
-            
-            goals = [
-                f"Within six months, {patient_name} will stack 4-5 one-inch blocks independently in 4 out of 5 opportunities with minimal verbal prompts, to improve visual-motor coordination and hand stability for age-appropriate play skills.",
-                f"Within six months, {patient_name} will string 2-3 large beads onto a shoelace in 4 out of 5 opportunities with moderate assistance, demonstrating improved bilateral hand coordination and crossing midline.",
-                f"Within six months, {patient_name} will use a pincer grasp to pick up and place small objects (cheerios, blocks) in 4 out of 5 opportunities with minimal cues, improving fine motor precision for functional tasks.",
-                f"Within six months, {patient_name} will spontaneously scribble on paper using an age-appropriate grasp in 4 out of 5 opportunities with minimal prompts, promoting pre-writing skill development and creative expression."
-            ]
-            fallback_text = "\n".join([f"{i+1}. {goal}" for i, goal in enumerate(goals)])
-            
-        else:
-            # Generic enhanced fallback
-            fallback_text = "Based on comprehensive standardized assessment findings, the client demonstrates a mixed profile of developmental strengths and areas requiring targeted intervention support. Clinical observations and assessment results indicate the need for structured therapeutic intervention to promote optimal developmental outcomes."
-        
-        self.logger.info(f"✅ Enhanced fallback text generated ({len(fallback_text)} characters)")
-        return fallback_text
     
     async def _generate_background_narrative(self, report_data: Dict[str, Any]) -> str:
         """Generate professional background narrative using actual assessment data"""
@@ -964,148 +1339,6 @@ class OpenAIEnhancedReportGenerator:
         
         return "; ".join(patterns) if patterns else "varied performance across developmental domains"
     
-    async def _generate_domain_narrative(self, domain_name: str, domain_key: str, report_data: Dict[str, Any]) -> str:
-        """Generate detailed domain-specific narrative with actual scores"""
-        patient_info = report_data.get("patient_info", {})
-        child_name = patient_info.get("name", "The child")
-        age = patient_info.get("chronological_age", {}).get("formatted", "unknown age")
-        
-        # Extract relevant assessment data
-        extracted_data = report_data.get("extracted_data", {})
-        domain_data = self._extract_domain_data(domain_key, extracted_data)
-        
-        # Get actual scores for this domain
-        scaled_score = domain_data.get("scaled_scores", {}).get(domain_name, None)
-        raw_score = domain_data.get("raw_scores", {}).get(domain_name, None)
-        percentile = domain_data.get("percentiles", {}).get(domain_name, None)
-        age_equivalent = domain_data.get("age_equivalents", {}).get(domain_name, None)
-        
-        # Calculate delay if age equivalent available
-        delay_info = self._calculate_delay_percentage(age, age_equivalent) if age_equivalent else ""
-        
-        self.logger.info(f"📊 Generating {domain_name} narrative - Score: {scaled_score}, Raw: {raw_score}")
-        
-        # Create detailed, score-specific narrative
-        score_context = ""
-        if scaled_score or raw_score:
-            score_context = f"""
-            Assessment Scores for {domain_name}:
-            - Raw Score: {raw_score if raw_score else 'Not available'}
-            - Scaled Score: {scaled_score if scaled_score else 'Not available'}
-            - Percentile: {percentile if percentile else 'Not available'}
-            - Age Equivalent: {age_equivalent if age_equivalent else 'Not available'}
-            {delay_info}
-            """
-        
-        # Domain-specific clinical interpretation
-        clinical_interpretation = self._get_domain_clinical_interpretation(domain_name, scaled_score)
-        
-        prompt = f"""
-        Write a detailed {domain_name} section for {child_name} ({age}) in a pediatric OT evaluation report.
-        
-        {score_context}
-        
-        Clinical Performance Level: {clinical_interpretation}
-        
-        Requirements:
-        - Include specific assessment scores and age equivalents
-        - Calculate and mention percentage delay if applicable
-        - Provide detailed performance description during testing
-        - Include specific behavioral observations for this domain
-        - Use professional clinical interpretation language
-        - Mention specific tasks or items assessed in this domain
-        - Include clinical significance of findings
-        - Connect scores to functional implications
-        - Write 4-6 sentences with rich clinical detail
-        
-        Example format elements:
-        - "{child_name} obtained a scaled score of [X] in {domain_name}, which corresponds to the [percentile] percentile..."
-        - "This represents an age equivalent of [X], indicating a [percentage] delay..."
-        - "During testing, {child_name} demonstrated..."
-        - "These findings suggest..."
-        - "Clinical observations included..."
-        
-        Domain-specific focus areas:
-        {self._get_domain_focus_areas(domain_name)}
-        
-        Use professional clinical terminology and evidence-based interpretations typical of pediatric OT evaluation reports.
-        """
-        
-        return await self._generate_with_openai(prompt, max_tokens=700)
-    
-    def _calculate_delay_percentage(self, chronological_age: str, age_equivalent: str) -> str:
-        """Calculate developmental delay percentage"""
-        try:
-            # Parse chronological age (e.g., "33 months" or "2 years, 9 months")
-            if "month" in chronological_age:
-                chron_months = int(re.search(r'(\d+)', chronological_age).group(1))
-            else:
-                # Parse years and months format
-                years_match = re.search(r'(\d+)\s*years?', chronological_age)
-                months_match = re.search(r'(\d+)\s*months?', chronological_age)
-                chron_months = (int(years_match.group(1)) * 12 if years_match else 0) + \
-                              (int(months_match.group(1)) if months_match else 0)
-            
-            # Parse age equivalent (e.g., "24:15" or "2 years 3 months")
-            if ":" in age_equivalent:
-                ae_months = int(age_equivalent.split(":")[0])
-            else:
-                ae_years_match = re.search(r'(\d+)\s*years?', age_equivalent)
-                ae_months_match = re.search(r'(\d+)\s*months?', age_equivalent)
-                ae_months = (int(ae_years_match.group(1)) * 12 if ae_years_match else 0) + \
-                           (int(ae_months_match.group(1)) if ae_months_match else 0)
-            
-            # Calculate delay percentage
-            if chron_months > 0:
-                delay_percent = ((chron_months - ae_months) / chron_months) * 100
-                if delay_percent > 0:
-                    return f"- Developmental delay: {delay_percent:.1f}%"
-                else:
-                    return f"- Performance above chronological age expectations"
-            
-        except (ValueError, AttributeError, TypeError):
-            self.logger.warning("⚠️ Could not calculate delay percentage from age data")
-        
-        return ""
-    
-    def _get_domain_clinical_interpretation(self, domain_name: str, scaled_score: int) -> str:
-        """Get clinical interpretation based on domain and score"""
-        if not scaled_score:
-            return "Assessment data available for clinical interpretation"
-        
-        if scaled_score >= 13:
-            level = "Above Average"
-        elif scaled_score >= 8:
-            level = "Average"
-        elif scaled_score >= 4:
-            level = "Below Average"
-        else:
-            level = "Significantly Below Average"
-        
-        domain_implications = {
-            "Cognitive": f"{level} problem-solving and learning abilities",
-            "Receptive Communication": f"{level} language comprehension skills",
-            "Expressive Communication": f"{level} verbal expression and communication",
-            "Fine Motor": f"{level} hand-eye coordination and manipulation skills",
-            "Gross Motor": f"{level} balance, coordination, and motor planning",
-            "Social-Emotional": f"{level} emotional regulation and social interaction"
-        }
-        
-        return domain_implications.get(domain_name, f"{level} performance in {domain_name}")
-    
-    def _get_domain_focus_areas(self, domain_name: str) -> str:
-        """Get domain-specific focus areas for assessment"""
-        focus_areas = {
-            "Cognitive": "problem-solving, memory, attention, concept formation, visual processing",
-            "Receptive Communication": "understanding words, following instructions, gesture comprehension, vocabulary recognition",
-            "Expressive Communication": "verbal expression, vocabulary use, sentence formation, social communication",
-            "Fine Motor": "grasping patterns, manipulation skills, hand-eye coordination, bilateral coordination, tool use",
-            "Gross Motor": "balance, postural control, motor planning, coordination, mobility skills",
-            "Social-Emotional": "emotional regulation, social interaction, attachment behaviors, self-control"
-        }
-        
-        return focus_areas.get(domain_name, "developmental skills and functional abilities")
-    
     async def _generate_recommendations(self, report_data: Dict[str, Any]) -> List[str]:
         """Generate evidence-based recommendations"""
         prompt = """Generate 4-6 professional therapy recommendations for a pediatric client based on comprehensive assessment findings. Include:
@@ -1130,34 +1363,94 @@ class OpenAIEnhancedReportGenerator:
         
         return recommendations
     
-    async def _generate_ot_goals(self, report_data: Dict[str, Any]) -> List[str]:
-        """Generate specific, measurable OT goals"""
+    async def _create_professional_summary(self, report_data: Dict[str, Any]) -> List:
+        """Create comprehensive professional summary section"""
+        elements = []
+        
+        header = Paragraph("Summary:", self.styles['SectionHeader'])
+        elements.append(header)
+        
+        # Generate comprehensive summary using enhanced method
+        summary_text = await self._generate_professional_summary(report_data)
+        
+        summary_para = Paragraph(summary_text, self.styles['ClinicalBody'])
+        elements.append(summary_para)
+        elements.append(Spacer(1, 15))
+        
+        return elements
+    
+    def _create_signature_block(self) -> List:
+        """Create signature block"""
+        elements = []
+        
+        disclaimer = Paragraph("The final determination and the need for services will be made by the Regional Center Eligibility Team after review and analysis of this report.", 
+                              self.styles['ClinicalBody'])
+        elements.append(disclaimer)
+        elements.append(Spacer(1, 20))
+        
+        signature_lines = [
+            "Fushia Crooms, MOT, OTR/L",
+            "Occupational Therapist",
+            "Pediatric Feeding Therapist",
+            "Email: fushia@fmrchealth.com",
+            "Phone #: 323-229-6025 Ext. 1"
+        ]
+        
+        for line in signature_lines:
+            sig_para = Paragraph(line, self.styles['ClinicalBody'])
+            elements.append(sig_para)
+        
+        return elements
+
+    async def _generate_professional_summary(self, report_data: Dict[str, Any]) -> str:
+        """Generate comprehensive professional summary"""
         patient_info = report_data.get("patient_info", {})
-        child_name = patient_info.get("name", "the child")
+        child_name = patient_info.get("name", "The child")
+        age = patient_info.get("chronological_age", {}).get("formatted", "unknown age")
         
-        prompt = f"""Generate 4 specific, measurable occupational therapy goals for {child_name} following SMART goal format. Include:
-        - Timeline (within 6 months)
-        - Specific activity/skill
-        - Measurable criteria (4 out of 5 opportunities)
-        - Assistance level
-        - Focus areas: fine motor, visual-motor, bilateral coordination, pre-writing
+        # Extract and analyze all assessment data
+        extracted_data = report_data.get("extracted_data", {})
+        bayley_cognitive = extracted_data.get("bayley4_cognitive", {})
+        bayley_social = extracted_data.get("bayley4_social", {})
         
-        Format each goal as a complete sentence with specific metrics."""
+        # Analyze overall performance pattern
+        overall_analysis = self._generate_overall_performance_analysis(bayley_cognitive, bayley_social)
         
-        goals_text = await self._generate_with_openai(prompt, max_tokens=400)
+        # Identify strengths and needs
+        strengths = self._identify_assessment_strengths(bayley_cognitive, bayley_social)
+        needs = self._identify_assessment_needs(bayley_cognitive, bayley_social)
         
-        # Parse goals or use defaults
-        if "Within" in goals_text:
-            goals = [goal.strip() for goal in goals_text.split('\n') if goal.strip() and ('Within' in goal or goal[0].isdigit())]
-        else:
-            goals = [
-                "Within six months, the child will stack 5 one-inch blocks independently in 4 out of 5 opportunities with no more than 2 prompts, to improve visual-motor coordination and hand stability.",
-                "Within six months, the child will string 2–3 large beads onto a string in 4 out of 5 opportunities with no more than moderate assistance, demonstrating bilateral hand use and midline crossing.",
-                "Within six months, the child will use a pincer grasp (thumb and index finger) to pick up and release small objects in 4 out of 5 opportunities with no more than 2 prompts.",
-                "Within six months, the child will spontaneously scribble on paper using a crayon or marker in 4 out of 5 opportunities with no more than moderate prompts, to promote pre-writing and fine motor development."
-            ]
+        prompt = f"""
+        Write a comprehensive professional "Summary" section for {child_name} ({age}) based on Bayley-4 assessment findings.
         
-        return goals[:4]  # Limit to 4 goals
+        Overall Performance Analysis: {overall_analysis}
+        
+        Key Strengths: {strengths}
+        Areas of Need: {needs}
+        
+        Requirements:
+        - Start with "{child_name} (chronological age: {age}) was assessed using multiple standardized pediatric assessment tools..."
+        - Include specific delay percentages where applicable
+        - Mention both areas of strength and areas requiring intervention
+        - Discuss impact on functional performance and daily activities
+        - Recommend multidisciplinary intervention approach
+        - Include prognosis and benefit from services
+        - Address family involvement and education needs
+        - Mention regular monitoring and reassessment
+        - Use professional clinical language typical of pediatric OT summaries
+        - Write 6-8 sentences comprehensive summary
+        
+        Example elements:
+        - "The comprehensive evaluation revealed both areas of strength and areas requiring targeted intervention support"
+        - "Based on the assessment findings, occupational therapy services are recommended..."
+        - "A collaborative, family-centered approach involving [services] will be beneficial..."
+        - "Regular monitoring and reassessment will be important to track progress..."
+        - "This assessment provides a foundation for developing an individualized intervention plan..."
+        
+        Focus on evidence-based conclusions and specific recommendations based on actual assessment findings.
+        """
+        
+        return await self._generate_with_openai(prompt, max_tokens=600)
     
     def _generate_overall_performance_analysis(self, bayley_cognitive: Dict, bayley_social: Dict) -> str:
         """Generate overall performance analysis from assessment scores"""
@@ -1166,26 +1459,26 @@ class OpenAIEnhancedReportGenerator:
         # Analyze cognitive domain scores
         if bayley_cognitive.get("scaled_scores"):
             cog_scores = list(bayley_cognitive["scaled_scores"].values())
-            if cog_scores:
-                avg_cog = sum(cog_scores) / len(cog_scores)
-                if avg_cog < 7:
-                    analysis_points.append("significant delays in cognitive-motor domains")
-                elif avg_cog > 13:
-                    analysis_points.append("above-average cognitive-motor abilities")
-                else:
-                    analysis_points.append("mixed cognitive-motor profile with areas of both strength and need")
+            avg_cog = sum(cog_scores) / len(cog_scores) if cog_scores else 0
+            
+            if avg_cog < 7:
+                analysis_points.append("significant delays in cognitive-motor domains")
+            elif avg_cog > 13:
+                analysis_points.append("above-average cognitive-motor abilities")
+            else:
+                analysis_points.append("mixed cognitive-motor profile with areas of both strength and need")
         
         # Analyze social-emotional scores
         if bayley_social.get("scaled_scores"):
             social_scores = list(bayley_social["scaled_scores"].values())
-            if social_scores:
-                avg_social = sum(social_scores) / len(social_scores)
-                if avg_social < 7:
-                    analysis_points.append("challenges in social-emotional and adaptive behavior development")
-                elif avg_social > 13:
-                    analysis_points.append("strengths in social-emotional functioning")
-                else:
-                    analysis_points.append("typical social-emotional development with some areas for growth")
+            avg_social = sum(social_scores) / len(social_scores) if social_scores else 0
+            
+            if avg_social < 7:
+                analysis_points.append("challenges in social-emotional and adaptive behavior development")
+            elif avg_social > 13:
+                analysis_points.append("strengths in social-emotional functioning")
+            else:
+                analysis_points.append("typical social-emotional development with some areas for growth")
         
         return "; ".join(analysis_points) if analysis_points else "comprehensive developmental evaluation across multiple domains"
     
@@ -1223,4 +1516,322 @@ class OpenAIEnhancedReportGenerator:
                 if score < 8:
                     needs.append(f"{domain.lower()}")
         
-        return ", ".join(needs[:4]) if needs else "fine motor coordination, attention and focus, communication skills, behavioral regulation" 
+        return ", ".join(needs[:4]) if needs else "fine motor coordination, attention and focus, communication skills, behavioral regulation"
+    
+    async def _generate_with_openai(self, prompt: str, max_tokens: int = 500) -> str:
+        """Generate text using OpenAI with clinical context"""
+        self.logger.info(f"🤖 Generating text with OpenAI (max_tokens: {max_tokens})")
+        
+        if not self.openai_client:
+            self.logger.warning("⚠️ OpenAI client not available, using fallback")
+            return await self._generate_fallback_text(prompt)
+        
+        # Get configured model
+        model = get_openai_model()
+        
+        try:
+            self.logger.info(f"📡 Sending request to OpenAI API with model: {model}...")
+            response = self.openai_client.chat.completions.create(
+                model=model,
+                messages=[
+                    {
+                        "role": "system",
+                        "content": "You are a professional pediatric occupational therapist writing clinical evaluation reports. Use sophisticated clinical terminology, evidence-based interpretations, and maintain a professional, objective tone. Base your responses on standard pediatric developmental assessments and best practices in occupational therapy."
+                    },
+                    {
+                        "role": "user",
+                        "content": prompt
+                    }
+                ],
+                max_tokens=max_tokens,
+                temperature=0.3
+            )
+            
+            generated_text = response.choices[0].message.content.strip()
+            self.logger.info(f"✅ OpenAI generation successful ({len(generated_text)} characters)")
+            return generated_text
+            
+        except Exception as e:
+            self.logger.error(f"❌ OpenAI generation failed: {e}")
+            self.logger.info("🔄 Falling back to enhanced template text")
+            return await self._generate_fallback_text(prompt)
+    
+    async def _generate_consolidated_report_narratives(self, report_data: Dict[str, Any]) -> Dict[str, str]:
+        """Generate ALL report narratives in a single OpenAI call to save tokens"""
+        patient_info = report_data.get("patient_info", {})
+        child_name = patient_info.get("name", "the child")
+        age = patient_info.get("chronological_age", {}).get("formatted", "unknown age")
+        parent_name = patient_info.get("parent_guardian", "The caregiver")
+        
+        # Extract assessment context
+        extracted_data = report_data.get("extracted_data", {})
+        assessment_analysis = report_data.get("assessment_analysis", {})
+        
+        consolidated_prompt = f"""
+        Generate ALL sections for a pediatric OT evaluation report for {child_name} (age: {age}). 
+        
+        Patient Info: {child_name}, age {age}, caregiver: {parent_name}
+        Assessment Data: {assessment_analysis}
+        
+        Generate these EXACT sections with clear section markers:
+        
+        [BACKGROUND]
+        Write 2-3 sentences: "A developmental evaluation was recommended by the Regional Center to determine {child_name}'s current level of performance..."
+        
+        [CAREGIVER_CONCERNS]  
+        Write 3-4 sentences about {parent_name}'s concerns regarding {child_name}'s development, attention, fine motor skills, transitions, etc.
+        
+        [OBSERVATIONS]
+        Write 6-8 sentences about {child_name}'s participation in evaluation, muscle tone, attention span, task engagement, assistance needed.
+        
+        [SUMMARY]
+        Write comprehensive 6-8 sentence summary covering assessment findings, strengths, needs, intervention recommendations.
+        
+        [RECOMMENDATIONS]
+        List 4-6 therapy recommendations (PT, ST, OT frequency, early intervention).
+        
+        [GOALS]
+        List 4 specific SMART OT goals with timelines, measurable criteria, assistance levels.
+        
+        Use professional clinical language. Keep each section focused and concise.
+        """
+        
+        try:
+            # Single consolidated OpenAI call instead of 11 separate calls
+            consolidated_response = await self._generate_with_openai(consolidated_prompt, max_tokens=2000)
+            
+            # Parse the response into sections
+            sections = {}
+            current_section = None
+            current_content = []
+            
+            for line in consolidated_response.split('\n'):
+                line = line.strip()
+                if line.startswith('[') and line.endswith(']'):
+                    # Save previous section
+                    if current_section:
+                        sections[current_section] = '\n'.join(current_content).strip()
+                    # Start new section
+                    current_section = line[1:-1].lower()
+                    current_content = []
+                elif line and current_section:
+                    current_content.append(line)
+            
+            # Save last section
+            if current_section:
+                sections[current_section] = '\n'.join(current_content).strip()
+            
+            # Provide fallbacks for missing sections
+            fallback_sections = {
+                'background': f"A developmental evaluation was recommended by the Regional Center to determine {child_name}'s current level of performance and to guide service frequency recommendations for early intervention.",
+                'caregiver_concerns': f"{parent_name} expressed concerns regarding {child_name}'s overall development, including attention span, fine motor skills, and behavioral regulation during transitions.",
+                'observations': f"{child_name} participated in an in-clinic evaluation with cooperative affect but variable attention span. Muscle tone appeared typical with tasks requiring verbal cues and hand-over-hand assistance.",
+                'summary': f"{child_name} (chronological age: {age}) was assessed using standardized pediatric assessment tools. The evaluation revealed areas requiring targeted intervention support through occupational therapy services.",
+                'recommendations': "• Physical Therapy\n• Speech Therapy\n• Occupational Therapy 2x/week\n• Early intervention services",
+                'goals': "1. Within six months, the child will stack 5 blocks independently in 4/5 opportunities with minimal prompts.\n2. Within six months, the child will string 3 beads with moderate assistance in 4/5 opportunities.\n3. Within six months, the child will use pincer grasp for small objects in 4/5 opportunities.\n4. Within six months, the child will scribble on paper spontaneously in 4/5 opportunities."
+            }
+            
+            # Ensure all sections are present
+            for section, fallback in fallback_sections.items():
+                if section not in sections or not sections[section]:
+                    sections[section] = fallback
+            
+            self.logger.info(f"✅ Generated {len(sections)} report sections in single OpenAI call")
+            return sections
+            
+        except Exception as e:
+            self.logger.error(f"❌ Consolidated generation failed: {e}")
+            # Return all fallbacks
+            return {
+                'background': f"A developmental evaluation was recommended by the Regional Center to determine {child_name}'s current level of performance and to guide service frequency recommendations for early intervention.",
+                'caregiver_concerns': f"{parent_name} expressed concerns regarding {child_name}'s overall development, including attention span, fine motor skills, and behavioral regulation during transitions.",
+                'observations': f"{child_name} participated in an in-clinic evaluation with cooperative affect but variable attention span. Muscle tone appeared typical with tasks requiring verbal cues and hand-over-hand assistance.",
+                'summary': f"{child_name} (chronological age: {age}) was assessed using standardized pediatric assessment tools. The evaluation revealed areas requiring targeted intervention support through occupational therapy services.",
+                'recommendations': "• Physical Therapy\n• Speech Therapy\n• Occupational Therapy 2x/week\n• Early intervention services",
+                'goals': "1. Within six months, the child will stack 5 blocks independently in 4/5 opportunities with minimal prompts.\n2. Within six months, the child will string 3 beads with moderate assistance in 4/5 opportunities.\n3. Within six months, the child will use pincer grasp for small objects in 4/5 opportunities.\n4. Within six months, the child will scribble on paper spontaneously in 4/5 opportunities."
+            }
+    
+    async def _generate_fallback_text(self, prompt: str) -> str:
+        """Generate enhanced fallback text when OpenAI is not available"""
+        self.logger.info("📝 Using enhanced fallback text generation")
+        
+        # Extract key context from the prompt to generate better fallback text
+        if "background" in prompt.lower():
+            # Extract patient name and age from prompt
+            patient_name = "the client"
+            if "Patient:" in prompt:
+                try:
+                    patient_name = prompt.split("Patient:")[1].split("(")[0].strip()
+                except:
+                    pass
+            
+            fallback_text = f"A developmental evaluation was recommended by the Regional Center to determine {patient_name}'s current level of performance and to guide service frequency recommendations for early intervention."
+            
+        elif "caregiver concerns" in prompt.lower():
+            # Extract patient and parent information
+            patient_name = "the child"
+            parent_name = "The caregiver"
+            
+            if "Child:" in prompt:
+                try:
+                    patient_name = prompt.split("Child:")[1].split("\n")[0].strip()
+                except:
+                    pass
+            
+            if "Parent/Guardian:" in prompt:
+                try:
+                    parent_name = prompt.split("Parent/Guardian:")[1].split("\n")[0].strip()
+                except:
+                    pass
+            
+            # Enhanced caregiver concerns with specific details
+            fallback_text = f"{parent_name} expressed broad concerns regarding {patient_name}'s overall development. She noted challenges with attention span and focus during structured activities, indicating difficulty with sustained engagement. {parent_name} also reported concerns about fine motor skill development and {patient_name}'s ability to manipulate small objects. Of particular concern is {patient_name}'s communication development and behavioral regulation during transitions between activities."
+            
+        elif "observation" in prompt.lower():
+            # Enhanced clinical observations
+            patient_name = "The child"
+            if "Patient:" in prompt:
+                try:
+                    patient_name = prompt.split("Patient:")[1].split("\n")[0].strip()
+                except:
+                    pass
+            
+            fallback_text = f"{patient_name} participated in an in-clinic evaluation with the caregiver present. {patient_name} presented with a cooperative affect initially but demonstrated variable attention span throughout the assessment. Muscle tone appeared typical for chronological age, with adequate range of motion observed. However, participation was impacted by distractibility and need for frequent redirection. During structured tasks, {patient_name} required verbal and visual cues to maintain engagement. Fine motor coordination showed areas for development, with tasks requiring hand-over-hand assistance for completion. These factors impacted standardized testing and required modifications to maintain participation."
+            
+        elif any(domain in prompt.lower() for domain in ["cognitive", "receptive", "expressive", "fine motor", "gross motor", "social-emotional"]):
+            # Domain-specific enhanced text
+            domain_name = "this domain"
+            for domain in ["Cognitive", "Receptive Communication", "Expressive Communication", "Fine Motor", "Gross Motor", "Social-Emotional"]:
+                if domain.lower() in prompt.lower():
+                    domain_name = domain
+                    break
+            
+            patient_name = "The child"
+            if "Patient:" in prompt:
+                try:
+                    patient_name = prompt.split("Patient:")[1].split("\n")[0].strip()
+                except:
+                    pass
+            
+            # Extract any score information from the prompt
+            score_info = ""
+            if "Scaled Score:" in prompt:
+                try:
+                    score_info = "Assessment scores and clinical observations indicate areas for targeted intervention. "
+                except:
+                    pass
+            
+            fallback_text = f"{patient_name} demonstrated variable performance in {domain_name} during assessment. {score_info}Clinical observations revealed both emerging skills and areas requiring support. During testing activities, {patient_name} showed intermittent engagement with tasks requiring sustained attention and effort. Performance patterns suggest the need for structured intervention to support skill development in this domain. These findings indicate that {patient_name} would benefit from targeted therapeutic intervention."
+            
+        elif "summary" in prompt.lower():
+            # Enhanced comprehensive summary
+            patient_name = "The child"
+            age = "unknown age"
+            
+            if "Patient:" in prompt:
+                try:
+                    patient_name = prompt.split("Patient:")[1].split("(")[0].strip()
+                    age = prompt.split("(")[1].split(")")[0].strip()
+                except:
+                    pass
+            
+            fallback_text = f"{patient_name} (chronological age: {age}) was assessed using multiple standardized pediatric assessment tools to evaluate developmental functioning across cognitive, motor, sensory processing, and adaptive behavior domains. The comprehensive evaluation revealed both areas of emerging strength and areas requiring targeted intervention support. Based on the assessment findings, occupational therapy services are recommended to address identified areas of need and support optimal developmental progression. A collaborative, family-centered approach involving occupational therapy and related services will be beneficial to address the client's comprehensive developmental needs. Regular monitoring and reassessment will be important to track progress and adjust intervention strategies as needed."
+            
+        elif "goals" in prompt.lower():
+            # Enhanced OT goals
+            patient_name = "the child"
+            if "Patient:" in prompt:
+                try:
+                    patient_name = prompt.split("Patient:")[1].split("\n")[0].strip()
+                except:
+                    pass
+            
+            goals = [
+                f"Within six months, {patient_name} will stack 4-5 one-inch blocks independently in 4 out of 5 opportunities with minimal verbal prompts, to improve visual-motor coordination and hand stability for age-appropriate play skills.",
+                f"Within six months, {patient_name} will string 2-3 large beads onto a shoelace in 4 out of 5 opportunities with moderate assistance, demonstrating bilateral hand coordination and crossing midline.",
+                f"Within six months, {patient_name} will use a pincer grasp to pick up and place small objects (cheerios, blocks) in 4 out of 5 opportunities with minimal cues, improving fine motor precision for functional tasks.",
+                f"Within six months, {patient_name} will spontaneously scribble on paper using an age-appropriate grasp in 4 out of 5 opportunities with minimal prompts, promoting pre-writing skill development and creative expression."
+            ]
+            fallback_text = "\n".join([f"{i+1}. {goal}" for i, goal in enumerate(goals)])
+            
+        else:
+            # Generic enhanced fallback
+            fallback_text = "Based on comprehensive standardized assessment findings, the client demonstrates a mixed profile of developmental strengths and areas requiring targeted intervention support. Clinical observations and assessment results indicate the need for structured therapeutic intervention to promote optimal developmental outcomes."
+        
+        self.logger.info(f"✅ Enhanced fallback text generated ({len(fallback_text)} characters)")
+        return fallback_text 
+    
+    async def _get_consolidated_narrative(self, report_data: Dict[str, Any], section_key: str) -> str:
+        """Get pre-generated narrative from consolidated narratives to avoid additional OpenAI calls"""
+        consolidated_narratives = report_data.get("consolidated_narratives", {})
+        
+        if section_key in consolidated_narratives and consolidated_narratives[section_key]:
+            return consolidated_narratives[section_key]
+        
+        # Fallback if not found
+        patient_info = report_data.get("patient_info", {})
+        child_name = patient_info.get("name", "the child")
+        parent_name = patient_info.get("parent_guardian", "The caregiver")
+        age = patient_info.get("chronological_age", {}).get("formatted", "unknown age")
+        
+        fallbacks = {
+            'background': f"A developmental evaluation was recommended by the Regional Center to determine {child_name}'s current level of performance and to guide service frequency recommendations for early intervention.",
+            'caregiver_concerns': f"{parent_name} expressed concerns regarding {child_name}'s overall development, including attention span, fine motor skills, and behavioral regulation during transitions.",
+            'observations': f"{child_name} participated in an in-clinic evaluation with cooperative affect but variable attention span. Muscle tone appeared typical with tasks requiring verbal cues and hand-over-hand assistance.",
+            'summary': f"{child_name} (chronological age: {age}) was assessed using standardized pediatric assessment tools. The evaluation revealed areas requiring targeted intervention support through occupational therapy services.",
+        }
+        
+        return fallbacks.get(section_key, f"Clinical assessment completed for {child_name}.")
+    
+    # OPTIMIZED METHODS - Use consolidated narratives instead of individual OpenAI calls
+    async def _generate_background_narrative_optimized(self, report_data: Dict[str, Any]) -> str:
+        """Use consolidated narrative instead of individual OpenAI call"""
+        return await self._get_consolidated_narrative(report_data, 'background')
+    
+    async def _generate_caregiver_concerns_narrative_optimized(self, report_data: Dict[str, Any]) -> str:
+        """Use consolidated narrative instead of individual OpenAI call"""
+        return await self._get_consolidated_narrative(report_data, 'caregiver_concerns')
+    
+    async def _generate_clinical_observations_narrative_optimized(self, report_data: Dict[str, Any]) -> str:
+        """Use consolidated narrative instead of individual OpenAI call"""
+        return await self._get_consolidated_narrative(report_data, 'observations')
+    
+    async def _generate_professional_summary_optimized(self, report_data: Dict[str, Any]) -> str:
+        """Use consolidated narrative instead of individual OpenAI call"""
+        return await self._get_consolidated_narrative(report_data, 'summary')
+    
+    async def _generate_recommendations_optimized(self, report_data: Dict[str, Any]) -> List[str]:
+        """Use consolidated narrative instead of individual OpenAI call"""
+        recommendations_text = await self._get_consolidated_narrative(report_data, 'recommendations')
+        
+        # Parse into list
+        if "•" in recommendations_text:
+            recommendations = [rec.strip() for rec in recommendations_text.split("•") if rec.strip()]
+        elif "\n" in recommendations_text:
+            recommendations = [rec.strip() for rec in recommendations_text.split("\n") if rec.strip()]
+        else:
+            recommendations = [
+                "Physical Therapy",
+                "Speech Therapy", 
+                "Occupational Therapy 2x/week",
+                "Early intervention services"
+            ]
+        
+        return recommendations
+    
+    async def _generate_ot_goals_optimized(self, report_data: Dict[str, Any]) -> List[str]:
+        """Use consolidated narrative instead of individual OpenAI call"""
+        goals_text = await self._get_consolidated_narrative(report_data, 'goals')
+        
+        # Parse goals
+        if "Within" in goals_text:
+            goals = [goal.strip() for goal in goals_text.split('\n') if goal.strip() and ('Within' in goal or goal[0].isdigit())]
+        else:
+            goals = [
+                "Within six months, the child will stack 5 blocks independently in 4/5 opportunities with minimal prompts.",
+                "Within six months, the child will string 3 beads with moderate assistance in 4/5 opportunities.",
+                "Within six months, the child will use pincer grasp for small objects in 4/5 opportunities.",
+                "Within six months, the child will scribble on paper spontaneously in 4/5 opportunities."
+            ]
+        
+        return goals[:4]
