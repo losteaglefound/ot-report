@@ -1,0 +1,478 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pediatric OT Report Generator</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        .main-container {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        .upload-card {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            padding: 30px;
+            max-width: 800px;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+        .header-icon {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 30px;
+            font-size: 2rem;
+        }
+        .form-control:focus {
+            border-color: #667eea;
+            box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+            padding: 12px 30px;
+            border-radius: 50px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+        .file-upload-area {
+            border: 2px dashed #dee2e6;
+            border-radius: 10px;
+            padding: 15px;
+            text-align: center;
+            transition: all 0.3s ease;
+            margin-bottom: 15px;
+        }
+        .file-upload-area:hover {
+            border-color: #667eea;
+            background-color: #f8f9ff;
+        }
+        .file-upload-area.required {
+            border-color: #28a745;
+        }
+        .file-upload-area.optional {
+            border-color: #6c757d;
+            opacity: 0.8;
+        }
+        .upload-icon {
+            font-size: 2rem;
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+        .progress-container {
+            display: none;
+            margin-top: 20px;
+        }
+        .required-badge {
+            background: #28a745;
+            color: white;
+            font-size: 0.7rem;
+            padding: 2px 8px;
+            border-radius: 12px;
+            margin-left: 5px;
+        }
+        .optional-badge {
+            background: #6c757d;
+            color: white;
+            font-size: 0.7rem;
+            padding: 2px 8px;
+            border-radius: 12px;
+            margin-left: 5px;
+        }
+        .assessment-section {
+            margin-bottom: 25px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 10px;
+        }
+        .section-title {
+            color: #495057;
+            font-weight: 600;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+        }
+        .file-name-display {
+            background: #d4edda;
+            color: #155724;
+            padding: 5px 10px;
+            border-radius: 5px;
+            margin-top: 5px;
+            font-size: 0.9rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="main-container">
+        <div class="upload-card">
+            <div class="header-icon">
+                <i class="fas fa-stethoscope"></i>
+            </div>
+            
+            <h1 class="text-center mb-2">Pediatric OT Report Generator</h1>
+            <p class="text-center text-muted mb-4">
+                FMRC Health Group - Automated Report Generation System
+            </p>
+            <p class="text-center text-muted mb-5">
+                Upload multiple assessment PDFs to automatically generate comprehensive pediatric OT evaluation reports
+            </p>
+
+            <form id="uploadForm" action="/upload-files/" method="post" enctype="multipart/form-data">
+                <!-- Patient Information Section -->
+                <div class="assessment-section">
+                    <h4 class="section-title">
+                        <i class="fas fa-user me-2 text-primary"></i>
+                        Patient Information
+                    </h4>
+                    
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label for="patient_name" class="form-label">Patient Name <span class="required-badge">Required</span></label>
+                            <input type="text" class="form-control" id="patient_name" name="patient_name" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="date_of_birth" class="form-label">Date of Birth <span class="required-badge">Required</span></label>
+                            <input type="date" class="form-control" id="date_of_birth" name="date_of_birth" required>
+                        </div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label for="encounter_date" class="form-label">Date of Encounter <span class="required-badge">Required</span></label>
+                            <input type="date" class="form-control" id="encounter_date" name="encounter_date" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="uci_number" class="form-label">UCI Number</label>
+                            <input type="text" class="form-control" id="uci_number" name="uci_number">
+                        </div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col-md-4">
+                            <label for="sex" class="form-label">Sex</label>
+                            <select class="form-control" id="sex" name="sex">
+                                <option value="">Select...</option>
+                                <option value="Male">Male</option>
+                                <option value="Female">Female</option>
+                                <option value="Other">Other</option>
+                            </select>
+                        </div>
+                        <div class="col-md-4">
+                            <label for="language" class="form-label">Primary Language</label>
+                            <input type="text" class="form-control" id="language" name="language" placeholder="e.g., English, Spanish">
+                        </div>
+                        <div class="col-md-4">
+                            <label for="parent_guardian" class="form-label">Parent/Guardian</label>
+                            <input type="text" class="form-control" id="parent_guardian" name="parent_guardian">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Required Assessments Section -->
+                <div class="assessment-section">
+                    <h4 class="section-title">
+                        <i class="fas fa-clipboard-check me-2 text-success"></i>
+                        Core Assessments <span class="required-badge">Required</span>
+                    </h4>
+
+                    <!-- Facesheet -->
+                    <div class="file-upload-area required">
+                        <div class="upload-icon">
+                            <i class="fas fa-id-card"></i>
+                        </div>
+                        <label class="form-label fw-bold">Patient Demographics (Facesheet)</label>
+                        <input type="file" class="form-control" id="facesheet_file" name="facesheet_file" 
+                               accept=".pdf" onchange="updateFileName(this, 'facesheet-filename')">
+                        <div class="mt-2">
+                            <small class="text-muted">Upload patient facesheet with demographics and basic information</small>
+                            <div id="facesheet-filename" class="file-name-display" style="display: none;"></div>
+                        </div>
+                    </div>
+
+                    <!-- Bayley-4 Cognitive -->
+                    <div class="file-upload-area required">
+                        <div class="upload-icon">
+                            <i class="fas fa-brain"></i>
+                        </div>
+                        <label class="form-label fw-bold">Bayley-4 Cognitive, Language & Motor Scales</label>
+                        <input type="file" class="form-control" id="bayley4_cognitive_file" name="bayley4_cognitive_file" 
+                               accept=".pdf" onchange="updateFileName(this, 'cognitive-filename')">
+                        <div class="mt-2">
+                            <small class="text-muted">Upload Bayley-4 cognitive, language, and motor assessment report</small>
+                            <div id="cognitive-filename" class="file-name-display" style="display: none;"></div>
+                        </div>
+                    </div>
+
+                    <!-- Bayley-4 Social-Emotional -->
+                    <div class="file-upload-area required">
+                        <div class="upload-icon">
+                            <i class="fas fa-heart"></i>
+                        </div>
+                        <label class="form-label fw-bold">Bayley-4 Social-Emotional & Adaptive Behavior</label>
+                        <input type="file" class="form-control" id="bayley4_social_file" name="bayley4_social_file" 
+                               accept=".pdf" onchange="updateFileName(this, 'social-filename')">
+                        <div class="mt-2">
+                            <small class="text-muted">Upload Bayley-4 social-emotional and adaptive behavior report</small>
+                            <div id="social-filename" class="file-name-display" style="display: none;"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Optional Assessments Section -->
+                <div class="assessment-section">
+                    <h4 class="section-title">
+                        <i class="fas fa-plus-circle me-2 text-secondary"></i>
+                        Additional Assessments <span class="optional-badge">Optional</span>
+                    </h4>
+
+                    <!-- SP2 -->
+                    <div class="file-upload-area optional">
+                        <div class="upload-icon">
+                            <i class="fas fa-eye"></i>
+                        </div>
+                        <label class="form-label fw-bold">Sensory Profile 2 (SP2)</label>
+                        <input type="file" class="form-control" id="sp2_file" name="sp2_file" 
+                               accept=".pdf" onchange="updateFileName(this, 'sp2-filename')">
+                        <div class="mt-2">
+                            <small class="text-muted">Upload SP2 sensory processing assessment</small>
+                            <div id="sp2-filename" class="file-name-display" style="display: none;"></div>
+                        </div>
+                    </div>
+
+                    <!-- ChOMPS -->
+                    <div class="file-upload-area optional">
+                        <div class="upload-icon">
+                            <i class="fas fa-utensils"></i>
+                        </div>
+                        <label class="form-label fw-bold">ChOMPS Feeding Assessment</label>
+                        <input type="file" class="form-control" id="chomps_file" name="chomps_file" 
+                               accept=".pdf" onchange="updateFileName(this, 'chomps-filename')">
+                        <div class="mt-2">
+                            <small class="text-muted">Upload Chicago Oral Motor and Feeding Assessment</small>
+                            <div id="chomps-filename" class="file-name-display" style="display: none;"></div>
+                        </div>
+                    </div>
+
+                    <!-- PediEAT -->
+                    <div class="file-upload-area optional">
+                        <div class="upload-icon">
+                            <i class="fas fa-apple-alt"></i>
+                        </div>
+                        <label class="form-label fw-bold">PediEAT Assessment</label>
+                        <input type="file" class="form-control" id="pedieat_file" name="pedieat_file" 
+                               accept=".pdf" onchange="updateFileName(this, 'pedieat-filename')">
+                        <div class="mt-2">
+                            <small class="text-muted">Upload Pediatric Eating Assessment Tool report</small>
+                            <div id="pedieat-filename" class="file-name-display" style="display: none;"></div>
+                        </div>
+                    </div>
+
+                    <!-- Clinical Notes -->
+                    <div class="file-upload-area optional">
+                        <div class="upload-icon">
+                            <i class="fas fa-sticky-note"></i>
+                        </div>
+                        <label class="form-label fw-bold">Clinical Observations & Notes</label>
+                        <input type="file" class="form-control" id="clinical_notes_file" name="clinical_notes_file" 
+                               accept=".pdf" onchange="updateFileName(this, 'notes-filename')">
+                        <div class="mt-2">
+                            <small class="text-muted">Upload clinical observations, behavior notes, or additional documentation</small>
+                            <div id="notes-filename" class="file-name-display" style="display: none;"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Report Preferences Section -->
+                <div class="assessment-section">
+                    <h4 class="section-title">
+                        <i class="fas fa-cog me-2 text-info"></i>
+                        Report Preferences
+                    </h4>
+
+                    <div class="row mb-3">
+                        <div class="col-md-4">
+                            <label for="output_format" class="form-label">Output Format</label>
+                            <select class="form-control" id="output_format" name="output_format">
+                                <option value="google_docs">Google Docs (Recommended)</option>
+                                <option value="pdf">PDF Download</option>
+                                <option value="both">Both Google Docs & PDF</option>
+                            </select>
+                        </div>
+                        <div class="col-md-4">
+                            <label for="report_type" class="form-label">Report Quality</label>
+                            <select class="form-control" id="report_type" name="report_type">
+                                <option value="professional">Professional (AI-Enhanced)</option>
+                                <option value="basic">Basic Report</option>
+                            </select>
+                        </div>
+                        <div class="col-md-4">
+                            <label for="notify_email" class="form-label">Notification Email</label>
+                            <input type="email" class="form-control" id="notify_email" name="notify_email" 
+                                   value="fushia.crooms@gmail.com" placeholder="Enter email for notifications">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Progress Bar -->
+                <div class="progress-container">
+                    <div class="progress">
+                        <div class="progress-bar progress-bar-striped progress-bar-animated" 
+                             role="progressbar" style="width: 0%"></div>
+                    </div>
+                    <div class="mt-2 text-center">
+                        <small class="text-muted">Processing assessments and generating comprehensive report...</small>
+                    </div>
+                </div>
+
+                <!-- Submit Button -->
+                <div class="text-center mt-4">
+                    <button type="submit" class="btn btn-primary btn-lg">
+                        <i class="fas fa-magic me-2"></i>
+                        Generate Comprehensive OT Report
+                    </button>
+                </div>
+            </form>
+
+            <div class="mt-4 pt-4 border-top">
+                <h6 class="text-muted mb-3">Enhanced AI-Powered Features:</h6>
+                <div class="row text-center">
+                    <div class="col-3">
+                        <i class="fas fa-upload text-primary mb-2" style="font-size: 1.2rem;"></i>
+                        <small class="d-block text-muted">Multi-PDF Upload</small>
+                    </div>
+                    <div class="col-3">
+                        <i class="fas fa-brain text-primary mb-2" style="font-size: 1.2rem;"></i>
+                        <small class="d-block text-muted">OpenAI Enhanced</small>
+                    </div>
+                    <div class="col-3">
+                        <i class="fas fa-file-alt text-primary mb-2" style="font-size: 1.2rem;"></i>
+                        <small class="d-block text-muted">Professional Reports</small>
+                    </div>
+                    <div class="col-3">
+                        <i class="fas fa-envelope text-primary mb-2" style="font-size: 1.2rem;"></i>
+                        <small class="d-block text-muted">Email Notifications</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        function updateFileName(input, displayId) {
+            const file = input.files[0];
+            const display = document.getElementById(displayId);
+            
+            if (file) {
+                display.innerHTML = `<i class="fas fa-check-circle me-2"></i>${file.name} (${(file.size / 1024 / 1024).toFixed(2)} MB)`;
+                display.style.display = 'block';
+            } else {
+                display.style.display = 'none';
+            }
+        }
+
+        document.getElementById('uploadForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            // Validate required fields
+            const requiredFields = ['patient_name', 'date_of_birth', 'encounter_date'];
+            let valid = true;
+            
+            for (const field of requiredFields) {
+                const input = document.getElementById(field);
+                if (!input.value.trim()) {
+                    input.classList.add('is-invalid');
+                    valid = false;
+                } else {
+                    input.classList.remove('is-invalid');
+                }
+            }
+            
+            if (!valid) {
+                alert('Please fill in all required patient information fields.');
+                return;
+            }
+            
+            // Show progress bar
+            document.querySelector('.progress-container').style.display = 'block';
+            
+            // Animate progress bar
+            let progress = 0;
+            const progressBar = document.querySelector('.progress-bar');
+            const interval = setInterval(() => {
+                progress += Math.random() * 10;
+                if (progress > 90) progress = 90;
+                progressBar.style.width = progress + '%';
+            }, 800);
+
+            // Submit form
+            const formData = new FormData(this);
+            fetch('/upload-files/', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.text())
+            .then(html => {
+                clearInterval(interval);
+                progressBar.style.width = '100%';
+                setTimeout(() => {
+                    document.body.innerHTML = html;
+                }, 500);
+            })
+            .catch(error => {
+                clearInterval(interval);
+                alert('Error: ' + error.message);
+                document.querySelector('.progress-container').style.display = 'none';
+            });
+        });
+
+        // Set today's date as default for encounter date
+        document.getElementById('encounter_date').valueAsDate = new Date();
+        
+        // Calculate and display age when dates change
+        function calculateAge() {
+            const dob = new Date(document.getElementById('date_of_birth').value);
+            const encounter = new Date(document.getElementById('encounter_date').value);
+            
+            if (dob && encounter && encounter >= dob) {
+                const ageMs = encounter - dob;
+                const ageDate = new Date(ageMs);
+                const years = ageDate.getUTCFullYear() - 1970;
+                const months = ageDate.getUTCMonth();
+                const days = ageDate.getUTCDate() - 1;
+                
+                const ageDisplay = document.getElementById('age-display');
+                if (ageDisplay) {
+                    ageDisplay.textContent = `Age: ${years} years, ${months} months, ${days} days`;
+                }
+            }
+        }
+        
+        document.getElementById('date_of_birth').addEventListener('change', calculateAge);
+        document.getElementById('encounter_date').addEventListener('change', calculateAge);
+    </script>
+</body>
+</html> 

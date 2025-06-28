@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Report Generated - Pediatric OT Report Generator</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        .main-container {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        .result-card {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            padding: 40px;
+            max-width: 700px;
+            width: 100%;
+            text-align: center;
+        }
+        .success-icon, .error-icon {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 30px;
+            font-size: 2.5rem;
+            color: white;
+        }
+        .success-icon {
+            background: linear-gradient(135deg, #4CAF50, #45a049);
+        }
+        .error-icon {
+            background: linear-gradient(135deg, #f44336, #d32f2f);
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+            padding: 12px 30px;
+            border-radius: 50px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin: 10px;
+        }
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+        .btn-success {
+            background: linear-gradient(135deg, #4CAF50, #45a049);
+            border: none;
+            padding: 12px 30px;
+            border-radius: 50px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin: 10px;
+        }
+        .btn-success:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+        .btn-info {
+            background: linear-gradient(135deg, #17a2b8, #138496);
+            border: none;
+            padding: 12px 30px;
+            border-radius: 50px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin: 10px;
+        }
+        .btn-info:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+        .patient-info {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        .assessments-processed {
+            background: #e8f5e8;
+            border-radius: 10px;
+            padding: 15px;
+            margin: 15px 0;
+        }
+        .download-animation {
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+        .assessment-badge {
+            background: #28a745;
+            color: white;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            margin: 2px;
+            display: inline-block;
+        }
+        .output-links {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="main-container">
+        <div class="result-card">
+            {% if success %}
+                <div class="success-icon download-animation">
+                    <i class="fas fa-check"></i>
+                </div>
+                
+                <h1 class="text-success mb-4">Comprehensive Report Generated Successfully!</h1>
+                
+                <div class="patient-info">
+                    <h5 class="mb-3"><i class="fas fa-user me-2"></i>Patient Information</h5>
+                    <p class="mb-1"><strong>Name:</strong> {{ patient_name }}</p>
+                    {% if chronological_age %}
+                    <p class="mb-1"><strong>Chronological Age:</strong> {{ chronological_age.formatted if chronological_age.formatted else chronological_age }}</p>
+                    {% endif %}
+                    <p class="mb-1"><strong>Report ID:</strong> {{ session_id[:8] }}</p>
+                    <p class="mb-0"><strong>Generated:</strong> <span id="current-date"></span></p>
+                </div>
+
+                {% if assessments_processed %}
+                <div class="assessments-processed">
+                    <h6 class="mb-3"><i class="fas fa-clipboard-check me-2"></i>Assessments Processed</h6>
+                    {% for assessment in assessments_processed %}
+                        {% if assessment == 'facesheet' %}
+                            <span class="assessment-badge"><i class="fas fa-id-card me-1"></i>Demographics</span>
+                        {% elif assessment == 'bayley4_cognitive' %}
+                            <span class="assessment-badge"><i class="fas fa-brain me-1"></i>Bayley-4 Cognitive</span>
+                        {% elif assessment == 'bayley4_social' %}
+                            <span class="assessment-badge"><i class="fas fa-heart me-1"></i>Bayley-4 Social-Emotional</span>
+                        {% elif assessment == 'sp2' %}
+                            <span class="assessment-badge"><i class="fas fa-eye me-1"></i>SP2</span>
+                        {% elif assessment == 'chomps' %}
+                            <span class="assessment-badge"><i class="fas fa-utensils me-1"></i>ChOMPS</span>
+                        {% elif assessment == 'pedieat' %}
+                            <span class="assessment-badge"><i class="fas fa-apple-alt me-1"></i>PediEAT</span>
+                        {% elif assessment == 'clinical_notes' %}
+                            <span class="assessment-badge"><i class="fas fa-sticky-note me-1"></i>Clinical Notes</span>
+                        {% endif %}
+                    {% endfor %}
+                </div>
+                {% endif %}
+                
+                <p class="text-muted mb-4">
+                    Your comprehensive pediatric occupational therapy evaluation report has been successfully generated. 
+                    The report includes detailed assessment results, clinical observations, findings, 
+                    evidence-based recommendations, and treatment goals based on all uploaded assessments.
+                </p>
+
+                {% if output_links %}
+                <div class="output-links">
+                    <h5 class="mb-3"><i class="fas fa-download me-2"></i>Access Your Report</h5>
+                    
+                    {% if output_links.google_docs %}
+                    <div class="mb-3">
+                        <a href="{{ output_links.google_docs }}" target="_blank" class="btn btn-success btn-lg">
+                            <i class="fab fa-google-drive me-2"></i>
+                            Open in Google Docs
+                        </a>
+                        <br><small class="text-muted mt-2 d-block">
+                            ✅ Editable, shareable, and accessible from anywhere<br>
+                            ✅ Email notification sent to {{ request.form.get('notify_email', 'fushia.crooms@gmail.com') }}
+                        </small>
+                    </div>
+                    {% endif %}
+                    
+                    {% if output_links.pdf %}
+                    <div class="mb-3">
+                        <a href="{{ output_links.pdf }}" class="btn btn-info btn-lg">
+                            <i class="fas fa-file-pdf me-2"></i>
+                            Download PDF Report
+                        </a>
+                        <br><small class="text-muted mt-2 d-block">
+                            📄 Professional PDF format for printing and archiving
+                        </small>
+                    </div>
+                    {% endif %}
+                </div>
+                {% endif %}
+
+                <div class="d-flex justify-content-center flex-wrap mt-4">
+                    <a href="/" class="btn btn-primary btn-lg">
+                        <i class="fas fa-plus me-2"></i>
+                        Generate Another Report
+                    </a>
+                </div>
+
+                <div class="mt-5 pt-4 border-top">
+                    <h6 class="text-muted mb-3">Enhanced Report Features:</h6>
+                    <div class="row text-center">
+                        <div class="col-3">
+                            <i class="fas fa-chart-bar text-primary mb-2" style="font-size: 1.2rem;"></i>
+                            <small class="d-block text-muted">Multi-Assessment Results</small>
+                        </div>
+                        <div class="col-3">
+                            <i class="fas fa-calculator text-primary mb-2" style="font-size: 1.2rem;"></i>
+                            <small class="d-block text-muted">Auto Age Calculation</small>
+                        </div>
+                        <div class="col-3">
+                            <i class="fas fa-lightbulb text-primary mb-2" style="font-size: 1.2rem;"></i>
+                            <small class="d-block text-muted">AI-Generated Narratives</small>
+                        </div>
+                        <div class="col-3">
+                            <i class="fas fa-target text-primary mb-2" style="font-size: 1.2rem;"></i>
+                            <small class="d-block text-muted">Evidence-Based Goals</small>
+                        </div>
+                    </div>
+                </div>
+
+            {% else %}
+                <div class="error-icon">
+                    <i class="fas fa-exclamation-triangle"></i>
+                </div>
+                
+                <h1 class="text-danger mb-4">Error Generating Report</h1>
+                
+                <div class="alert alert-danger" role="alert">
+                    <i class="fas fa-info-circle me-2"></i>
+                    <strong>Error Details:</strong> {{ error }}
+                </div>
+                
+                <p class="text-muted mb-4">
+                    We encountered an issue while processing your assessment files. This could be due to:
+                </p>
+                
+                <ul class="text-start text-muted mb-4">
+                    <li>Corrupted or unreadable PDF files</li>
+                    <li>Files that are not in the expected assessment format</li>
+                    <li>Missing required patient information</li>
+                    <li>Network connectivity issues</li>
+                    <li>Server processing errors</li>
+                    <li>Incompatible file formats or content structure</li>
+                </ul>
+                
+                <div class="d-flex justify-content-center flex-wrap">
+                    <a href="/" class="btn btn-primary btn-lg">
+                        <i class="fas fa-redo me-2"></i>
+                        Try Again
+                    </a>
+                </div>
+
+                <div class="mt-4">
+                    <small class="text-muted">
+                        If the problem persists, please ensure that:<br>
+                        • All uploaded PDFs are text-based (not scanned images)<br>
+                        • Files contain the expected assessment data and scores<br>
+                        • Patient information is complete and accurate<br>
+                        • File sizes are reasonable (&lt; 10MB each)<br><br>
+                        For technical support, provide the error details and session ID above.
+                    </small>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Set current date
+        const dateElement = document.getElementById('current-date');
+        if (dateElement) {
+            dateElement.textContent = new Date().toLocaleDateString('en-US', {
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+        }
+
+        // Check if report was successful and has Google Docs link
+        const isSuccess = {{ 'true' if success else 'false' }};
+        const hasGoogleDocs = {{ 'true' if (success and output_links and output_links.google_docs) else 'false' }};
+        const googleDocsUrl = '{{ output_links.google_docs if (success and output_links and output_links.google_docs) else "" }}';
+
+        // Auto-open Google Docs if available (optional)
+        if (isSuccess && hasGoogleDocs && googleDocsUrl) {
+            setTimeout(function() {
+                if (confirm('Would you like to open the Google Docs report now?\n\nNote: An email notification has also been sent with the report link.')) {
+                    window.open(googleDocsUrl, '_blank');
+                }
+            }, 2000);
+        }
+
+        // Show notification about email being sent
+        if (isSuccess && hasGoogleDocs) {
+            setTimeout(function() {
+                const emailInfo = document.createElement('div');
+                emailInfo.className = 'alert alert-info mt-3';
+                emailInfo.innerHTML = '<i class="fas fa-envelope me-2"></i><strong>Email Sent:</strong> A notification with the report link has been sent to the specified email address.';
+                const resultCard = document.querySelector('.result-card');
+                if (resultCard) {
+                    resultCard.appendChild(emailInfo);
+                }
+            }, 3000);
+        }
+    </script>
+</body>
+</html> 
