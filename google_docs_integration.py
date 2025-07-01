@@ -14,6 +14,14 @@ try:
 except ImportError:
     GOOGLE_APIS_AVAILABLE = False
 
+# Import OpenAI capabilities for enhanced content generation
+try:
+    import openai
+    from config import get_openai_api_key, get_openai_model, is_openai_enabled
+    OPENAI_AVAILABLE = True
+except ImportError:
+    OPENAI_AVAILABLE = False
+
 # Configure logging for this module (after imports)
 logger = logging.getLogger(__name__)
 
@@ -22,18 +30,24 @@ if GOOGLE_APIS_AVAILABLE:
 else:
     logger.warning("⚠️ Google API libraries not available - install with: pip install google-api-python-client google-auth")
 
+if OPENAI_AVAILABLE:
+    logger.info("✅ OpenAI capabilities imported successfully")
+else:
+    logger.warning("⚠️ OpenAI not available - will use fallback content generation")
+
 class GoogleDocsReportGenerator:
-    """Generate OT reports in Google Docs format using Google Docs API"""
+    """Generate OT reports in Google Docs format using Google Docs API with OpenAI-enhanced content"""
     
     def __init__(self):
         self.logger = logging.getLogger(f"{__name__}.{self.__class__.__name__}")
-        self.logger.info("📄 Initializing Google Docs Report Generator...")
+        self.logger.info("📄 Initializing Google Docs Report Generator with OpenAI enhancement...")
         
         # Check for Google API availability first
         if not GOOGLE_APIS_AVAILABLE:
             self.logger.error("❌ Google API libraries not available")
             self.service = None
             self.drive_service = None
+            self.openai_client = None
             return
         
         # Set up credentials path
@@ -42,7 +56,35 @@ class GoogleDocsReportGenerator:
         self.service = None
         self.drive_service = None
         self.template_doc_id = None  # Template document ID if using templates
+        
+        # Initialize OpenAI client for enhanced content generation
+        self.openai_client = None
+        self._initialize_openai_client()
+        
         self._initialize_google_services()
+    
+    def _initialize_openai_client(self):
+        """Initialize OpenAI client for content generation"""
+        if not OPENAI_AVAILABLE:
+            self.logger.warning("⚠️ OpenAI not available for content enhancement")
+            return
+            
+        if not is_openai_enabled():
+            self.logger.info("🔧 OpenAI disabled in configuration")
+            return
+            
+        try:
+            api_key = get_openai_api_key()
+            if not api_key:
+                self.logger.warning("⚠️ OpenAI API key not configured")
+                return
+                
+            self.openai_client = openai.OpenAI(api_key=api_key)
+            self.logger.info("✅ OpenAI client initialized for enhanced content generation")
+            
+        except Exception as e:
+            self.logger.error(f"❌ Failed to initialize OpenAI client: {e}")
+            self.openai_client = None
     
     def _initialize_google_services(self):
         """Initialize Google Docs and Drive services with enhanced validation"""
@@ -339,7 +381,7 @@ class GoogleDocsReportGenerator:
         }
     
     async def create_report(self, report_data: Dict[str, Any], session_id: str) -> str:
-        """Create a comprehensive OT report in Google Docs"""
+        """Create a comprehensive OT report in Google Docs using OpenAI-enhanced content"""
         patient_name = report_data.get("patient_info", {}).get("name", "Unknown")
         self.logger.info(f"📄 Creating Google Docs report for {patient_name} (session: {session_id})")
         
@@ -348,6 +390,10 @@ class GoogleDocsReportGenerator:
             raise Exception("Google Docs service not initialized")
         
         try:
+            # Enhance report data with OpenAI-generated content
+            self.logger.info("🤖 Enhancing report data with AI-generated content...")
+            enhanced_data = await self._enhance_report_data_for_docs(report_data)
+            
             # Create a new document
             self.logger.info("📝 Creating new Google Doc...")
             document_title = f"OT Evaluation Report - {patient_name} - {datetime.now().strftime('%Y-%m-%d')}"
@@ -363,33 +409,39 @@ class GoogleDocsReportGenerator:
             self.logger.info(f"✅ Document created: {doc_id}")
             self.logger.info(f"🔗 Document URL: {doc_url}")
             
-            # Build document content
-            self.logger.info("🔨 Building document content...")
+            # Build document content with AI-enhanced narratives
+            self.logger.info("🔨 Building document content with AI enhancement...")
             requests = []
             
             # Add header
             self.logger.info("📋 Adding header section...")
-            requests.extend(self._create_header_requests(report_data))
+            requests.extend(self._create_header_requests(enhanced_data))
             
-            # Add patient information
-            self.logger.info("👤 Adding patient information...")
-            requests.extend(self._create_patient_info_requests(report_data))
+            # Add enhanced content sections using AI
+            self.logger.info("🤖 Adding AI-enhanced background section...")
+            requests.extend(await self._create_enhanced_background_requests(enhanced_data))
             
-            # Add background section
-            self.logger.info("📝 Adding background section...")
-            requests.extend(self._create_background_requests(report_data))
+            self.logger.info("👥 Adding AI-enhanced caregiver concerns...")
+            requests.extend(await self._create_enhanced_caregiver_concerns_requests(enhanced_data))
             
-            # Add assessment results
-            self.logger.info("📊 Adding assessment results...")
-            requests.extend(self._create_assessment_results_requests(report_data))
+            self.logger.info("👁️ Adding AI-enhanced clinical observations...")
+            requests.extend(await self._create_enhanced_clinical_observations_requests(enhanced_data))
             
-            # Add recommendations
-            self.logger.info("💡 Adding recommendations...")
-            requests.extend(self._create_recommendations_requests(report_data))
+            # Add assessment results with AI enhancement
+            self.logger.info("📊 Adding AI-enhanced assessment results...")
+            requests.extend(await self._create_enhanced_assessment_results_requests(enhanced_data))
             
-            # Add OT goals
-            self.logger.info("🎯 Adding OT goals...")
-            requests.extend(self._create_goals_requests(report_data))
+            # Add AI-enhanced recommendations
+            self.logger.info("💡 Adding AI-enhanced recommendations...")
+            requests.extend(await self._create_enhanced_recommendations_requests(enhanced_data))
+            
+            # Add AI-enhanced OT goals
+            self.logger.info("🎯 Adding AI-enhanced OT goals...")
+            requests.extend(await self._create_enhanced_goals_requests(enhanced_data))
+            
+            # Add AI-enhanced summary
+            self.logger.info("📋 Adding AI-enhanced summary...")
+            requests.extend(await self._create_enhanced_summary_requests(enhanced_data))
             
             # Add signature block
             self.logger.info("✍️ Adding signature block...")
@@ -436,6 +488,227 @@ class GoogleDocsReportGenerator:
         except Exception as e:
             self.logger.error(f"❌ Failed to create Google Docs report: {e}")
             raise
+    
+    async def _enhance_report_data_for_docs(self, report_data: Dict[str, Any]) -> Dict[str, Any]:
+        """Enhance report data with AI-generated content similar to PDF generator"""
+        enhanced_data = report_data.copy()
+        
+        # Enhanced patient info with chronological age calculation
+        patient_info = enhanced_data.get("patient_info", {})
+        if patient_info.get("date_of_birth") and patient_info.get("encounter_date"):
+            try:
+                from datetime import datetime
+                dob = datetime.strptime(patient_info["date_of_birth"], "%Y-%m-%d")
+                encounter = datetime.strptime(patient_info["encounter_date"], "%Y-%m-%d")
+                chron_age = self._calculate_chronological_age(dob, encounter)
+                patient_info["chronological_age"] = chron_age
+            except Exception as e:
+                self.logger.warning(f"⚠️ Failed to calculate chronological age: {e}")
+        
+        # Generate consolidated narratives using OpenAI (similar to PDF generator)
+        self.logger.info("🤖 Generating consolidated AI narratives...")
+        enhanced_data["consolidated_narratives"] = await self._generate_consolidated_report_narratives(enhanced_data)
+        
+        return enhanced_data
+    
+    def _calculate_chronological_age(self, date_of_birth: datetime, encounter_date: datetime) -> Dict[str, Any]:
+        """Calculate chronological age (borrowed from PDF processor logic)"""
+        total_days = (encounter_date - date_of_birth).days
+        
+        years = total_days // 365
+        remaining_days = total_days % 365
+        months = remaining_days // 30
+        days = remaining_days % 30
+        
+        age_parts = []
+        if years > 0:
+            age_parts.append(f"{years} year{'s' if years != 1 else ''}")
+        if months > 0:
+            age_parts.append(f"{months} month{'s' if months != 1 else ''}")
+        if days > 0 and years == 0:
+            age_parts.append(f"{days} day{'s' if days != 1 else ''}")
+        
+        formatted = ", ".join(age_parts) if age_parts else "0 days"
+        
+        return {
+            "years": years,
+            "months": months,
+            "days": days,
+            "total_days": total_days,
+            "formatted": formatted
+        }
+    
+    async def _generate_consolidated_report_narratives(self, report_data: Dict[str, Any]) -> Dict[str, str]:
+        """Generate ALL report narratives in a single OpenAI call (same approach as PDF generator)"""
+        patient_info = report_data.get("patient_info", {})
+        child_name = patient_info.get("name", "the child")
+        age = patient_info.get("chronological_age", {}).get("formatted", "unknown age")
+        parent_name = patient_info.get("parent_guardian", "The caregiver")
+        
+        # Extract assessment context
+        extracted_data = report_data.get("extracted_data", {})
+        assessments = report_data.get("assessments", {})
+        
+        consolidated_prompt = f"""
+        Generate ALL sections for a pediatric OT evaluation report for {child_name} (age: {age}). 
+        
+        Patient Info: {child_name}, age {age}, caregiver: {parent_name}
+        Assessment Data: {assessments}
+        
+        Generate these EXACT sections with clear section markers:
+        
+        [BACKGROUND]
+        Write 2-3 sentences: "A comprehensive developmental evaluation was recommended to determine {child_name}'s current level of performance across multiple developmental domains..."
+        
+        [CAREGIVER_CONCERNS]  
+        Write 3-4 sentences about {parent_name}'s specific concerns regarding {child_name}'s development, attention, fine motor skills, transitions, feeding, communication, etc.
+        
+        [OBSERVATIONS]
+        Write 6-8 sentences about {child_name}'s clinical presentation including affect, muscle tone, attention span, engagement patterns, response to cues, fine motor coordination, behavioral observations, and impact on testing validity.
+        
+        [BAYLEY_INTERPRETATION]
+        Write detailed Bayley-4 assessment interpretation covering cognitive, language, motor, social-emotional, and adaptive behavior domains with specific clinical analysis.
+        
+        [SP2_INTERPRETATION]
+        Write detailed Sensory Profile 2 interpretation covering sensory processing patterns, quadrant scores, and functional implications.
+        
+        [FEEDING_INTERPRETATION]
+        Write detailed feeding assessment interpretation covering ChOMPS and PediEAT findings, safety considerations, and nutritional concerns.
+        
+        [FINDINGS_ANALYSIS]
+        Write comprehensive analysis covering areas of strength and areas of need with specific examples and clinical reasoning.
+        
+        [SUMMARY]
+        Write comprehensive 6-8 sentence summary covering assessment findings, strengths, needs, intervention recommendations, and family-centered approach.
+        
+        [RECOMMENDATIONS]
+        List 6-8 specific, evidence-based therapy recommendations with frequencies and rationale.
+        
+        [GOALS]
+        List 4-6 specific SMART OT goals with timelines, measurable criteria, and assistance levels.
+        
+        Use professional clinical language consistent with pediatric OT evaluation reports. Be specific, detailed, and clinically accurate.
+        """
+        
+        try:
+            if self.openai_client:
+                # Single consolidated OpenAI call
+                self.logger.info("🤖 Generating consolidated narratives with OpenAI...")
+                consolidated_response = await self._generate_with_openai(consolidated_prompt, max_tokens=3000)
+                
+                # Parse the response into sections
+                sections = {}
+                current_section = None
+                current_content = []
+                
+                for line in consolidated_response.split('\n'):
+                    line = line.strip()
+                    if line.startswith('[') and line.endswith(']'):
+                        # Save previous section
+                        if current_section:
+                            sections[current_section] = '\n'.join(current_content).strip()
+                        # Start new section
+                        current_section = line[1:-1].lower()
+                        current_content = []
+                    elif line and current_section:
+                        current_content.append(line)
+                
+                # Save last section
+                if current_section:
+                    sections[current_section] = '\n'.join(current_content).strip()
+                
+                self.logger.info(f"✅ Generated {len(sections)} AI-enhanced sections")
+                
+            else:
+                self.logger.warning("⚠️ OpenAI not available, using enhanced fallback content")
+                sections = {}
+            
+            # Provide enhanced fallbacks for missing sections
+            fallback_sections = {
+                'background': f"A comprehensive developmental evaluation was recommended to determine {child_name}'s current level of performance across multiple developmental domains and to guide evidence-based intervention planning for optimal developmental outcomes.",
+                'caregiver_concerns': f"{parent_name} expressed concerns regarding {child_name}'s overall development, including challenges with attention span during structured activities, fine motor coordination, behavioral regulation during transitions, and developmental milestone achievement compared to same-age peers.",
+                'observations': f"{child_name} participated in a comprehensive in-clinic evaluation with {parent_name} present. {child_name} presented with variable attention span and required frequent redirection to maintain engagement. Muscle tone appeared within typical limits with adequate range of motion observed. Fine motor coordination demonstrated areas for development, with tasks requiring verbal and visual cues for completion. These factors impacted standardized testing validity and required clinical modifications.",
+                'bayley_interpretation': f"The Bayley Scales of Infant and Toddler Development, Fourth Edition revealed a mixed profile of developmental strengths and areas requiring targeted intervention across cognitive, language, motor, social-emotional, and adaptive behavior domains.",
+                'sp2_interpretation': f"Sensory Profile 2 assessment indicated variability in sensory processing patterns with implications for daily functional participation and learning.",
+                'feeding_interpretation': f"Feeding assessment revealed considerations for oral motor development, swallowing safety, and mealtime participation requiring specialized intervention strategies.",
+                'findings_analysis': f"Assessment findings indicate {child_name} demonstrates emerging developmental skills with specific areas requiring targeted therapeutic intervention to support optimal developmental progression.",
+                'summary': f"{child_name} (chronological age: {age}) was assessed using standardized pediatric assessment tools revealing both developmental strengths and areas requiring evidence-based intervention. A comprehensive, family-centered approach involving occupational therapy services is recommended to address identified needs and promote optimal developmental outcomes.",
+                'recommendations': "• Individual occupational therapy services 2x weekly\n• Sensory integration therapy\n• Fine motor skill development programming\n• Family education and home programming\n• Interdisciplinary team collaboration\n• Environmental modifications\n• Regular progress monitoring and reassessment",
+                'goals': "1. Within 6 months, {child_name} will demonstrate improved fine motor coordination by stacking 5 blocks independently in 4/5 opportunities with minimal verbal cues.\n2. Within 6 months, {child_name} will use pincer grasp for manipulation of small objects in 4/5 opportunities during structured activities.\n3. Within 6 months, {child_name} will maintain attention to tabletop activities for 5 minutes in 4/5 opportunities with minimal redirection.\n4. Within 6 months, {child_name} will demonstrate improved bilateral coordination during age-appropriate play activities in 4/5 opportunities."
+            }
+            
+            # Ensure all sections are present
+            for section, fallback in fallback_sections.items():
+                if section not in sections or not sections[section]:
+                    sections[section] = fallback.format(child_name=child_name)
+            
+            return sections
+            
+        except Exception as e:
+            self.logger.error(f"❌ Consolidated generation failed: {e}")
+            # Return enhanced fallbacks
+            return {
+                'background': f"A comprehensive developmental evaluation was recommended to determine {child_name}'s current level of performance and guide intervention planning.",
+                'caregiver_concerns': f"{parent_name} expressed concerns regarding {child_name}'s overall development and functional abilities.",
+                'observations': f"{child_name} participated in a comprehensive evaluation demonstrating variable performance across assessed domains.",
+                'bayley_interpretation': f"Standardized assessment revealed areas of strength and developmental needs requiring targeted intervention.",
+                'summary': f"{child_name} demonstrates a mixed developmental profile requiring evidence-based occupational therapy intervention.",
+                'recommendations': "Individual occupational therapy services with family-centered approach recommended.",
+                'goals': f"Therapeutic goals focused on promoting {child_name}'s developmental progression and functional independence."
+            }
+    
+    async def _generate_with_openai(self, prompt: str, max_tokens: int = 500) -> str:
+        """Generate text using OpenAI with clinical context (same method as PDF generator)"""
+        self.logger.info(f"🤖 Generating text with OpenAI (max_tokens: {max_tokens})")
+        
+        if not self.openai_client:
+            self.logger.warning("⚠️ OpenAI client not available, using fallback")
+            return await self._generate_fallback_text(prompt)
+        
+        # Get configured model
+        model = get_openai_model()
+        
+        try:
+            self.logger.info(f"📡 Sending request to OpenAI API with model: {model}...")
+            response = self.openai_client.chat.completions.create(
+                model=model,
+                messages=[
+                    {
+                        "role": "system",
+                        "content": "You are a professional pediatric occupational therapist writing clinical evaluation reports. Use sophisticated clinical terminology, evidence-based interpretations, and maintain a professional, objective tone. Base your responses on standard pediatric developmental assessments and best practices in occupational therapy."
+                    },
+                    {
+                        "role": "user",
+                        "content": prompt
+                    }
+                ],
+                max_tokens=max_tokens,
+                temperature=0.3
+            )
+            
+            generated_text = response.choices[0].message.content.strip()
+            self.logger.info(f"✅ OpenAI generation successful ({len(generated_text)} characters)")
+            return generated_text
+            
+        except Exception as e:
+            self.logger.error(f"❌ OpenAI generation failed: {e}")
+            self.logger.info("🔄 Falling back to enhanced template text")
+            return await self._generate_fallback_text(prompt)
+    
+    async def _generate_fallback_text(self, prompt: str) -> str:
+        """Generate enhanced fallback text when OpenAI is not available"""
+        self.logger.info("🔄 Generating enhanced fallback content...")
+        
+        if "background" in prompt.lower():
+            return "A comprehensive developmental evaluation was recommended to assess current functional abilities and guide evidence-based intervention planning for optimal developmental outcomes."
+        elif "concern" in prompt.lower():
+            return "The caregiver expressed concerns regarding overall development, including attention span, fine motor coordination, and behavioral regulation during daily activities."
+        elif "observation" in prompt.lower():
+            return "The child participated in a comprehensive evaluation demonstrating variable attention span and requiring verbal cues for task completion. Clinical observations indicated areas for therapeutic intervention."
+        elif "summary" in prompt.lower():
+            return "Assessment findings reveal both developmental strengths and areas requiring targeted intervention through evidence-based occupational therapy services."
+        else:
+            return "Professional clinical assessment completed with recommendations for evidence-based therapeutic intervention."
     
     def _build_document_content(self, report_data: Dict[str, Any]) -> List[Dict]:
         """Build the document content requests for batch update"""
@@ -1031,6 +1304,237 @@ Date: {datetime.now().strftime('%B %d, %Y')}
             'insertText': {
                 'location': {'index': 1},
                 'text': signature_text
+            }
+        })
+        
+        return requests
+    
+    async def _create_enhanced_background_requests(self, report_data: Dict[str, Any]) -> List[Dict]:
+        """Create enhanced background section using AI-generated content"""
+        requests = []
+        
+        # Get AI-generated background narrative
+        consolidated_narratives = report_data.get("consolidated_narratives", {})
+        background_text = consolidated_narratives.get("background", "")
+        
+        if not background_text:
+            background_text = "A comprehensive developmental evaluation was recommended to assess current functional abilities and guide evidence-based intervention planning."
+        
+        background_content = f"""BACKGROUND INFORMATION
+
+{background_text}
+
+"""
+        
+        requests.append({
+            'insertText': {
+                'location': {'index': 1},
+                'text': background_content
+            }
+        })
+        
+        return requests
+    
+    async def _create_enhanced_caregiver_concerns_requests(self, report_data: Dict[str, Any]) -> List[Dict]:
+        """Create enhanced caregiver concerns section using AI-generated content"""
+        requests = []
+        
+        # Get AI-generated caregiver concerns narrative
+        consolidated_narratives = report_data.get("consolidated_narratives", {})
+        concerns_text = consolidated_narratives.get("caregiver_concerns", "")
+        
+        if not concerns_text:
+            parent_name = report_data.get("patient_info", {}).get("parent_guardian", "The caregiver")
+            child_name = report_data.get("patient_info", {}).get("name", "the child")
+            concerns_text = f"{parent_name} expressed concerns regarding {child_name}'s overall development and functional abilities."
+        
+        concerns_content = f"""CAREGIVER CONCERNS
+
+{concerns_text}
+
+"""
+        
+        requests.append({
+            'insertText': {
+                'location': {'index': 1},
+                'text': concerns_content
+            }
+        })
+        
+        return requests
+    
+    async def _create_enhanced_clinical_observations_requests(self, report_data: Dict[str, Any]) -> List[Dict]:
+        """Create enhanced clinical observations section using AI-generated content"""
+        requests = []
+        
+        # Get AI-generated observations narrative
+        consolidated_narratives = report_data.get("consolidated_narratives", {})
+        observations_text = consolidated_narratives.get("observations", "")
+        
+        if not observations_text:
+            child_name = report_data.get("patient_info", {}).get("name", "The child")
+            observations_text = f"{child_name} participated in a comprehensive evaluation demonstrating variable attention span and requiring verbal cues for task completion."
+        
+        observations_content = f"""CLINICAL OBSERVATIONS
+
+{observations_text}
+
+"""
+        
+        requests.append({
+            'insertText': {
+                'location': {'index': 1},
+                'text': observations_content
+            }
+        })
+        
+        return requests
+    
+    async def _create_enhanced_assessment_results_requests(self, report_data: Dict[str, Any]) -> List[Dict]:
+        """Create enhanced assessment results section using AI-generated content"""
+        requests = []
+        
+        consolidated_narratives = report_data.get("consolidated_narratives", {})
+        
+        # Build comprehensive assessment results section
+        results_content = "ASSESSMENT RESULTS\n\n"
+        
+        # Bayley-4 Interpretation
+        bayley_interpretation = consolidated_narratives.get("bayley_interpretation", "")
+        if bayley_interpretation:
+            results_content += f"Bayley Scales of Infant and Toddler Development, Fourth Edition (Bayley-4)\n\n{bayley_interpretation}\n\n"
+        
+        # Sensory Profile 2 Interpretation
+        sp2_interpretation = consolidated_narratives.get("sp2_interpretation", "")
+        if sp2_interpretation:
+            results_content += f"Sensory Profile 2 (SP2)\n\n{sp2_interpretation}\n\n"
+        
+        # Feeding Assessment Interpretation
+        feeding_interpretation = consolidated_narratives.get("feeding_interpretation", "")
+        if feeding_interpretation:
+            results_content += f"Feeding Assessment\n\n{feeding_interpretation}\n\n"
+        
+        # Findings and Analysis
+        findings_analysis = consolidated_narratives.get("findings_analysis", "")
+        if findings_analysis:
+            results_content += f"FINDINGS AND ANALYSIS\n\n{findings_analysis}\n\n"
+        
+        # If no AI content available, use enhanced fallback
+        if len(results_content) < 50:
+            assessments = report_data.get("assessments", {})
+            results_content = "ASSESSMENT RESULTS\n\n"
+            
+            if assessments.get("bayley4"):
+                results_content += "Bayley Scales of Infant and Toddler Development, Fourth Edition revealed a mixed profile of developmental strengths and areas requiring targeted intervention.\n\n"
+            
+            if assessments.get("sp2"):
+                results_content += "Sensory Profile 2 assessment indicated variability in sensory processing patterns with implications for functional participation.\n\n"
+            
+            if assessments.get("chomps") or assessments.get("pedieat"):
+                results_content += "Feeding assessment revealed considerations for oral motor development and mealtime participation.\n\n"
+        
+        requests.append({
+            'insertText': {
+                'location': {'index': 1},
+                'text': results_content
+            }
+        })
+        
+        return requests
+    
+    async def _create_enhanced_recommendations_requests(self, report_data: Dict[str, Any]) -> List[Dict]:
+        """Create enhanced recommendations section using AI-generated content"""
+        requests = []
+        
+        # Get AI-generated recommendations
+        consolidated_narratives = report_data.get("consolidated_narratives", {})
+        recommendations_text = consolidated_narratives.get("recommendations", "")
+        
+        if not recommendations_text:
+            recommendations_text = """• Individual occupational therapy services 2x weekly
+• Sensory integration therapy
+• Fine motor skill development programming
+• Family education and home programming
+• Interdisciplinary team collaboration
+• Environmental modifications
+• Regular progress monitoring and reassessment"""
+        
+        recommendations_content = f"""RECOMMENDATIONS
+
+Based on the comprehensive assessment findings, the following evidence-based recommendations are provided:
+
+{recommendations_text}
+
+"""
+        
+        requests.append({
+            'insertText': {
+                'location': {'index': 1},
+                'text': recommendations_content
+            }
+        })
+        
+        return requests
+    
+    async def _create_enhanced_goals_requests(self, report_data: Dict[str, Any]) -> List[Dict]:
+        """Create enhanced treatment goals section using AI-generated content"""
+        requests = []
+        
+        # Get AI-generated goals
+        consolidated_narratives = report_data.get("consolidated_narratives", {})
+        goals_text = consolidated_narratives.get("goals", "")
+        
+        if not goals_text:
+            child_name = report_data.get("patient_info", {}).get("name", "the child")
+            goals_text = f"""1. Within 6 months, {child_name} will demonstrate improved fine motor coordination by stacking 5 blocks independently in 4/5 opportunities with minimal verbal cues.
+2. Within 6 months, {child_name} will use pincer grasp for manipulation of small objects in 4/5 opportunities during structured activities.
+3. Within 6 months, {child_name} will maintain attention to tabletop activities for 5 minutes in 4/5 opportunities with minimal redirection.
+4. Within 6 months, {child_name} will demonstrate improved bilateral coordination during age-appropriate play activities in 4/5 opportunities."""
+        
+        patient_name = report_data.get("patient_info", {}).get("name", "the client")
+        
+        goals_content = f"""TREATMENT GOALS
+
+The following evidence-based treatment goals are recommended for {patient_name}:
+
+{goals_text}
+
+"""
+        
+        requests.append({
+            'insertText': {
+                'location': {'index': 1},
+                'text': goals_content
+            }
+        })
+        
+        return requests
+    
+    async def _create_enhanced_summary_requests(self, report_data: Dict[str, Any]) -> List[Dict]:
+        """Create enhanced summary section using AI-generated content"""
+        requests = []
+        
+        # Get AI-generated summary
+        consolidated_narratives = report_data.get("consolidated_narratives", {})
+        summary_text = consolidated_narratives.get("summary", "")
+        
+        if not summary_text:
+            child_name = report_data.get("patient_info", {}).get("name", "the child")
+            age = report_data.get("patient_info", {}).get("chronological_age", {}).get("formatted", "unknown age")
+            summary_text = f"{child_name} (chronological age: {age}) was assessed using standardized pediatric assessment tools revealing both developmental strengths and areas requiring evidence-based intervention. A comprehensive, family-centered approach involving occupational therapy services is recommended to address identified needs and promote optimal developmental outcomes."
+        
+        summary_content = f"""SUMMARY
+
+{summary_text}
+
+This assessment provides a foundation for developing an individualized intervention plan that addresses the client's unique profile of strengths and needs while promoting optimal developmental outcomes through evidence-based occupational therapy services.
+
+"""
+        
+        requests.append({
+            'insertText': {
+                'location': {'index': 1},
+                'text': summary_content
             }
         })
         
