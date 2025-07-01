@@ -186,7 +186,7 @@
                         </a>
                         <br><small class="text-muted mt-2 d-block">
                             ✅ Editable, shareable, and accessible from anywhere<br>
-                            ✅ Email notification sent to {{ request.form.get('notify_email', 'fushia.crooms@gmail.com') }}
+                            ✅ Email notification sent to {{ notify_email }}
                         </small>
                     </div>
                     {% endif %}
@@ -295,9 +295,9 @@
         }
 
         // Check if report was successful and has Google Docs link
-        const isSuccess = {{ 'true' if success else 'false' }};
-        const hasGoogleDocs = {{ 'true' if (success and output_links and output_links.google_docs) else 'false' }};
-        const googleDocsUrl = '{{ output_links.google_docs if (success and output_links and output_links.google_docs) else "" }}';
+        const isSuccess = {% if success %}true{% else %}false{% endif %};
+        const hasGoogleDocs = {% if success and output_links and output_links.google_docs %}true{% else %}false{% endif %};
+        const googleDocsUrl = '{% if success and output_links and output_links.google_docs %}{{ output_links.google_docs }}{% endif %}';
 
         // Auto-open Google Docs if available (optional)
         if (isSuccess && hasGoogleDocs && googleDocsUrl) {

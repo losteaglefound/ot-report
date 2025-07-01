@@ -1,10 +1,11 @@
+import asyncio
+from datetime import datetime
+import logging
 import os
 import shutil
-import logging
-import asyncio
-import uuid
-from datetime import datetime
 from typing import Dict, Any, Optional
+from traceback import format_exc
+import uuid
 
 # Load configuration first
 from config import config, is_openai_enabled, is_email_enabled, is_google_docs_enabled, get_app_host, get_app_port
@@ -176,13 +177,15 @@ async def home(request: Request):
     """Home page with configuration-aware interface"""
     feature_status = config.get_feature_status()
     configuration_summary = config.get_configuration_summary()
+    notify_email = config.email['default_recipient'] if is_email_enabled() else "fushia.crooms@gmail.com"
     
     return templates.TemplateResponse("index.html", {
         "request": request,
         "features": feature_status,
         "config": configuration_summary,
         "default_report_type": config.app['default_report_type'],
-        "default_output_format": config.app['default_output_format']
+        "default_output_format": config.app['default_output_format'],
+        "notify_email": notify_email
     })
 
 @app.get("/test", response_class=HTMLResponse)
@@ -410,10 +413,12 @@ async def upload_files(
             "output_links": output_links,
             "session_id": session_id,
             "assessments_processed": list(uploaded_files.keys()),
-            "features": config.get_feature_status()
+            "features": config.get_feature_status(),
+            "notify_email": notify_email
         })
         
     except Exception as e:
+        print(format_exc())
         logger.error(f"❌ Report generation failed: {e}")
         return templates.TemplateResponse("result.html", {
             "request": request,
