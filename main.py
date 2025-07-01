@@ -371,12 +371,26 @@ async def upload_files(
                 # Continue processing for other formats
         
         if output_format in ["google_docs", "both"]:
-            logger.info("📝 Generating Google Docs report...")
+            logger.info(f"📝 Generating Google Docs report (type: {report_type})...")
             try:
                 if not is_google_docs_enabled() or not google_docs_generator:
                     raise Exception("Google Docs generator not available")
-                    
-                doc_url = await google_docs_generator.create_report(report_data, session_id)
+                
+                # Follow the same pattern as PDF generation
+                if report_type == "professional" and is_openai_enabled() and openai_report_generator:
+                    # Use AI-enhanced Google Docs generation if available
+                    if hasattr(openai_report_generator, 'generate_google_docs_report'):
+                        doc_url = await openai_report_generator.generate_google_docs_report(report_data, session_id)
+                        logger.info("✅ Professional AI-enhanced Google Docs report generated")
+                    else:
+                        # Fallback to basic Google Docs generation for professional reports
+                        doc_url = await google_docs_generator.create_report(report_data, session_id)
+                        logger.info("✅ Professional Google Docs report generated (using basic generator)")
+                else:
+                    # Use basic Google Docs generation
+                    doc_url = await google_docs_generator.create_report(report_data, session_id)
+                    logger.info("✅ Enhanced Google Docs report generated")
+                
                 output_links["google_docs"] = doc_url
                 logger.info(f"✅ Google Docs report created: {doc_url}")
                 

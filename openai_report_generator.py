@@ -414,6 +414,601 @@ class OpenAIEnhancedReportGenerator:
         except Exception as e:
             self.logger.error(f"❌ Report generation failed: {e}")
             raise
+
+    async def generate_google_docs_report(self, report_data: Dict[str, Any], session_id: str) -> str:
+        """Generate comprehensive professional OT report in Google Docs format using OpenAI enhancement"""
+        self.logger.info(f"📝 Starting AI-enhanced Google Docs report generation for session: {session_id}")
+        
+        # Enhanced data extraction and processing (same as PDF generation)
+        enhanced_data = await self._enhance_report_data(report_data)
+        
+        patient_name = enhanced_data.get("patient_info", {}).get("name", "Unknown")
+        self.logger.info(f"👤 Patient: {patient_name}")
+        
+        try:
+            # Import Google Docs integration
+            from google_docs_integration import GoogleDocsReportGenerator
+            
+            # Initialize Google Docs generator
+            self.logger.info("📄 Initializing Google Docs integration...")
+            google_docs_generator = GoogleDocsReportGenerator()
+            
+            if not google_docs_generator.service:
+                raise Exception("Google Docs service not available")
+            
+            # Prepare enhanced report data for Google Docs format
+            self.logger.info("🧠 Preparing AI-enhanced content for Google Docs...")
+            docs_enhanced_data = await self._prepare_google_docs_content(enhanced_data)
+            
+            # Create the Google Doc using enhanced content
+            self.logger.info("📝 Creating professional Google Docs report...")
+            doc_url = await self._create_enhanced_google_doc(google_docs_generator, docs_enhanced_data, session_id)
+            
+            self.logger.info(f"✅ AI-enhanced Google Docs report created successfully: {doc_url}")
+            return doc_url
+            
+        except Exception as e:
+            self.logger.error(f"❌ Google Docs report generation failed: {e}")
+            raise
+
+    async def _prepare_google_docs_content(self, enhanced_data: Dict[str, Any]) -> Dict[str, Any]:
+        """Prepare enhanced content specifically formatted for Google Docs"""
+        self.logger.info("🔧 Preparing content for Google Docs format...")
+        
+        # Start with enhanced data
+        docs_data = enhanced_data.copy()
+        
+        # Generate Google Docs specific narratives (more conversational, less clinical)
+        self.logger.info("📝 Generating Google Docs optimized narratives...")
+        docs_narratives = await self._generate_google_docs_narratives(enhanced_data)
+        docs_data["docs_narratives"] = docs_narratives
+        
+        # Format assessment results for Google Docs tables
+        docs_data["formatted_assessments"] = await self._format_assessments_for_docs(enhanced_data)
+        
+        # Generate enhanced recommendations formatted for Google Docs
+        docs_data["enhanced_recommendations"] = await self._generate_enhanced_recommendations_for_docs(enhanced_data)
+        
+        # Generate enhanced goals formatted for Google Docs
+        docs_data["enhanced_goals"] = await self._generate_enhanced_goals_for_docs(enhanced_data)
+        
+        return docs_data
+
+    async def _generate_google_docs_narratives(self, enhanced_data: Dict[str, Any]) -> Dict[str, str]:
+        """Generate narratives optimized for Google Docs format (more accessible, less clinical)"""
+        patient_info = enhanced_data.get("patient_info", {})
+        assessment_analysis = enhanced_data.get("assessment_analysis", {})
+        
+        narratives = {}
+        
+        # Background narrative for Google Docs
+        background_prompt = f"""
+        Create a comprehensive background section for a Google Docs OT report that is professional yet accessible to families.
+        
+        Patient: {patient_info.get('name', 'Child')}
+        Age: {patient_info.get('chronological_age', {}).get('formatted', 'Unknown')}
+        Date of Birth: {patient_info.get('date_of_birth', 'Unknown')}
+        Parent/Guardian: {patient_info.get('parent_guardian', 'Unknown')}
+        
+        Write in a professional but family-friendly tone that explains:
+        - Reason for referral and evaluation
+        - Child's developmental history context
+        - Assessment purpose and goals
+        - Family involvement in the process
+        
+        Keep the language clear and avoid excessive clinical jargon. This should be understandable to parents while maintaining professional standards.
+        """
+        
+        narratives["background"] = await self._generate_with_openai(background_prompt, max_tokens=400)
+        
+        # Clinical observations narrative for Google Docs
+        observations_prompt = f"""
+        Create a clinical observations section for a Google Docs OT report.
+        
+        Patient: {patient_info.get('name', 'Child')}
+        Age: {patient_info.get('chronological_age', {}).get('formatted', 'Unknown')}
+        
+        Based on typical pediatric OT observations, write about:
+        - Child's engagement and cooperation during assessment
+        - Social interaction patterns
+        - Attention and focus abilities
+        - Physical presentation and motor skills
+        - Communication and behavioral observations
+        
+        Write in a balanced tone that highlights both strengths and areas of concern. Make it family-friendly while maintaining clinical accuracy.
+        """
+        
+        narratives["clinical_observations"] = await self._generate_with_openai(observations_prompt, max_tokens=400)
+        
+        # Professional summary for Google Docs
+        summary_prompt = f"""
+        Create a professional summary for a Google Docs OT report that synthesizes assessment findings.
+        
+        Patient: {patient_info.get('name', 'Child')}
+        Age: {patient_info.get('chronological_age', {}).get('formatted', 'Unknown')}
+        
+        Assessment data indicates:
+        - Bayley-4 results show developmental patterns
+        - Multiple assessment tools were administered
+        - Comprehensive evaluation completed
+        
+        Write a summary that:
+        - Synthesizes key findings across all assessments
+        - Identifies the child's strengths and abilities
+        - Addresses areas requiring intervention
+        - Provides overall developmental picture
+        - Sets context for recommendations
+        
+        Use professional language that is accessible to families and other team members.
+        """
+        
+        narratives["professional_summary"] = await self._generate_with_openai(summary_prompt, max_tokens=500)
+        
+        return narratives
+
+    async def _format_assessments_for_docs(self, enhanced_data: Dict[str, Any]) -> Dict[str, Any]:
+        """Format assessment results specifically for Google Docs tables and formatting"""
+        self.logger.info("📊 Formatting assessments for Google Docs...")
+        
+        formatted = {}
+        assessment_analysis = enhanced_data.get("assessment_analysis", {})
+        
+        # Format Bayley-4 results
+        if "bayley4" in assessment_analysis:
+            formatted["bayley4"] = await self._format_bayley4_for_docs(assessment_analysis["bayley4"])
+        
+        # Format SP2 results
+        if "sp2" in assessment_analysis:
+            formatted["sp2"] = await self._format_sp2_for_docs(assessment_analysis["sp2"])
+        
+        # Format ChOMPS results
+        if "chomps" in assessment_analysis:
+            formatted["chomps"] = await self._format_chomps_for_docs(assessment_analysis["chomps"])
+        
+        # Format PediEAT results
+        if "pedieat" in assessment_analysis:
+            formatted["pedieat"] = await self._format_pedieat_for_docs(assessment_analysis["pedieat"])
+        
+        return formatted
+
+    async def _format_bayley4_for_docs(self, bayley_analysis: Dict[str, Any]) -> Dict[str, Any]:
+        """Format Bayley-4 results for Google Docs presentation"""
+        formatted = {
+            "domains": [],
+            "summary": ""
+        }
+        
+        # Process cognitive analysis
+        if "cognitive_analysis" in bayley_analysis:
+            for domain, analysis in bayley_analysis["cognitive_analysis"].items():
+                if isinstance(analysis, dict):
+                    formatted["domains"].append({
+                        "domain": domain,
+                        "range": analysis.get("range_class", "Unknown"),
+                        "percentile": analysis.get("percentile_range", "Unknown"),
+                        "description": analysis.get("clinical_desc", "Assessment completed")
+                    })
+        
+        # Process social-emotional analysis
+        if "social_emotional_analysis" in bayley_analysis:
+            for domain, analysis in bayley_analysis["social_emotional_analysis"].items():
+                if isinstance(analysis, dict):
+                    formatted["domains"].append({
+                        "domain": domain,
+                        "range": analysis.get("range_class", "Unknown"),
+                        "percentile": analysis.get("percentile_range", "Unknown"),
+                        "description": analysis.get("clinical_desc", "Assessment completed")
+                    })
+        
+        return formatted
+
+    async def _format_sp2_for_docs(self, sp2_analysis: Dict[str, Any]) -> Dict[str, Any]:
+        """Format SP2 results for Google Docs presentation"""
+        return {
+            "quadrants": sp2_analysis.get("quadrant_scores", {}),
+            "interpretations": sp2_analysis.get("interpretations", {}),
+            "implications": sp2_analysis.get("real_world_implications", [])
+        }
+
+    async def _format_chomps_for_docs(self, chomps_analysis: Dict[str, Any]) -> Dict[str, Any]:
+        """Format ChOMPS results for Google Docs presentation"""
+        return {
+            "concerns": chomps_analysis.get("concern_levels", {}),
+            "risks": chomps_analysis.get("feeding_risks", []),
+            "recommendations": chomps_analysis.get("recommendations", [])
+        }
+
+    async def _format_pedieat_for_docs(self, pedieat_analysis: Dict[str, Any]) -> Dict[str, Any]:
+        """Format PediEAT results for Google Docs presentation"""
+        return {
+            "domains": pedieat_analysis.get("domain_scores", {}),
+            "interpretations": pedieat_analysis.get("interpretations", {}),
+            "safety_concerns": pedieat_analysis.get("safety_concerns", [])
+        }
+
+    async def _generate_enhanced_recommendations_for_docs(self, enhanced_data: Dict[str, Any]) -> List[str]:
+        """Generate enhanced recommendations formatted for Google Docs"""
+        recommendations_prompt = f"""
+        Generate comprehensive OT recommendations for a Google Docs report based on assessment findings.
+        
+        Patient: {enhanced_data.get('patient_info', {}).get('name', 'Child')}
+        Age: {enhanced_data.get('patient_info', {}).get('chronological_age', {}).get('formatted', 'Unknown')}
+        
+        Create 8-12 specific, actionable recommendations that address:
+        - Direct occupational therapy services
+        - Home program activities
+        - Environmental modifications
+        - Caregiver training and education
+        - Equipment or adaptive tools
+        - School/daycare accommodations
+        - Follow-up assessments
+        - Community resources
+        
+        Format each recommendation as a clear, actionable statement that families can understand and implement.
+        """
+        
+        recommendations_text = await self._generate_with_openai(recommendations_prompt, max_tokens=600)
+        
+        # Convert to list format
+        recommendations = [rec.strip() for rec in recommendations_text.split('\n') if rec.strip() and not rec.strip().startswith('#')]
+        
+        return recommendations[:12]  # Limit to 12 recommendations
+
+    async def _generate_enhanced_goals_for_docs(self, enhanced_data: Dict[str, Any]) -> List[str]:
+        """Generate enhanced OT goals formatted for Google Docs"""
+        goals_prompt = f"""
+        Generate specific, measurable OT goals for a Google Docs report.
+        
+        Patient: {enhanced_data.get('patient_info', {}).get('name', 'Child')}
+        Age: {enhanced_data.get('patient_info', {}).get('chronological_age', {}).get('formatted', 'Unknown')}
+        
+        Create 6-8 SMART goals (Specific, Measurable, Achievable, Relevant, Time-bound) that address:
+        - Fine motor development
+        - Gross motor skills
+        - Sensory processing
+        - Self-care/adaptive skills
+        - Social participation
+        - Cognitive-motor integration
+        
+        Format each goal with:
+        - Clear measurable criteria
+        - Realistic timeframes
+        - Age-appropriate expectations
+        - Family-friendly language
+        
+        Example format: "By [timeframe], [child] will [specific action] with [level of assistance] in [context] as measured by [criteria]."
+        """
+        
+        goals_text = await self._generate_with_openai(goals_prompt, max_tokens=600)
+        
+        # Convert to list format
+        goals = [goal.strip() for goal in goals_text.split('\n') if goal.strip() and not goal.strip().startswith('#')]
+        
+        return goals[:8]  # Limit to 8 goals
+
+    async def _create_enhanced_google_doc(self, google_docs_generator, enhanced_data: Dict[str, Any], session_id: str) -> str:
+        """Create Google Doc using the enhanced data and AI-generated content"""
+        self.logger.info("📝 Creating enhanced Google Doc with AI-generated content...")
+        
+        # Create the document structure with enhanced content
+        doc_title = f"OT Evaluation Report - {enhanced_data.get('patient_info', {}).get('name', 'Patient')} - {datetime.now().strftime('%Y-%m-%d')}"
+        
+        try:
+            # Create a new document
+            doc = google_docs_generator.service.documents().create(body={'title': doc_title}).execute()
+            doc_id = doc.get('documentId')
+            self.logger.info(f"📄 Created Google Doc with ID: {doc_id}")
+            
+            # Build enhanced content requests
+            requests = await self._build_enhanced_docs_requests(enhanced_data)
+            
+            # Apply all formatting and content in batches
+            self.logger.info("🎨 Applying enhanced formatting and content...")
+            batch_size = 50  # Google Docs API limit
+            for i in range(0, len(requests), batch_size):
+                batch = requests[i:i + batch_size]
+                google_docs_generator.service.documents().batchUpdate(
+                    documentId=doc_id,
+                    body={'requests': batch}
+                ).execute()
+            
+            # Make document shareable
+            doc_url = google_docs_generator._make_document_shareable(doc_id)
+            
+            self.logger.info(f"✅ Enhanced Google Docs report created: {doc_url}")
+            return doc_url
+            
+        except Exception as e:
+            self.logger.error(f"❌ Failed to create enhanced Google Doc: {e}")
+            # Fallback to basic Google Docs generation
+            self.logger.info("🔄 Falling back to basic Google Docs generation...")
+            return await google_docs_generator.create_report(enhanced_data, session_id)
+
+    async def _build_enhanced_docs_requests(self, enhanced_data: Dict[str, Any]) -> List[Dict]:
+        """Build Google Docs API requests for enhanced content"""
+        requests = []
+        current_index = 1
+        
+        patient_info = enhanced_data.get("patient_info", {})
+        docs_narratives = enhanced_data.get("docs_narratives", {})
+        
+        # Document title and header
+        title_text = f"PEDIATRIC OCCUPATIONAL THERAPY EVALUATION\n\n"
+        requests.append({
+            'insertText': {
+                'location': {'index': current_index},
+                'text': title_text
+            }
+        })
+        current_index += len(title_text)
+        
+        # Format title
+        requests.append({
+            'updateTextStyle': {
+                'range': {'startIndex': 1, 'endIndex': current_index - 2},
+                'textStyle': {
+                    'bold': True,
+                    'fontSize': {'magnitude': 16, 'unit': 'PT'},
+                    'foregroundColor': {'color': {'rgbColor': {'red': 0.12, 'green': 0.28, 'blue': 0.53}}}
+                },
+                'fields': 'bold,fontSize,foregroundColor'
+            }
+        })
+        
+        # Center title
+        requests.append({
+            'updateParagraphStyle': {
+                'range': {'startIndex': 1, 'endIndex': current_index - 2},
+                'paragraphStyle': {'alignment': 'CENTER'},
+                'fields': 'alignment'
+            }
+        })
+        
+        # Patient information section
+        patient_section = f"Patient Name: {patient_info.get('name', 'Unknown')}\n"
+        patient_section += f"Date of Birth: {patient_info.get('date_of_birth', 'Unknown')}\n"
+        patient_section += f"Chronological Age: {patient_info.get('chronological_age', {}).get('formatted', 'Unknown')}\n"
+        patient_section += f"Parent/Guardian: {patient_info.get('parent_guardian', 'Unknown')}\n"
+        patient_section += f"Evaluation Date: {patient_info.get('encounter_date', 'Unknown')}\n"
+        patient_section += f"Report Date: {patient_info.get('report_date', datetime.now().strftime('%Y-%m-%d'))}\n\n"
+        
+        requests.append({
+            'insertText': {
+                'location': {'index': current_index},
+                'text': patient_section
+            }
+        })
+        current_index += len(patient_section)
+        
+        # Background section
+        if docs_narratives.get("background"):
+            background_header = "BACKGROUND AND REASON FOR REFERRAL\n"
+            requests.append({
+                'insertText': {
+                    'location': {'index': current_index},
+                    'text': background_header
+                }
+            })
+            current_index += len(background_header)
+            
+            # Format header
+            requests.append({
+                'updateTextStyle': {
+                    'range': {'startIndex': current_index - len(background_header), 'endIndex': current_index - 1},
+                    'textStyle': {
+                        'bold': True,
+                        'fontSize': {'magnitude': 14, 'unit': 'PT'},
+                        'foregroundColor': {'color': {'rgbColor': {'red': 0.12, 'green': 0.28, 'blue': 0.53}}}
+                    },
+                    'fields': 'bold,fontSize,foregroundColor'
+                }
+            })
+            
+            background_content = docs_narratives["background"] + "\n\n"
+            requests.append({
+                'insertText': {
+                    'location': {'index': current_index},
+                    'text': background_content
+                }
+            })
+            current_index += len(background_content)
+        
+        # Assessment Results section
+        assessment_header = "ASSESSMENT RESULTS\n"
+        requests.append({
+            'insertText': {
+                'location': {'index': current_index},
+                'text': assessment_header
+            }
+        })
+        current_index += len(assessment_header)
+        
+        # Format assessment header
+        requests.append({
+            'updateTextStyle': {
+                'range': {'startIndex': current_index - len(assessment_header), 'endIndex': current_index - 1},
+                'textStyle': {
+                    'bold': True,
+                    'fontSize': {'magnitude': 14, 'unit': 'PT'},
+                    'foregroundColor': {'color': {'rgbColor': {'red': 0.12, 'green': 0.28, 'blue': 0.53}}}
+                },
+                'fields': 'bold,fontSize,foregroundColor'
+            }
+        })
+        
+        # Add assessment content
+        formatted_assessments = enhanced_data.get("formatted_assessments", {})
+        if formatted_assessments.get("bayley4"):
+            bayley_content = "Bayley Scales of Infant and Toddler Development (4th Edition):\n"
+            for domain_info in formatted_assessments["bayley4"].get("domains", []):
+                bayley_content += f"• {domain_info['domain']}: {domain_info['range']} ({domain_info['percentile']}) - {domain_info['description']}\n"
+            bayley_content += "\n"
+            
+            requests.append({
+                'insertText': {
+                    'location': {'index': current_index},
+                    'text': bayley_content
+                }
+            })
+            current_index += len(bayley_content)
+        
+        # Clinical Observations
+        if docs_narratives.get("clinical_observations"):
+            observations_header = "CLINICAL OBSERVATIONS\n"
+            requests.append({
+                'insertText': {
+                    'location': {'index': current_index},
+                    'text': observations_header
+                }
+            })
+            current_index += len(observations_header)
+            
+            # Format header
+            requests.append({
+                'updateTextStyle': {
+                    'range': {'startIndex': current_index - len(observations_header), 'endIndex': current_index - 1},
+                    'textStyle': {
+                        'bold': True,
+                        'fontSize': {'magnitude': 14, 'unit': 'PT'},
+                        'foregroundColor': {'color': {'rgbColor': {'red': 0.12, 'green': 0.28, 'blue': 0.53}}}
+                    },
+                    'fields': 'bold,fontSize,foregroundColor'
+                }
+            })
+            
+            observations_content = docs_narratives["clinical_observations"] + "\n\n"
+            requests.append({
+                'insertText': {
+                    'location': {'index': current_index},
+                    'text': observations_content
+                }
+            })
+            current_index += len(observations_content)
+        
+        # Recommendations
+        enhanced_recommendations = enhanced_data.get("enhanced_recommendations", [])
+        if enhanced_recommendations:
+            recommendations_header = "RECOMMENDATIONS\n"
+            requests.append({
+                'insertText': {
+                    'location': {'index': current_index},
+                    'text': recommendations_header
+                }
+            })
+            current_index += len(recommendations_header)
+            
+            # Format header
+            requests.append({
+                'updateTextStyle': {
+                    'range': {'startIndex': current_index - len(recommendations_header), 'endIndex': current_index - 1},
+                    'textStyle': {
+                        'bold': True,
+                        'fontSize': {'magnitude': 14, 'unit': 'PT'},
+                        'foregroundColor': {'color': {'rgbColor': {'red': 0.12, 'green': 0.28, 'blue': 0.53}}}
+                    },
+                    'fields': 'bold,fontSize,foregroundColor'
+                }
+            })
+            
+            recommendations_content = ""
+            for i, rec in enumerate(enhanced_recommendations, 1):
+                recommendations_content += f"{i}. {rec}\n"
+            recommendations_content += "\n"
+            
+            requests.append({
+                'insertText': {
+                    'location': {'index': current_index},
+                    'text': recommendations_content
+                }
+            })
+            current_index += len(recommendations_content)
+        
+        # Professional Summary
+        if docs_narratives.get("professional_summary"):
+            summary_header = "PROFESSIONAL SUMMARY\n"
+            requests.append({
+                'insertText': {
+                    'location': {'index': current_index},
+                    'text': summary_header
+                }
+            })
+            current_index += len(summary_header)
+            
+            # Format header
+            requests.append({
+                'updateTextStyle': {
+                    'range': {'startIndex': current_index - len(summary_header), 'endIndex': current_index - 1},
+                    'textStyle': {
+                        'bold': True,
+                        'fontSize': {'magnitude': 14, 'unit': 'PT'},
+                        'foregroundColor': {'color': {'rgbColor': {'red': 0.12, 'green': 0.28, 'blue': 0.53}}}
+                    },
+                    'fields': 'bold,fontSize,foregroundColor'
+                }
+            })
+            
+            summary_content = docs_narratives["professional_summary"] + "\n\n"
+            requests.append({
+                'insertText': {
+                    'location': {'index': current_index},
+                    'text': summary_content
+                }
+            })
+            current_index += len(summary_content)
+        
+        # Treatment Goals
+        enhanced_goals = enhanced_data.get("enhanced_goals", [])
+        if enhanced_goals:
+            goals_header = "TREATMENT GOALS\n"
+            requests.append({
+                'insertText': {
+                    'location': {'index': current_index},
+                    'text': goals_header
+                }
+            })
+            current_index += len(goals_header)
+            
+            # Format header
+            requests.append({
+                'updateTextStyle': {
+                    'range': {'startIndex': current_index - len(goals_header), 'endIndex': current_index - 1},
+                    'textStyle': {
+                        'bold': True,
+                        'fontSize': {'magnitude': 14, 'unit': 'PT'},
+                        'foregroundColor': {'color': {'rgbColor': {'red': 0.12, 'green': 0.28, 'blue': 0.53}}}
+                    },
+                    'fields': 'bold,fontSize,foregroundColor'
+                }
+            })
+            
+            goals_content = ""
+            for i, goal in enumerate(enhanced_goals, 1):
+                goals_content += f"{i}. {goal}\n"
+            goals_content += "\n"
+            
+            requests.append({
+                'insertText': {
+                    'location': {'index': current_index},
+                    'text': goals_content
+                }
+            })
+            current_index += len(goals_content)
+        
+        # Signature block
+        signature_text = "Report prepared by:\n"
+        signature_text += "Fushia Crooms, MOT, OTR/L\n"
+        signature_text += "Occupational Therapist\n"
+        signature_text += "FMRC Health Group\n"
+        signature_text += f"Date: {datetime.now().strftime('%B %d, %Y')}\n"
+        
+        requests.append({
+            'insertText': {
+                'location': {'index': current_index},
+                'text': signature_text
+            }
+        })
+        
+        return requests
     
     async def _enhance_report_data(self, report_data: Dict[str, Any]) -> Dict[str, Any]:
         """Enhance report data with detailed analysis and calculations"""
