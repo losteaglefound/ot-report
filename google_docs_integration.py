@@ -263,7 +263,7 @@ class GoogleDocsReportGenerator:
             }
         
         # Additional validation for key fields
-        if not credentials_data.get('client_email', '').endswith('@'):
+        if not credentials_data.get('client_email', '') or '@' not in credentials_data.get('client_email', ''):
             return {
                 'valid': False,
                 'type': 'service_account',
