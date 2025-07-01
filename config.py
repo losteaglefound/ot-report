@@ -5,6 +5,7 @@ Loads and validates environment variables from .env file
 
 import os
 import logging
+from pathlib import Path
 from typing import Dict, Any, Optional
 from dotenv import load_dotenv
 
@@ -13,6 +14,11 @@ load_dotenv(override=True)
 
 # Configure logging
 logger = logging.getLogger(__name__)
+
+
+BASE_DIR = Path(__file__).resolve().parent
+"""Project root directory"""
+
 
 class Config:
     """Centralized configuration management"""
@@ -144,6 +150,17 @@ class Config:
         available_features.append("PDF Reports")  # Always available
         
         self.logger.info(f"✅ Available features: {', '.join(available_features)}")
+
+
+    def get_header_image_path(self) -> str:
+        """Get the path to the header image"""
+        return os.path.join(BASE_DIR, 'assets', 'images', 'header.png')
+    
+
+    def get_ai_save_response_dir(self) -> str:
+        """Return the AI response directory"""
+        return os.path.join(BASE_DIR, 'assets', 'responses')
+    
     
     def get_feature_status(self) -> Dict[str, bool]:
         """Get status of all features"""

@@ -1,12 +1,15 @@
-import os
-import logging
-from typing import Dict, Any, List, Optional
 from datetime import datetime
-import json
-import re
 from dateutil import parser
+import io
+import json
+import logging
+import os
+import re
+from traceback import format_exc
+from typing import Dict, Any, List, Optional
 
 # Import configuration
+from config import config
 from config import get_openai_api_key, get_openai_model, is_openai_enabled
 
 try:
@@ -23,12 +26,26 @@ if OPENAI_AVAILABLE:
 else:
     logger.warning("⚠️ OpenAI library not available - install with: pip install openai")
 
+from PIL import Image as PILImage
 from reportlab.lib.pagesizes import letter
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 from reportlab.lib.units import inch
-from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle, PageBreak
+from reportlab.platypus import (
+    Image,
+    Paragraph, 
+    PageBreak,
+    SimpleDocTemplate, 
+    Spacer, 
+    Table, 
+    TableStyle, 
+)
 from reportlab.lib.enums import TA_LEFT, TA_CENTER, TA_JUSTIFY
 from reportlab.lib import colors
+
+
+from backend.prompts import save_response, remove_lang_tags, get_prompt
+from backend.utils.response import format_data_for_pdf
+
 
 class OpenAIEnhancedReportGenerator:
     """Professional OT Report Generator using OpenAI for clinical narratives"""
@@ -36,6 +53,7 @@ class OpenAIEnhancedReportGenerator:
     def __init__(self):
         self.logger = logging.getLogger(f"{__name__}.{self.__class__.__name__}")
         self.logger.info("🧠 Initializing OpenAI Enhanced Report Generator...")
+        self.config = config
         
         self.styles = getSampleStyleSheet()
         self._setup_custom_styles()
@@ -363,40 +381,52 @@ class OpenAIEnhancedReportGenerator:
                 keywords="occupational therapy, developmental evaluation, pediatric assessment"
             )
             
+            page_width, page_width = doc.pagesize
+
+            img_path = self.config.get_header_image_path()
+            with PILImage.open(img_path) as img:
+                img_width, img_height = img.size
+                aspect_ratio = img_height / img_width
+                scaled_height = page_width * aspect_ratio
+
+            # Create Platypus Image with scaled dimensions
+            header_image = Image(img_path, width=page_width, height=scaled_height)
+
             # Build the report content
             story = []
+            story.extend([header_image, Spacer(1, 12)])
             
             # Header section (clinic branding and patient info)
             self.logger.info("📋 Generating header section...")
-            story.extend(self._create_professional_header(enhanced_data["patient_info"]))
+            # story.extend(self._create_professional_header(enhanced_data["patient_info"]))
             
             # Main report sections
-            self.logger.info("📝 Generating background section...")
-            story.extend(await self._create_background_section(enhanced_data))
+            # self.logger.info("📝 Generating background section...")
+            # story.extend(await self._create_background_section(enhanced_data))
             
-            self.logger.info("👥 Generating caregiver concerns...")
-            story.extend(await self._create_caregiver_concerns(enhanced_data))
+            # self.logger.info("👥 Generating caregiver concerns...")
+            # story.extend(await self._create_caregiver_concerns(enhanced_data))
             
-            self.logger.info("👁️ Generating clinical observations...")
-            story.extend(await self._create_clinical_observations(enhanced_data))
+            # self.logger.info("👁️ Generating clinical observations...")
+            # story.extend(await self._create_clinical_observations(enhanced_data))
             
-            self.logger.info("🔧 Adding assessment tools description...")
-            story.extend(self._create_assessment_tools_description())
+            # self.logger.info("🔧 Adding assessment tools description...")
+            # story.extend(self._create_assessment_tools_description())
             
             self.logger.info("📊 Generating detailed assessment results...")
             story.extend(await self._create_detailed_assessment_results(enhanced_data))
             
-            self.logger.info("💡 Generating recommendations...")
-            story.extend(await self._create_recommendations_section(enhanced_data))
+            # self.logger.info("💡 Generating recommendations...")
+            # story.extend(await self._create_recommendations_section(enhanced_data))
             
-            self.logger.info("📋 Generating professional summary...")
-            story.extend(await self._create_professional_summary(enhanced_data))
+            # self.logger.info("📋 Generating professional summary...")
+            # story.extend(await self._create_professional_summary(enhanced_data))
             
-            self.logger.info("🎯 Generating OT goals...")
-            story.extend(await self._create_ot_goals_section(enhanced_data))
+            # self.logger.info("🎯 Generating OT goals...")
+            # story.extend(await self._create_ot_goals_section(enhanced_data))
             
-            self.logger.info("✍️ Adding signature block...")
-            story.extend(self._create_signature_block())
+            # self.logger.info("✍️ Adding signature block...")
+            # story.extend(self._create_signature_block())
             
             # Build the PDF
             self.logger.info("🔨 Building final PDF document...")
@@ -412,6 +442,7 @@ class OpenAIEnhancedReportGenerator:
             return output_path
             
         except Exception as e:
+            print(format_exc())
             self.logger.error(f"❌ Report generation failed: {e}")
             raise
 
@@ -1460,20 +1491,20 @@ class OpenAIEnhancedReportGenerator:
         assessment_analysis = report_data.get("assessment_analysis", {})
         
         # Bayley-4 detailed results
-        if assessment_analysis.get("bayley4"):
-            elements.extend(await self._create_bayley4_detailed_section(report_data))
+        # if assessment_analysis.get("bayley4"):
+        #     elements.extend(await self._create_bayley4_detailed_section(report_data))
         
-        # SP2 detailed results
-        if assessment_analysis.get("sp2"):
-            elements.extend(await self._create_sp2_detailed_section(report_data))
+        # # SP2 detailed results
+        # if assessment_analysis.get("sp2"):
+        #     elements.extend(await self._create_sp2_detailed_section(report_data))
         
         # ChOMPS detailed results
         if assessment_analysis.get("chomps"):
             elements.extend(await self._create_chomps_detailed_section(report_data))
         
         # PediEAT detailed results  
-        if assessment_analysis.get("pedieat"):
-            elements.extend(await self._create_pedieat_detailed_section(report_data))
+        # if assessment_analysis.get("pedieat"):
+        #     elements.extend(await self._create_pedieat_detailed_section(report_data))
         
         return elements
     
@@ -1700,29 +1731,23 @@ class OpenAIEnhancedReportGenerator:
         chomps_analysis = report_data.get("assessment_analysis", {}).get("chomps", {})
         
         # Generate ChOMPS interpretation
-        chomps_prompt = f"""
-        Write a detailed ChOMPS assessment interpretation for a pediatric OT report.
+        chomps_prompt = await get_prompt(prompt_type="chomps", data=chomps_analysis, json_format=True)
+        chomps_narrative = await self._generate_with_openai(chomps_prompt, max_tokens=2000)
+        chomps_narrative = await remove_lang_tags(chomps_narrative)
+        try:
+            chomps_narrative = json.loads(chomps_narrative)
+            await save_response(chomps_narrative, file_name="chomps", json_format=True)
+        except json.JSONDecodeError as e:
+            print(format_exc())
+            await save_response(chomps_narrative, file_name="chomps", json_format=True)
+            self.logger.error(f"❌ ChOMPS response parsing failed: {e}")
+            raise
+        body = await format_data_for_pdf(chomps_narrative)
+        elements.extend(body)
         
-        ChOMPS Analysis: {chomps_analysis}
-        
-        Requirements:
-        - Report domain-specific scores and levels of concern
-        - Describe feeding risks including bolus control, gagging, and food hoarding
-        - Include safety considerations and aspiration risk assessment
-        - Provide specific clinical recommendations
-        - Address texture modification needs
-        - Include caregiver education recommendations
-        - Use professional dysphagia terminology
-        - Connect findings to functional feeding abilities
-        
-        Focus on feeding safety, efficiency, and recommendations for intervention.
-        """
-        
-        chomps_narrative = await self._generate_with_openai(chomps_prompt, max_tokens=600)
-        
-        narrative_para = Paragraph(chomps_narrative, self.styles['ClinicalBody'])
-        elements.append(narrative_para)
-        elements.append(Spacer(1, 12))
+        # narrative_para = Paragraph(chomps_narrative, self.styles['ClinicalBody'])
+        # elements.append(narrative_para)
+        # elements.append(Spacer(1, 12))
         
         return elements
     
@@ -1739,30 +1764,70 @@ class OpenAIEnhancedReportGenerator:
         # PediEAT analysis data
         pedieat_analysis = report_data.get("assessment_analysis", {}).get("pedieat", {})
         
-        # Generate PediEAT interpretation
-        pedieat_prompt = f"""
-        Write a detailed PediEAT assessment interpretation for a pediatric OT report.
+        pedieat_prompt = await get_prompt(prompt_type="pedieat", data=pedieat_analysis, json_format=True)
+
+        # def parse_pedieat_report(text):
+        #     """
+        #     Parses the OpenAI PediEAT response into a list of (section_title, content) tuples.
+        #     """
+        #     pattern = r"\*\*(.+?):\*\*"
+        #     matches = list(re.finditer(pattern, text))
+
+        #     sections = []
+        #     for i, match in enumerate(matches):
+        #         title = match.group(1).strip()
+        #         start = match.end()
+        #         end = matches[i + 1].start() if i + 1 < len(matches) else len(text)
+        #         content = text[start:end].strip().replace('\n', ' ')
+        #         sections.append((title, content))
+        #     return sections
+
+        # def create_story(parsed_sections):
+        #     styles = getSampleStyleSheet()
+        #     s = []
+        #     for title, content in parsed_sections:
+        #         if 'SectionTitle' not in styles:
+        #             style = styles.add(ParagraphStyle(
+        #                 name='SectionTitle',
+        #                 fontSize=14,
+        #                 leading=16,
+        #                 spaceAfter=10,
+        #                 spaceBefore=12,
+        #                 fontName='Helvetica-Bold'
+        #             ))
+        #             s.append(style)
+        #         else:
+        #             s.append(Paragraph(title, styles['SectionTitle']))
+                
+        #         if 'Content' not in styles:
+        #             style = styles.add(ParagraphStyle(
+        #                 name='Content',
+        #                 fontSize=11,
+        #                 leading=14,
+        #                 alignment=TA_LEFT
+        #             ))
+        #             s.append(style)
+        #         else:
+        #             s.append(Paragraph(content, styles['Content']))
+        #         s.append(Spacer(1, 12))
+        #     return s
         
-        PediEAT Analysis: {pedieat_analysis}
+        # pedieat_narrative = await self._generate_with_openai(pedieat_prompt, max_tokens=600)
         
-        Requirements:
-        - Interpret elevated symptoms in Physiology, Processing, Mealtime Behavior, and Selectivity domains
-        - Identify safety and endurance concerns during meals
-        - Describe impact on family mealtime dynamics
-        - Include nutritional risk assessment
-        - Provide intervention recommendations
-        - Address growth and development concerns
-        - Use professional feeding assessment terminology
-        - Connect findings to functional mealtime participation
-        
-        Focus on comprehensive feeding assessment and family-centered intervention planning.
-        """
-        
-        pedieat_narrative = await self._generate_with_openai(pedieat_prompt, max_tokens=600)
-        
-        narrative_para = Paragraph(pedieat_narrative, self.styles['ClinicalBody'])
-        elements.append(narrative_para)
-        elements.append(Spacer(1, 12))
+        # # narrative_para = Paragraph(pedieat_narrative, self.styles['ClinicalBody'])
+        # # elements.append(narrative_para)
+
+        # parsed_sections = parse_pedieat_report(pedieat_narrative)
+        # story = create_story(parsed_sections)
+        # elements.extend(story)
+        # elements.append(Spacer(1, 12))
+
+        pedieat_response = await self._generate_with_openai(pedieat_prompt, max_tokens=1000)
+        pedieat_response = await remove_lang_tags(pedieat_response)
+        pedieat_response = json.loads(pedieat_response)
+        await save_response(pedieat_response, file_name="pedieat", json_format=True)
+        body = await format_data_for_pdf(pedieat_response)
+        elements.extend(body)
         
         return elements
     

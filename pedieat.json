@@ -1,0 +1,74 @@
+{
+    "Physiology": {
+        "type": "header",
+        "content": "Physiology"
+    },
+    "Physiology Interpretation": {
+        "type": "paragraph",
+        "content": "The PediEAT assessment did not indicate any elevated symptoms in the domain of physiology. This suggests that the child does not exhibit significant physiological challenges such as dysphagia, oral-motor dysfunction, or other related issues that would impede the mechanical aspects of feeding. The absence of physiological concerns supports functional oral intake without apparent physical barriers."
+    },
+    "Processing": {
+        "type": "header",
+        "content": "Processing"
+    },
+    "Processing Interpretation": {
+        "type": "paragraph",
+        "content": "The assessment did not reveal any elevated symptoms in the processing domain. This indicates that the child likely possesses adequate sensory processing abilities related to feeding, such as the ability to manage different food textures and temperatures. The child's sensory processing capabilities appear to be sufficient to support effective mealtime participation without sensory-based disruptions."
+    },
+    "Mealtime Behavior": {
+        "type": "header",
+        "content": "Mealtime Behavior"
+    },
+    "Mealtime Behavior Interpretation": {
+        "type": "paragraph",
+        "content": "No elevated symptoms were noted in the mealtime behavior domain. This suggests that the child demonstrates appropriate mealtime behaviors, such as sitting at the table, following mealtime routines, and engaging in social interactions during meals. The child's mealtime behavior supports positive participation and interaction during family meals."
+    },
+    "Selectivity": {
+        "type": "header",
+        "content": "Selectivity"
+    },
+    "Selectivity Interpretation": {
+        "type": "paragraph",
+        "content": "The assessment did not identify elevated symptoms in the selectivity domain. This indicates that the child does not exhibit significant food selectivity or aversions that would limit dietary variety. The child's acceptance of a range of foods supports balanced nutritional intake and reduces the risk of nutritional deficiencies."
+    },
+    "Safety and Endurance": {
+        "type": "header",
+        "content": "Safety and Endurance"
+    },
+    "Safety and Endurance Concerns": {
+        "type": "bullet_points",
+        "content": []
+    },
+    "Family Dynamics": {
+        "type": "header",
+        "content": "Family Dynamics"
+    },
+    "Family Dynamics Interpretation": {
+        "type": "paragraph",
+        "content": "Given the absence of significant feeding challenges, it is likely that family mealtime dynamics are not adversely affected by the child's feeding behaviors. The child's ability to participate in meals without physiological, processing, or behavioral disruptions likely contributes to a positive and cohesive family mealtime experience."
+    },
+    "Nutritional Risk": {
+        "type": "header",
+        "content": "Nutritional Risk"
+    },
+    "Nutritional Risk Assessment": {
+        "type": "paragraph",
+        "content": "The absence of selectivity and physiological concerns suggests a low risk for nutritional deficiencies. The child appears to consume a varied diet that supports adequate nutritional intake, promoting healthy growth and development."
+    },
+    "Growth and Development": {
+        "type": "header",
+        "content": "Growth and Development"
+    },
+    "Growth and Development Concerns": {
+        "type": "paragraph",
+        "content": "There are no concerns regarding the child's growth and development based on the current assessment. The child's feeding skills and nutritional intake appear to support typical growth trajectories and developmental milestones."
+    },
+    "Recommendations": {
+        "type": "header",
+        "content": "Recommendations"
+    },
+    "Intervention Recommendations": {
+        "type": "paragraph",
+        "content": "Given the absence of identified feeding concerns, no specific interventions are recommended at this time. Continued monitoring of the child's feeding skills and nutritional intake is advised to ensure ongoing support for healthy growth and development. Family-centered mealtime practices should be maintained to foster positive mealtime experiences."
+    }
+}
