@@ -2018,175 +2018,159 @@ class OpenAIEnhancedReportGenerator:
         return elements
     
     def _create_professional_header(self, patient_info: Dict[str, Any]) -> List:
-        """Create professional header with enhanced styling and formatting"""
+        """Create professional header with FMRC logo and clinic info, matching Sabrina OT Report style"""
         elements = []
-        
-        # Enhanced FMRC Health Group header with improved styling
-        title = Paragraph("FMRC Health Group", self.styles['ReportTitle'])
-        elements.append(title)
-        
-        subtitle = Paragraph("Occupational Therapy Developmental Evaluation", self.styles['ClinicInfo'])
-        elements.append(subtitle)
-        
-        vendor = Paragraph("Vendor #PW8583", self.styles['ClinicInfo'])
-        elements.append(vendor)
-        
-        address = Paragraph("1626 Centinela Ave, Suite 108, Inglewood CA 90302", self.styles['ClinicInfo'])
-        elements.append(address)
-        
-        website = Paragraph("www.fmrchealth.com", self.styles['ClinicInfo'])
-        elements.append(website)
-        
-        elements.append(Spacer(1, 24))
-        
-        # Enhanced patient information table with professional styling
-        patient_data = [
-            ["Name:", patient_info.get("name", ""), "Date of Birth:", patient_info.get("date_of_birth", "")],
-            ["Parent/Guardian:", patient_info.get("parent_guardian", ""), "Chronological Age:", patient_info.get("chronological_age", {}).get("formatted", "")],
-            ["UCI#:", patient_info.get("uci_number", ""), "Service Coordinator:", ""],
-            ["Sex:", patient_info.get("sex", ""), "Primary Language:", patient_info.get("language", "")],
-            ["Examiner:", "Fushia Crooms, MOT, OTR/L", "Date of Report:", patient_info.get("report_date", "")],
-            ["", "", "Date of Encounter:", patient_info.get("encounter_date", "")]
+        # Centered FMRC logo
+        logo_path = self.config.get_header_image_path()
+        if os.path.exists(logo_path):
+            logo_img = Image(logo_path, width=2.2*inch, height=2.2*inch)
+            logo_img.hAlign = 'CENTER'
+            elements.append(logo_img)
+            elements.append(Spacer(1, 12))
+        # Centered clinic info
+        clinic_lines = [
+            '<b>FMRC Health Group</b>',
+            '<b>Occupational Therapy Developmental Evaluation</b>',
+            '<b>Vendor #PW8583</b>',
+            '1626 Centinela Ave, Suite 108, Inglewood CA 90302',
+            'www.fmrchealth.com'
         ]
-        
-        patient_table = Table(patient_data, colWidths=[1.6*inch, 2.2*inch, 1.6*inch, 2.2*inch])
-        
-        # Enhanced table styling with professional colors and borders
-        patient_table.setStyle(TableStyle([
-            # Background colors for better visual hierarchy
-            ('BACKGROUND', (0, 0), (0, -1), colors.HexColor('#f8f9fa')),  # Label columns
-            ('BACKGROUND', (2, 0), (2, -1), colors.HexColor('#f8f9fa')),  # Label columns
-            ('BACKGROUND', (1, 0), (1, -1), colors.white),  # Data columns
-            ('BACKGROUND', (3, 0), (3, -1), colors.white),  # Data columns
-            
-            # Text alignment and fonts
-            ('ALIGN', (0, 0), (-1, -1), 'LEFT'),
-            ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
-            
-            # Font styling
-            ('FONTNAME', (0, 0), (0, -1), 'Helvetica-Bold'),  # Label columns bold
-            ('FONTNAME', (2, 0), (2, -1), 'Helvetica-Bold'),  # Label columns bold
-            ('FONTNAME', (1, 0), (1, -1), 'Helvetica'),       # Data columns normal
-            ('FONTNAME', (3, 0), (3, -1), 'Helvetica'),       # Data columns normal
-            
-            ('FONTSIZE', (0, 0), (-1, -1), 11),
-            ('TEXTCOLOR', (0, 0), (0, -1), colors.HexColor('#2d3748')),  # Label color
-            ('TEXTCOLOR', (2, 0), (2, -1), colors.HexColor('#2d3748')),  # Label color
-            ('TEXTCOLOR', (1, 0), (1, -1), colors.HexColor('#1a202c')),  # Data color
-            ('TEXTCOLOR', (3, 0), (3, -1), colors.HexColor('#1a202c')),  # Data color
-            
-            # Padding for better spacing
-            ('TOPPADDING', (0, 0), (-1, -1), 8),
-            ('BOTTOMPADDING', (0, 0), (-1, -1), 8),
-            ('LEFTPADDING', (0, 0), (-1, -1), 10),
-            ('RIGHTPADDING', (0, 0), (-1, -1), 10),
-            
-            # Borders for professional appearance
-            ('GRID', (0, 0), (-1, -1), 0.75, colors.HexColor('#cbd5e0')),
-            ('LINEBELOW', (0, 0), (-1, 0), 1.5, colors.HexColor('#4a5568')),  # Header underline
-            
-            # Row-specific styling
-            ('ROWBACKGROUNDS', (0, 0), (-1, -1), [colors.white, colors.HexColor('#f7fafc')]),
-        ]))
-        
-        elements.append(patient_table)
-        elements.append(Spacer(1, 24))
-        
-        # Add a subtle separator line
-        separator_data = [["" for _ in range(4)]]
-        separator_table = Table(separator_data, colWidths=[7.6*inch])
-        separator_table.setStyle(TableStyle([
-            ('LINEABOVE', (0, 0), (-1, 0), 2, colors.HexColor('#1f4788')),
-            ('TOPPADDING', (0, 0), (-1, -1), 0),
-            ('BOTTOMPADDING', (0, 0), (-1, -1), 0),
-        ]))
-        elements.append(separator_table)
+        for line in clinic_lines:
+            elements.append(Paragraph(line, ParagraphStyle(
+                name='ClinicHeader', fontName='Helvetica-Bold', fontSize=12, alignment=TA_CENTER, spaceAfter=2, spaceBefore=2)))
         elements.append(Spacer(1, 12))
-        
+        # Patient info table (bordered, bold labels)
+        patient_data = [
+            [Paragraph('<b>Name:</b>', self.styles['Normal']), patient_info.get('name', ''),
+             Paragraph('<b>Date of Birth:</b>', self.styles['Normal']), patient_info.get('date_of_birth', '')],
+            [Paragraph('<b>Parent/Guardian:</b>', self.styles['Normal']), patient_info.get('parent_guardian', ''),
+             Paragraph('<b>Chronological Age:</b>', self.styles['Normal']), patient_info.get('chronological_age', {}).get('formatted', '')],
+            [Paragraph('<b>UCI#</b>', self.styles['Normal']), patient_info.get('uci_number', ''),
+             Paragraph('<b>Service Coordinator:</b>', self.styles['Normal']), patient_info.get('service_coordinator', '')],
+            [Paragraph('<b>Sex:</b>', self.styles['Normal']), patient_info.get('sex', ''),
+             Paragraph('<b>Primary Language:</b>', self.styles['Normal']), patient_info.get('language', '')],
+            [Paragraph('<b>Examiner:</b>', self.styles['Normal']), 'Fushia Crooms, MOT, OTR/L',
+             Paragraph('<b>Date of Report:</b>', self.styles['Normal']), patient_info.get('report_date', '')],
+            ['', '', Paragraph('<b>Date of Encounter:</b>', self.styles['Normal']), patient_info.get('encounter_date', '')]
+        ]
+        patient_table = Table(patient_data, colWidths=[1.5*inch, 2.1*inch, 1.5*inch, 2.1*inch])
+        patient_table.setStyle(TableStyle([
+            ('GRID', (0,0), (-1,-1), 1, colors.black),
+            ('FONTNAME', (0,0), (-1,-1), 'Helvetica'),
+            ('FONTSIZE', (0,0), (-1,-1), 11),
+            ('VALIGN', (0,0), (-1,-1), 'MIDDLE'),
+            ('ALIGN', (0,0), (-1,-1), 'LEFT'),
+            ('BACKGROUND', (0,0), (-1,-1), colors.white),
+            ('LEFTPADDING', (0,0), (-1,-1), 6),
+            ('RIGHTPADDING', (0,0), (-1,-1), 6),
+            ('TOPPADDING', (0,0), (-1,-1), 4),
+            ('BOTTOMPADDING', (0,0), (-1,-1), 4),
+        ]))
+        elements.append(patient_table)
+        elements.append(Spacer(1, 18))
         return elements
-    
+
+    def _section_header(self, text: str) -> Paragraph:
+        """Return a full-width orange section header with bold black text"""
+        return Paragraph(
+            f'<b>{text}</b>',
+            ParagraphStyle(
+                name='OrangeSectionHeader',
+                fontName='Helvetica-Bold',
+                fontSize=13,
+                alignment=TA_LEFT,
+                textColor=colors.black,
+                backColor=colors.HexColor('#F9A825'),
+                spaceBefore=12,
+                spaceAfter=8,
+                leftIndent=0,
+                rightIndent=0,
+                borderPadding=4,
+                leading=16
+            )
+        )
+
+    # Example usage in section methods:
+    # elements.append(self._section_header('Reason for referral and background information'))
+    # elements.append(Paragraph(..., ...))
+
+    # For score tables, use blue header row
+    def _styled_score_table(self, data, colWidths=None):
+        table = Table(data, colWidths=colWidths)
+        table.setStyle(TableStyle([
+            ('BACKGROUND', (0,0), (-1,0), colors.HexColor('#1976D2')),
+            ('TEXTCOLOR', (0,0), (-1,0), colors.white),
+            ('FONTNAME', (0,0), (-1,0), 'Helvetica-Bold'),
+            ('FONTSIZE', (0,0), (-1,0), 11),
+            ('ALIGN', (0,0), (-1,0), 'CENTER'),
+            ('GRID', (0,0), (-1,-1), 1, colors.black),
+            ('FONTNAME', (0,1), (-1,-1), 'Helvetica'),
+            ('FONTSIZE', (0,1), (-1,-1), 10),
+            ('ALIGN', (0,1), (-1,-1), 'CENTER'),
+            ('VALIGN', (0,0), (-1,-1), 'MIDDLE'),
+            ('ROWBACKGROUNDS', (0,1), (-1,-1), [colors.white, colors.HexColor('#f7fafc')]),
+            ('LEFTPADDING', (0,0), (-1,-1), 6),
+            ('RIGHTPADDING', (0,0), (-1,-1), 6),
+            ('TOPPADDING', (0,0), (-1,-1), 4),
+            ('BOTTOMPADDING', (0,0), (-1,-1), 4),
+        ]))
+        return table
+
+    # Add small logo and page number to every page
+    def _add_page_decor(self, canvas, doc):
+        # Small logo at top right
+        logo_path = self.config.get_header_image_path()
+        if os.path.exists(logo_path):
+            canvas.drawImage(logo_path, doc.pagesize[0] - 1.2*inch, doc.pagesize[1] - 1.1*inch, width=0.8*inch, height=0.8*inch, mask='auto')
+        # Page number at bottom right
+        page_num = canvas.getPageNumber()
+        canvas.setFont('Helvetica', 9)
+        canvas.setFillColor(colors.HexColor('#333333'))
+        canvas.drawRightString(doc.pagesize[0] - 0.7*inch, 0.65*inch, f"{page_num}")
+
     async def _create_background_section(self, report_data: Dict[str, Any]) -> List:
-        """Create background information section with OpenAI enhancement"""
         elements = []
-        
-        header = Paragraph("Reason for referral and background information", self.styles['SectionHeader'])
-        elements.append(header)
-        
-        # Use OpenAI to generate professional background narrative
+        elements.append(self._section_header('Reason for referral and background information'))
         body = await self._generate_background_narrative(report_data)
-        
-        # background_para = Paragraph(background_text, self.styles['ClinicalBody'])
         elements.extend(body)
         elements.append(Spacer(1, 12))
-        
         return elements
-    
-    async def _create_caregiver_concerns(self, report_data: Dict[str, Any]) -> List:
-        """Create caregiver concerns section with OpenAI enhancement"""
-        elements = []
-        
-        header = Paragraph("Caregiver Concerns", self.styles['SectionHeader'])
-        elements.append(header)
-        
-        # Generate professional caregiver concerns narrative
-        # concerns_text = await self._generate_caregiver_concerns_narrative(report_data)
-        
-        # concerns_para = Paragraph(concerns_text, self.styles['ClinicalBody'])
-        # elements.append(concerns_para)
 
+    async def _create_caregiver_concerns(self, report_data: Dict[str, Any]) -> List:
+        elements = []
+        elements.append(self._section_header('Caregiver Concerns'))
         body = await self._generate_caregiver_concerns_narrative(report_data)
         elements.extend(body)
         elements.append(Spacer(1, 12))
-        
         return elements
-    
-    async def _create_clinical_observations(self, report_data: Dict[str, Any]) -> List:
-        """Create clinical observations section with OpenAI enhancement"""
-        elements = []
-        
-        header = Paragraph("Observation", self.styles['SectionHeader'])
-        elements.append(header)
-        
-        # Generate professional clinical observations
-        # observations_text = await self._generate_clinical_observations_narrative(report_data)
-        
-        # observations_para = Paragraph(observations_text, self.styles['ClinicalBody'])
-        # elements.append(observations_para)
 
+    async def _create_clinical_observations(self, report_data: Dict[str, Any]) -> List:
+        elements = []
+        elements.append(self._section_header('Observation'))
         body = await self._generate_clinical_observations_narrative(report_data)
         elements.extend(body)
         elements.append(Spacer(1, 12))
-        
         return elements
-    
-    def _create_assessment_tools_description(self) -> List:
-        """Create assessment tools description section"""
-        elements = []
-        header = Paragraph("Assessment Tools", self.styles['SectionHeader'])
-        elements.append(header)
 
+    def _create_assessment_tools_description(self) -> List:
+        elements = []
+        elements.append(self._section_header('Assessment Tools'))
         tools_text = ("Bayley Scales of Infant and Toddler Development - Fourth Edition (BSID-4), parent "
                       "report and clinical observation were used as assessment tools for this report.")
         tools_para = Paragraph(tools_text, self.styles['ClinicalBody'])
         elements.append(tools_para)
         elements.append(Spacer(1, 8))
-
-        # Bayley-4 section header
         bayley_header = Paragraph(
-            "Bayley Scales of Infant and Toddler Development - Fourth Edition (BSID-4)",
+            "<b>Bayley Scales of Infant and Toddler Development - Fourth Edition (BSID-4)</b>",
             self.styles['DomainHeader']
         )
         elements.append(bayley_header)
-
-        # Intro paragraph
         intro = Paragraph(
             "The Bayley-4 is a norm-referenced assessment for children from birth to 42 months, providing standardized scores in the following developmental domains:",
             self.styles['ClinicalBody']
         )
         elements.append(intro)
         elements.append(Spacer(1, 6))
-
-        # Domains and subdomains as bullet points (flattened, no nested ListItems)
         bayley_domains = [
             ListItem(Paragraph("<b>1. Cognitive Scale:</b> Assesses problem-solving skills, memory, attention, and concept formation.", self.styles['ClinicalBody'])),
             ListItem(Paragraph("<b>2. Language Scale:</b>", self.styles['ClinicalBody'])),
@@ -2198,7 +2182,6 @@ class OpenAIEnhancedReportGenerator:
             ListItem(Paragraph("<b>4. Social-Emotional Scale:</b> Measures the child's ability to interact with others, regulate emotions, and respond to social cues.", self.styles['ClinicalBody'])),
             ListItem(Paragraph("<b>5. Adaptive Behavior Scale:</b> Assesses daily functional tasks, including self-care skills such as feeding, dressing, and toileting.", self.styles['ClinicalBody']))
         ]
-
         elements.append(ListFlowable(
             bayley_domains,
             bulletType='bullet',
@@ -2206,7 +2189,6 @@ class OpenAIEnhancedReportGenerator:
             leftIndent=18
         ))
         elements.append(Spacer(1, 15))
-
         return elements
     
     async def _generate_background_narrative(self, report_data: Dict[str, Any]) -> str:

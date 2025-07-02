@@ -19,27 +19,27 @@
             "rows": [
                 [
                     "Seeking",
-                    "Typical, Probable Difference, Definite Difference",
-                    "Seeks sensory input to support engagement and interaction.",
-                    "May show heightened curiosity in exploration, potentially benefiting play and creativity, but may also distract from focused activities."
+                    "High",
+                    "Indicates a strong drive to obtain sensory stimulation. This can manifest as a tendency to explore and engage with sensory experiences thoroughly.",
+                    "May exhibit impulsivity in novel environments and a high energy level requiring structured opportunities for exploration."
                 ],
                 [
                     "Avoiding",
-                    "Typical, Probable Difference, Definite Difference",
-                    "Actively avoids certain sensory experiences to maintain comfort and control.",
-                    "Could lead to withdrawal from sensory-rich environments, impacting social participation and adaptability in new situations."
+                    "Low",
+                    "Shows low levels of avoiding behavior, suggesting a greater ability to cope with sensory input without distress.",
+                    "Is likely comfortable in a range of sensory environments but might seek less structured, more calming environments occasionally."
                 ],
                 [
                     "Sensitivity",
-                    "Typical, Probable Difference, Definite Difference",
-                    "Exhibits high reactivity to sensory stimuli, often becoming distressed or overwhelmed.",
-                    "Challenges may arise in maintaining attention and emotional regulation, affecting tasks such as grooming and social interaction."
+                    "Typical",
+                    "Sensory sensitivity is within the expected range, indicating a balanced reaction to sensory stimuli.",
+                    "Generally processes sensory input efficiently, minimizing reactions such as distractibility or hyper-responsiveness in typical settings."
                 ],
                 [
                     "Registration",
-                    "Typical, Probable Difference, Definite Difference",
-                    "Shows a reduced response to sensory input, often requiring more stimuli to respond.",
-                    "Potential challenges in noticing environmental cues, which can impact safety awareness and responsiveness in activities."
+                    "Low",
+                    "Low registration implies missed sensory signals and requires enhanced cues to engage fully in activities.",
+                    "This can affect attention to detail and awareness of changes in the environment or social cues, requiring prompts and structured routines."
                 ]
             ]
         }
@@ -47,23 +47,23 @@
     "real_world_implications": {
         "type": "bullet_points",
         "content": [
-            "Grooming: Impact on self-care activities and hygiene routines, possibly requiring adapted methods to enhance independence and comfort.",
-            "Play: Effects on toy selection, play preferences, and peer interaction, influencing engagement in group activities and imaginative play.",
-            "Feeding: Influence on food acceptance, mealtime behavior, and nutrition, with potential aversions affecting dietary variety and mealtime participation.",
-            "Daily Routines: Impact on transitions, sleep, and activity participation, which may necessitate structured routines and transitions to improve daily participation."
+            "Grooming: Impact on self-care activities and hygiene routines due to varied response to tactile stimuli, possibly leading to inconsistent grooming habits.",
+            "Play: Effects on toy selection, play preferences, and peer interaction by possibly driving a preference for high sensory input toys and games, or causing conflicts in group settings due to sensory seeking or avoiding behaviors.",
+            "Feeding: Influence on food acceptance, mealtime behavior, and nutrition through potential difficulties with varied textures leading to selective eating patterns.",
+            "Daily Routines: Impact on transitions, sleep, and activity participation with challenges in adapting to new environments or instructions, potentially impacting routine adherence."
         ]
     },
     "sensory_strategies": {
         "type": "bullet_points",
         "content": [
-            "Environmental modifications to support optimal sensory processing, such as altering lighting or noise levels to accommodate sensory preferences.",
-            "Sensory diet activities for regulation and organization, incorporating proprioceptive and vestibular stimuli to improve alertness and calmness.",
-            "Specific sensory tools and equipment recommendations, including weighted blankets or noise-reducing headphones to aid in self-regulation.",
-            "Caregiver education for implementing sensory strategies effectively at home and in community settings to enhance daily functioning."
+            "Environmental modifications to support optimal sensory processing, such as creating a sensory-friendly home and classroom environment.",
+            "Sensory diet activities for regulation and organization to be implemented regularly, tailored to promoting calm alertness and enhanced sensory integration.",
+            "Specific sensory tools and equipment recommendations like weighted blankets, fidget toys, or noise-canceling headphones.",
+            "Caregiver education for implementing sensory strategies, focusing on understanding sensory needs and developing consistent routines."
         ]
     },
     "intervention_recommendations": {
         "type": "paragraph",
-        "content": "Based on the SP2 findings, occupational therapy intervention should focus on sensory integration principles and environmental modifications to support optimal sensory processing and functional participation in daily activities. These strategies are designed to enhance the child's ability to engage more fully in educational, social, and personal care activities, promoting overall development and quality of life."
+        "content": "Based on the SP2 findings, occupational therapy intervention should focus on sensory integration principles and environmental modifications to support optimal sensory processing and functional participation in daily activities. Targeted interventions may include creating personalized sensory diet plans, training for caregivers, and integration of sensory-based activities into everyday routines to enhance engagement and adaptability."
     }
 }

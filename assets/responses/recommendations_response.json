@@ -2,16 +2,15 @@
     "clinical_recommendations": {
         "type": "bullet_points",
         "content": [
-            "Implement occupational therapy services 2 times per week for 45-minute sessions to address developmental milestones and sensory integration challenges.",
-            "Schedule a speech and language therapy evaluation to assess for communication development needs and oral-motor function.",
-            "Perform regular follow-up assessments every 3 months to monitor progress across developmental domains.",
-            "Develop a home program that includes activities such as tummy time, assisted sitting, and reaching for toys to enhance fine and gross motor skills.",
-            "Introduce environmental modifications in the home setting, such as providing sensory-rich toys to facilitate exploration and sensory processing.",
-            "Provide caregiver training sessions to educate and empower families on supporting developmental milestones through play-based activities.",
-            "Offer consultation with a physical therapist to design a plan for promoting age-appropriate gross motor skills, such as crawling and standing.",
-            "Ensure thorough coordination with early intervention services to create an integrated approach for achieving developmental goals.",
-            "Evaluate the need for adaptive equipment, such as supportive seating, to assist with postural alignment during feeding and play.",
-            "Recommend implementation of sensory-friendly modifications at Sabrina's daycare to create an optimal environment for learning and play."
+            "Occupational therapy services 2 times per week for 45-minute sessions to address sensory processing and fine motor development based on Bayley-4 motor analysis.",
+            "Physical therapy evaluation and bi-weekly services to support gross motor milestones, such as sitting unsupported and crawling.",
+            "Speech therapy assessment to rule out any emerging language delays and to support feeding skills based on ChOMPS findings.",
+            "Coordination with early intervention services for multidisciplinary support across all developmental areas.",
+            "Implement a home program that includes tummy time, reaching and grasping activities, and fostering social interaction to stimulate cognitive and motor skills.",
+            "Modify the environment to provide a safe exploration area with a variety of textures and objects to enhance sensorimotor exploration.",
+            "Provide caregivers with training on incorporating developmentally appropriate play and sensory integration techniques into daily routines.",
+            "Utilize adaptive feeding tools as recommended to ensure safe and effective mealtime experiences.",
+            "Recommend periodic follow-up assessments every 3 months to monitor progress in developmental areas and adjust the intervention plan as needed."
         ]
     }
 }
