@@ -38,6 +38,8 @@ from reportlab.platypus import (
     Spacer, 
     Table, 
     TableStyle, 
+    ListFlowable,
+    ListItem
 )
 from reportlab.lib.enums import TA_LEFT, TA_CENTER, TA_JUSTIFY
 from reportlab.lib import colors
@@ -420,14 +422,14 @@ class OpenAIEnhancedReportGenerator:
             self.logger.info("💡 Generating recommendations...")
             story.extend(await self._create_recommendations_section(enhanced_data))
             
-            # self.logger.info("📋 Generating professional summary...")
-            # story.extend(await self._create_professional_summary(enhanced_data))
+            self.logger.info("📋 Generating professional summary...")
+            story.extend(await self._create_professional_summary(enhanced_data))
             
-            # self.logger.info("🎯 Generating OT goals...")
-            # story.extend(await self._create_ot_goals_section(enhanced_data))
+            self.logger.info("🎯 Generating OT goals...")
+            story.extend(await self._create_ot_goals_section(enhanced_data))
             
-            # self.logger.info("✍️ Adding signature block...")
-            # story.extend(self._create_signature_block())
+            self.logger.info("✍️ Adding signature block...")
+            story.extend(self._create_signature_block())
             
             # Build the PDF
             self.logger.info("🔨 Building final PDF document...")
@@ -1855,6 +1857,14 @@ class OpenAIEnhancedReportGenerator:
         # Generate recommendations using OpenAI or fallback
         recommendations = await self._generate_recommendations(report_data)
         
+        # Handle new JSON response format
+        if isinstance(recommendations, dict) and "clinical_recommendations" in recommendations:
+            rec_section = recommendations["clinical_recommendations"]
+            if isinstance(rec_section, dict) and "content" in rec_section and isinstance(rec_section["content"], list):
+                recommendations = rec_section["content"]
+            else:
+                recommendations = []
+        
         if recommendations:
             # Introduction paragraph
             intro_text = ("Based on the comprehensive assessment findings and observed functional limitations, "
@@ -1872,15 +1882,18 @@ class OpenAIEnhancedReportGenerator:
             
             # Process and format each recommendation with enhanced styling
             for i, recommendation in enumerate(recommendations[:3], 1):  # Top 3 as priority
-                # Clean and format recommendation text
-                clean_rec = recommendation.strip().lstrip('•-').strip()
-                if not clean_rec.endswith('.'):
-                    clean_rec += '.'
-                
-                formatted_rec = f"<b>{i}.</b> {clean_rec}"
-                rec_para = Paragraph(formatted_rec, self.styles['RecommendationItem'])
-                elements.append(rec_para)
-                elements.append(Spacer(1, 6))
+                if isinstance(recommendation, str):
+                    clean_rec = recommendation.strip().lstrip('•-').strip()
+                    if not clean_rec.endswith('.'):
+                        clean_rec += '.'
+                    formatted_rec = f"<b>{i}.</b> {clean_rec}"
+                    rec_para = Paragraph(formatted_rec, self.styles['RecommendationItem'])
+                    elements.append(rec_para)
+                    elements.append(Spacer(1, 6))
+                else:
+                    # If it's already a flowable (e.g., ListFlowable), just add it
+                    elements.append(recommendation)
+                    elements.append(Spacer(1, 6))
             
             # Additional recommendations if available
             if len(recommendations) > 3:
@@ -1889,14 +1902,17 @@ class OpenAIEnhancedReportGenerator:
                 elements.append(Spacer(1, 8))
                 
                 for i, recommendation in enumerate(recommendations[3:], 4):
-                    clean_rec = recommendation.strip().lstrip('•-').strip()
-                    if not clean_rec.endswith('.'):
-                        clean_rec += '.'
-                    
-                    formatted_rec = f"<b>{i}.</b> {clean_rec}"
-                    rec_para = Paragraph(formatted_rec, self.styles['ClinicalBody'])
-                    elements.append(rec_para)
-                    elements.append(Spacer(1, 4))
+                    if isinstance(recommendation, str):
+                        clean_rec = recommendation.strip().lstrip('•-').strip()
+                        if not clean_rec.endswith('.'):
+                            clean_rec += '.'
+                        formatted_rec = f"<b>{i}.</b> {clean_rec}"
+                        rec_para = Paragraph(formatted_rec, self.styles['ClinicalBody'])
+                        elements.append(rec_para)
+                        elements.append(Spacer(1, 4))
+                    else:
+                        elements.append(recommendation)
+                        elements.append(Spacer(1, 4))
             
             # Service frequency recommendation with highlighting
             elements.append(Spacer(1, 12))
@@ -1937,44 +1953,60 @@ class OpenAIEnhancedReportGenerator:
         goals = await self._generate_ot_goals(report_data)
         
         # Add each goal as a paragraph
-        for i, goal in enumerate(goals, 1):
-            goal_text = f"{i}. {goal}"
-            goal_para = Paragraph(goal_text, self.styles['ClinicalBody'])
-            elements.append(goal_para)
-            elements.append(Spacer(1, 6))
+        # for i, goal in enumerate(goals, 1):
+        #     goal_text = f"{i}. {goal}"
+        #     goal_para = Paragraph(goal_text, self.styles['ClinicalBody'])
+        #     elements.append(goal_para)
+        #     elements.append(Spacer(1, 6))
         
-        elements.append(Spacer(1, 12))
+        # elements.append(Spacer(1, 12))
+        elements.extend(goals)
         
         return elements
     
     async def _generate_ot_goals(self, report_data: Dict[str, Any]) -> List[str]:
         """Generate specific, measurable OT goals"""
-        patient_info = report_data.get("patient_info", {})
-        child_name = patient_info.get("name", "the child")
+        # patient_info = report_data.get("patient_info", {})
+        # child_name = patient_info.get("name", "the child")
         
-        prompt = f"""Generate 4 specific, measurable occupational therapy goals for {child_name} following SMART goal format. Include:
-        - Timeline (within 6 months)
-        - Specific activity/skill
-        - Measurable criteria (4 out of 5 opportunities)
-        - Assistance level
-        - Focus areas: fine motor, visual-motor, bilateral coordination, pre-writing
+        # prompt = f"""Generate 4 specific, measurable occupational therapy goals for {child_name} following SMART goal format. Include:
+        # - Timeline (within 6 months)
+        # - Specific activity/skill
+        # - Measurable criteria (4 out of 5 opportunities)
+        # - Assistance level
+        # - Focus areas: fine motor, visual-motor, bilateral coordination, pre-writing
         
-        Format each goal as a complete sentence with specific metrics."""
+        # Format each goal as a complete sentence with specific metrics."""
         
-        goals_text = await self._generate_with_openai(prompt, max_tokens=400)
+        # goals_text = await self._generate_with_openai(prompt, max_tokens=400)
         
-        # Parse goals or use defaults
-        if "Within" in goals_text:
-            goals = [goal.strip() for goal in goals_text.split('\n') if goal.strip() and ('Within' in goal or goal[0].isdigit())]
-        else:
-            goals = [
-                "Within six months, the child will stack 5 one-inch blocks independently in 4 out of 5 opportunities with no more than 2 prompts, to improve visual-motor coordination and hand stability.",
-                "Within six months, the child will string 2–3 large beads onto a string in 4 out of 5 opportunities with no more than moderate assistance, demonstrating bilateral hand use and midline crossing.",
-                "Within six months, the child will use a pincer grasp (thumb and index finger) to pick up and release small objects in 4 out of 5 opportunities with no more than 2 prompts.",
-                "Within six months, the child will spontaneously scribble on paper using a crayon or marker in 4 out of 5 opportunities with no more than moderate prompts, to promote pre-writing and fine motor development."
-            ]
+        # # Parse goals or use defaults
+        # if "Within" in goals_text:
+        #     goals = [goal.strip() for goal in goals_text.split('\n') if goal.strip() and ('Within' in goal or goal[0].isdigit())]
+        # else:
+        #     goals = [
+        #         "Within six months, the child will stack 5 one-inch blocks independently in 4 out of 5 opportunities with no more than 2 prompts, to improve visual-motor coordination and hand stability.",
+        #         "Within six months, the child will string 2–3 large beads onto a string in 4 out of 5 opportunities with no more than moderate assistance, demonstrating bilateral hand use and midline crossing.",
+        #         "Within six months, the child will use a pincer grasp (thumb and index finger) to pick up and release small objects in 4 out of 5 opportunities with no more than 2 prompts.",
+        #         "Within six months, the child will spontaneously scribble on paper using a crayon or marker in 4 out of 5 opportunities with no more than moderate prompts, to promote pre-writing and fine motor development."
+        #     ]
         
-        return goals[:4]  # Limit to 4 goals
+        # return goals[:4]  # Limit to 4 goals
+        elements = []
+        prompt = await get_prompt(prompt_type="ot_goals", report_data=report_data, json_format=True)
+        response = await self._generate_with_openai(prompt, max_tokens=1000)
+        response = remove_lang_tags(response)
+        try:
+            response = json.loads(response)
+            await save_response(response, file_name="ot_goals", json_format=True)
+        except json.JSONDecodeError as e:
+            print(format_exc())
+            await save_response(response, file_name="ot_goals", json_format=True)
+            self.logger.error(f"❌ ot_goals response parsing failed: {e}")
+            raise
+        body = await format_data_for_pdf(response)
+        elements.extend(body)
+        return elements
     
     def _create_professional_header(self, patient_info: Dict[str, Any]) -> List:
         """Create professional header with enhanced styling and formatting"""
@@ -2121,42 +2153,51 @@ class OpenAIEnhancedReportGenerator:
     def _create_assessment_tools_description(self) -> List:
         """Create assessment tools description section"""
         elements = []
-        
         header = Paragraph("Assessment Tools", self.styles['SectionHeader'])
         elements.append(header)
-        
+
         tools_text = ("Bayley Scales of Infant and Toddler Development - Fourth Edition (BSID-4), parent "
-                     "report and clinical observation were used as assessment tools for this report.")
-        
+                      "report and clinical observation were used as assessment tools for this report.")
         tools_para = Paragraph(tools_text, self.styles['ClinicalBody'])
         elements.append(tools_para)
         elements.append(Spacer(1, 8))
-        
-        # Bayley-4 description
-        bayley_header = Paragraph("Bayley Scales of Infant and Toddler Development - Fourth Edition (BSID-4)", 
-                                 self.styles['SectionHeader'])
+
+        # Bayley-4 section header
+        bayley_header = Paragraph(
+            "Bayley Scales of Infant and Toddler Development - Fourth Edition (BSID-4)",
+            self.styles['DomainHeader']
+        )
         elements.append(bayley_header)
-        
-        bayley_description = """The Bayley Scales of Infant and Toddler Development - Fourth Edition (BSID-4) is a norm-referenced assessment used to evaluate early developmental skills in children from birth to 42 months. It provides standardized scores in the following developmental domains:
 
-1. Cognitive Scale: Assesses problem-solving skills, memory, attention, and concept formation.
+        # Intro paragraph
+        intro = Paragraph(
+            "The Bayley-4 is a norm-referenced assessment for children from birth to 42 months, providing standardized scores in the following developmental domains:",
+            self.styles['ClinicalBody']
+        )
+        elements.append(intro)
+        elements.append(Spacer(1, 6))
 
-2. Language Scale:
-• Receptive Language: Evaluates the child's understanding of words, gestures, and simple instructions.
-• Expressive Language: Measures verbal communication, including babbling, single words, and early sentence formation.
+        # Domains and subdomains as bullet points (flattened, no nested ListItems)
+        bayley_domains = [
+            ListItem(Paragraph("<b>1. Cognitive Scale:</b> Assesses problem-solving skills, memory, attention, and concept formation.", self.styles['ClinicalBody'])),
+            ListItem(Paragraph("<b>2. Language Scale:</b>", self.styles['ClinicalBody'])),
+            ListItem(Paragraph("Receptive Language: Evaluates the child's understanding of words, gestures, and simple instructions.", self.styles['BulletPoint']), leftIndent=36),
+            ListItem(Paragraph("Expressive Language: Measures verbal communication, including babbling, single words, and early sentence formation.", self.styles['BulletPoint']), leftIndent=36),
+            ListItem(Paragraph("<b>3. Motor Scale:</b>", self.styles['ClinicalBody'])),
+            ListItem(Paragraph("Fine Motor: Examines grasping, manipulation of objects, hand-eye coordination, and early writing skills.", self.styles['BulletPoint']), leftIndent=36),
+            ListItem(Paragraph("Gross Motor: Evaluates posture, crawling, standing, balance, and walking patterns.", self.styles['BulletPoint']), leftIndent=36),
+            ListItem(Paragraph("<b>4. Social-Emotional Scale:</b> Measures the child's ability to interact with others, regulate emotions, and respond to social cues.", self.styles['ClinicalBody'])),
+            ListItem(Paragraph("<b>5. Adaptive Behavior Scale:</b> Assesses daily functional tasks, including self-care skills such as feeding, dressing, and toileting.", self.styles['ClinicalBody']))
+        ]
 
-3. Motor Scale:
-• Fine Motor: Examines grasping, manipulation of objects, hand-eye coordination, and early writing skills.
-• Gross Motor: Evaluates posture, crawling, standing, balance, and walking patterns.
-
-4. Social-Emotional Scale: Measures the child's ability to interact with others, regulate emotions, and respond to social cues.
-
-5. Adaptive Behavior Scale: Assesses daily functional tasks, including self-care skills such as feeding, dressing, and toileting."""
-        
-        bayley_para = Paragraph(bayley_description, self.styles['ClinicalBody'])
-        elements.append(bayley_para)
+        elements.append(ListFlowable(
+            bayley_domains,
+            bulletType='bullet',
+            start='circle',
+            leftIndent=18
+        ))
         elements.append(Spacer(1, 15))
-        
+
         return elements
     
     async def _generate_background_narrative(self, report_data: Dict[str, Any]) -> str:
@@ -2304,7 +2345,7 @@ class OpenAIEnhancedReportGenerator:
         # Write a detailed "Observation" section for a pediatric OT evaluation report.
         
         # Patient: {child_name}
-        # Performance analysis: {performance_analysis}
+        # Performance analysis: {performance_analysis} 
         
         # Specific clinical observations from assessment: {'; '.join(observations[:3]) if observations else 'Standard pediatric assessment observations'}
         
@@ -2452,9 +2493,10 @@ class OpenAIEnhancedReportGenerator:
         # Generate comprehensive summary using enhanced method
         summary_text = await self._generate_professional_summary(report_data)
         
-        summary_para = Paragraph(summary_text, self.styles['ClinicalBody'])
-        elements.append(summary_para)
-        elements.append(Spacer(1, 15))
+        # summary_para = Paragraph(summary_text, self.styles['ClinicalBody'])
+        # elements.append(summary_para)
+        # elements.append(Spacer(1, 15))
+        elements.extend(summary_text)
         
         return elements
     
@@ -2571,53 +2613,69 @@ class OpenAIEnhancedReportGenerator:
     
     async def _generate_professional_summary(self, report_data: Dict[str, Any]) -> str:
         """Generate comprehensive professional summary"""
-        patient_info = report_data.get("patient_info", {})
-        child_name = patient_info.get("name", "The child")
-        age = patient_info.get("chronological_age", {}).get("formatted", "unknown age")
+        # patient_info = report_data.get("patient_info", {})
+        # child_name = patient_info.get("name", "The child")
+        # age = patient_info.get("chronological_age", {}).get("formatted", "unknown age")
         
         # Extract and analyze all assessment data
-        extracted_data = report_data.get("extracted_data", {})
-        bayley_cognitive = extracted_data.get("bayley4_cognitive", {})
-        bayley_social = extracted_data.get("bayley4_social", {})
+        # extracted_data = report_data.get("extracted_data", {})
+        # bayley_cognitive = extracted_data.get("bayley4_cognitive", {})
+        # bayley_social = extracted_data.get("bayley4_social", {})
         
         # Analyze overall performance pattern
-        overall_analysis = self._generate_overall_performance_analysis(bayley_cognitive, bayley_social)
+        # overall_analysis = self._generate_overall_performance_analysis(bayley_cognitive, bayley_social)
         
         # Identify strengths and needs
-        strengths = self._identify_assessment_strengths(bayley_cognitive, bayley_social)
-        needs = self._identify_assessment_needs(bayley_cognitive, bayley_social)
+        # strengths = self._identify_assessment_strengths(bayley_cognitive, bayley_social)
+        # needs = self._identify_assessment_needs(bayley_cognitive, bayley_social)
         
-        prompt = f"""
-        Write a comprehensive professional "Summary" section for {child_name} ({age}) based on Bayley-4 assessment findings.
+        # prompt = f"""
+        # Write a comprehensive professional "Summary" section for {child_name} ({age}) based on Bayley-4 assessment findings.
         
-        Overall Performance Analysis: {overall_analysis}
+        # Overall Performance Analysis: {overall_analysis}
         
-        Key Strengths: {strengths}
-        Areas of Need: {needs}
+        # Key Strengths: {strengths}
+        # Areas of Need: {needs}
         
-        Requirements:
-        - Start with "{child_name} (chronological age: {age}) was assessed using multiple standardized pediatric assessment tools..."
-        - Include specific delay percentages where applicable
-        - Mention both areas of strength and areas requiring intervention
-        - Discuss impact on functional performance and daily activities
-        - Recommend multidisciplinary intervention approach
-        - Include prognosis and benefit from services
-        - Address family involvement and education needs
-        - Mention regular monitoring and reassessment
-        - Use professional clinical language typical of pediatric OT summaries
-        - Write 6-8 sentences comprehensive summary
+        # Requirements:
+        # - Start with "{child_name} (chronological age: {age}) was assessed using multiple standardized pediatric assessment tools..."
+        # - Include specific delay percentages where applicable
+        # - Mention both areas of strength and areas requiring intervention
+        # - Discuss impact on functional performance and daily activities
+        # - Recommend multidisciplinary intervention approach
+        # - Include prognosis and benefit from services
+        # - Address family involvement and education needs
+        # - Mention regular monitoring and reassessment
+        # - Use professional clinical language typical of pediatric OT summaries
+        # - Write 6-8 sentences comprehensive summary
         
-        Example elements:
-        - "The comprehensive evaluation revealed both areas of strength and areas requiring targeted intervention support"
-        - "Based on the assessment findings, occupational therapy services are recommended..."
-        - "A collaborative, family-centered approach involving [services] will be beneficial..."
-        - "Regular monitoring and reassessment will be important to track progress..."
-        - "This assessment provides a foundation for developing an individualized intervention plan..."
+        # Example elements:
+        # - "The comprehensive evaluation revealed both areas of strength and areas requiring targeted intervention support"
+        # - "Based on the assessment findings, occupational therapy services are recommended..."
+        # - "A collaborative, family-centered approach involving [services] will be beneficial..."
+        # - "Regular monitoring and reassessment will be important to track progress..."
+        # - "This assessment provides a foundation for developing an individualized intervention plan..."
         
-        Focus on evidence-based conclusions and specific recommendations based on actual assessment findings.
-        """
+        # Focus on evidence-based conclusions and specific recommendations based on actual assessment findings.
+        # """
         
-        return await self._generate_with_openai(prompt, max_tokens=600)
+        # return await self._generate_with_openai(prompt, max_tokens=600)
+
+        elements = []
+        prompt = await get_prompt(prompt_type="professional_summary", report_data=report_data, json_format=True)
+        response = await self._generate_with_openai(prompt, max_tokens=1000)
+        response = remove_lang_tags(response)
+        try:
+            response = json.loads(response)
+            await save_response(response, file_name="professional_summary", json_format=True)
+        except json.JSONDecodeError as e:
+            print(format_exc())
+            await save_response(response, file_name="professional_summary", json_format=True)
+            self.logger.error(f"❌ professional_summary response parsing failed: {e}")
+            raise
+        body = await format_data_for_pdf(response)
+        elements.extend(body)
+        return elements
     
     def _generate_overall_performance_analysis(self, bayley_cognitive: Dict, bayley_social: Dict) -> str:
         """Generate overall performance analysis from assessment scores"""

@@ -9,27 +9,27 @@
     },
     "cognitive_domain": {
         "type": "paragraph",
-        "content": "In the Cognitive domain, Sabrina achieved a scaled score of 4, classified as Below Average, placing her within the 9th to 24th percentile. This indicates that Sabrina experiences mild challenges in problem-solving and cognitive processing, which may impact her early learning opportunities and interactions within her environment. During the evaluation, Sabrina demonstrated difficulty in engaging consistently in play activities that required sustained attention and exploration."
+        "content": "In the Cognitive domain, Sabrina achieved a scaled score of 5, classified as Below Average, placing her within the 9th to 24th percentile. This performance suggests mild cognitive challenges that may impact problem-solving and learning. She exhibits delays compared to her chronological age peers, necessitating intervention to support cognitive development."
     },
     "language_domains": {
         "type": "paragraph",
-        "content": "Language assessment revealed that Sabrina's receptive communication scaled score is 4 (Below Average), and expressive communication scaled score is 1 (Extremely Low). These results suggest that Sabrina faces mild difficulties in understanding spoken language and following complex instructions, compounded by severe expressive language delays that significantly hinder her ability to verbally express needs and desires. Intensive speech therapy intervention is recommended to address these challenges and support her in meeting developmental milestones."
+        "content": "Language assessment revealed scaled scores of 5 in both Receptive and Expressive Communication, also classified as Below Average, indicating a percentile range of 9th-24th percentile. These results reflect Sabrina's limited ability to comprehend spoken language and express herself verbally, which may affect her social communication and comprehension."
     },
     "motor_domains": {
         "type": "paragraph",
-        "content": "Motor evaluation demonstrated that Sabrina has achieved scaled scores of 4 in both fine and gross motor domains, classified as Below Average (9th to 24th percentile). These scores reflect mild fine motor delays impacting Sabrina's ability to perform self-care skills, such as grasping small objects, and slight gross motor delays affecting her mobility and engagement in play activities. Encouragement of motor play and exploration can facilitate improvement in these areas."
+        "content": "Motor evaluation demonstrated a scaled score of 6 in the Fine Motor domain (Below Average) and 21 in the Gross Motor domain (Above Average). While Sabrina displays mild fine motor delays that may impact self-care and pre-academic skills, her gross motor skills are advanced for her age, facilitating good coordination, balance, and movement activities."
     },
     "social_emotional_adaptive": {
         "type": "paragraph",
-        "content": "Social-emotional and adaptive behavior assessment data is not fully available but generally reflects the child's ability to interact with others, regulate emotions, and demonstrate age-appropriate self-care skills. Further assessment is recommended for a comprehensive understanding."
+        "content": "Social-emotional and adaptive behavior assessment indicated a composite score classified as Extremely Low, with a scaled score of 2025 in the Social-Emotional domain, placing her above the 84th percentile, contrasting with extremely low scores in Social and Leisure domains. Although Sabrina shows strengths in some social settings, she requires intervention for adaptive behaviors and leisure activities due to significant delays."
     },
     "clinical_implications": {
         "type": "bullet_points",
         "content": [
-            "Areas of strength can provide a foundation for building intervention strategies focused on enhancing cognitive and motor skills.",
-            "Specific domains such as expressive communication and motor functioning require targeted intervention support to aid in developmental improvement.",
-            "Functional implications include potential challenges in daily activities such as communication, play participation, and mobility that must be addressed with a multidisciplinary approach.",
-            "Recommendations include initiating speech and occupational therapy and incorporating targeted activities for language and motor development for the family and intervention team."
+            "Strength in Gross Motor skills can be leveraged to encourage physical exploration.",
+            "Targeted interventions needed in Receptive and Expressive Communication to enhance language development.",
+            "Adaptive behaviors and leisure activities require focused support to improve functional participation.",
+            "Recommendations include consistent language-rich interactions and guided play to support cognitive and language development, alongside structured physical activities to enhance gross motor proficiency."
         ]
     }
 }

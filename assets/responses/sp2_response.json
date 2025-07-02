@@ -20,26 +20,26 @@
                 [
                     "Seeking",
                     "Low",
-                    "Limited interest in sensory exploration, may appear withdrawn from sensory experiences",
-                    "Potential under-engagement in exploratory and play activities; may require adult guidance to enhance sensory engagement"
+                    "Limited interest in sensory exploration, may appear withdrawn from sensory experiences.",
+                    "May result in reduced engagement in exploratory play and decreased curiosity in novel environments."
                 ],
                 [
                     "Avoiding",
                     "Low",
-                    "Tolerates most sensory experiences well",
-                    "Flexibility in various environments; typically able to navigate new sensory scenarios without significant distress"
+                    "Tolerates most sensory experiences well.",
+                    "This can facilitate adaptability in various environments, with minimal disruption during daily transitions."
                 ],
                 [
                     "Sensitivity",
                     "Low",
-                    "May miss subtle sensory cues in environment",
-                    "Possible challenges in detecting minor environmental changes, which could affect response to social and contextual cues"
+                    "May miss subtle sensory cues in the environment.",
+                    "Could lead to decreased awareness of essential sensory inputs, affecting attention and response to changes."
                 ],
                 [
                     "Registration",
                     "Good",
-                    "Consistently notices and responds to sensory input",
-                    "Proficient in engaging with sensory input, aiding interaction with surroundings and promoting effective participation in tasks"
+                    "Consistently notices and responds to sensory input.",
+                    "Supports effective interaction with the immediate environment and participation in routine activities."
                 ]
             ]
         }
@@ -47,19 +47,19 @@
     "real_world_implications": {
         "type": "bullet_points",
         "content": [
-            "Grooming: May require reminders for self-care tasks; generally navigates hygiene routines effectively when engaged.",
-            "Play: Limited initiation of sensory-rich play activities; might benefit from structured sensory play setups.",
-            "Feeding: Generally open to diverse textures; occasional need for encouragement to explore new foods.",
-            "Daily Routines: Smooth transitions and adaptability to varied activities due to low sensory avoiding tendencies."
+            "Grooming: Low sensory seeking and sensitivity can contribute to challenges in initiating grooming tasks, although low avoidance allows for participation once involved.",
+            "Play: May exhibit reduced interest in sensory-rich play activities due to low seeking behaviors, potentially impacting peer interaction opportunities.",
+            "Feeding: Good registration aids food acceptance; however, low seeking behaviors might limit exposure to varied food textures and tastes.",
+            "Daily Routines: Low avoidance supports smooth transitions; however, missing subtle cues may impact the ability to follow nuanced and complex routines."
         ]
     },
     "sensory_strategies": {
         "type": "bullet_points",
         "content": [
-            "Environmental modifications to support optimal sensory processing",
-            "Sensory diet activities for regulation and organization",
-            "Specific sensory tools and equipment recommendations",
-            "Caregiver education for implementing sensory strategies"
+            "Environmental modifications to support optimal sensory processing, focusing on enhancing sensory cue visibility.",
+            "Sensory diet activities for regulation and organization, promoting active engagement in sensory experiences.",
+            "Specific sensory tools and equipment recommendations, such as weighted items or textured materials for increased sensory input.",
+            "Caregiver education for implementing sensory strategies, focusing on the integration of structured sensory activities in daily routines."
         ]
     },
     "intervention_recommendations": {

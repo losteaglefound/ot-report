@@ -9,19 +9,19 @@
     },
     "physiology_domain": {
         "type": "paragraph",
-        "content": "Physiology domain assessment revealed challenges in oral motor coordination and reduced bolus control, impacting swallowing safety. There is a noted mild aspiration risk during thin liquid intake, requiring vigilance. These findings indicate a need for targeted oral motor interventions to enhance feeding safety and prevent aspiration."
+        "content": "Physiology domain assessment revealed adequate oral motor skills with notable challenges in achieving efficient lip closure and tongue mobility. Swallowing safety was compromised with occasional coughing episodes post-swallow, indicating a potential risk for aspiration. These findings indicate a need for interventions to enhance oral motor coordination and ensure safer swallowing mechanisms."
     },
     "processing_domain": {
         "type": "paragraph",
-        "content": "Processing domain evaluation demonstrated limited acceptance of solid textures and hypersensitivity to certain food consistencies, indicating sensory processing difficulties. The child's ability to process various food textures is partially developed, necessitating gradual exposure to diverse textures alongside sensory integration techniques."
+        "content": "Processing domain evaluation demonstrated limited texture acceptance, with the child favoring pureed and semi-solid foods. Sensory processing issues were observed, as evidenced by aversive reactions to textured and lumpy foods. Adaptive feeding skills, such as utensil use, were emerging but inconsistent. The child's ability to process various food textures and consistencies suggests a significant need for tactile and oral sensory integration strategies."
     },
     "behavior_domain": {
         "type": "paragraph",
-        "content": "Behavior domain analysis indicated frequent refusal of new foods and prolonged mealtime duration, suggesting anxiety and negative mealtime behaviors. These patterns imply that behavioral interventions focusing on positive mealtime interactions will be beneficial."
+        "content": "Behavior domain analysis indicated mealtime challenges such as distractions and refusal behaviors during feeding. Short attention spans and resistive behaviors were noted during exposure to new food items. These patterns suggest the need for structured mealtime routines and positive reinforcement strategies to improve feeding engagement."
     },
     "selectivity_domain": {
         "type": "paragraph",
-        "content": "Selectivity assessment revealed a preference for smooth purees and aversion to mixed textures, limiting dietary variety and posing a risk to nutritional adequacy. The degree of food selectivity impacts feeding development, requiring nutritional interventions to ensure dietary balance."
+        "content": "Selectivity assessment revealed a narrow range of accepted foods, primarily consisting of carbohydrate-rich and bland items. Strong preferences for specific brands and food textures were noted, impacting the child's overall nutritional variety and intake. The degree of food selectivity demonstrates a potential risk for inadequate nutrient intake and necessitates broadening dietary exposure."
     },
     "feeding_recommendations": {
         "type": "bullet_points",
@@ -36,6 +36,6 @@
     },
     "safety_considerations": {
         "type": "paragraph",
-        "content": "Based on the PediEAT findings, feeding safety considerations include consistent monitoring for signs of aspiration, especially with liquids, and adjustments in feeding techniques to mitigate risks. Regular reassessment of feeding skills and safety is recommended to ensure optimal nutrition and prevent feeding-related complications."
+        "content": "Based on the PediEAT findings, feeding safety considerations include close monitoring for signs of aspiration and implementing strategies for safer swallowing. Regular reassessment of feeding skills and safety is recommended to ensure optimal nutrition and prevent feeding-related complications."
     }
 }
