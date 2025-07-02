@@ -7,6 +7,7 @@ from typing import Dict, Any, Optional
 from traceback import format_exc
 import sys
 import uuid
+import json
 
 # Load configuration first
 from config import config, is_openai_enabled, is_email_enabled, is_google_docs_enabled, get_app_host, get_app_port
@@ -226,154 +227,115 @@ async def upload_files(
     notify_email: str = Form(default=None)
 ):
     """Upload multiple assessment files and generate comprehensive OT report"""
-    
-    # Apply configuration defaults if not provided
-    if output_format is None:
-        output_format = config.app['default_output_format']
-    if report_type is None:
-        report_type = config.app['default_report_type']
-    if notify_email is None:
-        notify_email = config.email['default_recipient'] if is_email_enabled() else "fushia.crooms@gmail.com"
-    
-    # Validate configuration-dependent requests
-    if report_type == "professional" and not is_openai_enabled():
-        logger.info(f"⚠️ Professional report requested but OpenAI not configured - using enhanced fallback")
-        report_type = "enhanced_basic"  # Use enhanced fallback instead
-    
-    if output_format == "google_docs" and not is_google_docs_enabled():
-        logger.warning(f"⚠️ Google Docs requested but not configured - switching to PDF")
-        output_format = "pdf"
-    
-    session_id = str(uuid.uuid4())
-    logger.info(f"🔄 Starting new report generation session: {session_id}")
-    logger.info(f"👤 Patient: {patient_name}, Report Type: {report_type}, Output: {output_format}")
-    
     try:
+        # Apply configuration defaults if not provided
+        if output_format is None:
+            output_format = config.app['default_output_format']
+        if report_type is None:
+            report_type = config.app['default_report_type']
+        if notify_email is None:
+            notify_email = config.email['default_recipient'] if is_email_enabled() else "fushia.crooms@gmail.com"
+        
+        # Validate configuration-dependent requests
+        if report_type == "professional" and not is_openai_enabled():
+            logger.info(f"⚠️ Professional report requested but OpenAI not configured - using enhanced fallback")
+            report_type = "enhanced_basic"  # Use enhanced fallback instead
+        
+        if output_format == "google_docs" and not is_google_docs_enabled():
+            logger.warning(f"⚠️ Google Docs requested but not configured - switching to PDF")
+            output_format = "pdf"
+        
+        session_id = str(uuid.uuid4())
+        logger.info(f"🔄 Starting new report generation session: {session_id}")
+        logger.info(f"👤 Patient: {patient_name}, Report Type: {report_type}, Output: {output_format}")
+        
         # Generate unique session ID
         session_dir = os.path.join("uploads", session_id)
         os.makedirs(session_dir, exist_ok=True)
-        logger.info(f"📁 Created session directory: {session_dir}")
         
         # Save uploaded files
         uploaded_files = {}
-        file_mappings = {
-            "facesheet": facesheet_file,
-            "bayley4_cognitive": bayley4_cognitive_file,
-            "bayley4_social": bayley4_social_file,
-            "sp2": sp2_file,
-            "chomps": chomps_file,
-            "pedieat": pedieat_file,
-            "clinical_notes": clinical_notes_file
+        files_to_process = {
+            'facesheet': facesheet_file,
+            'bayley4_cognitive': bayley4_cognitive_file,
+            'bayley4_social': bayley4_social_file,
+            'sp2': sp2_file,
+            'chomps': chomps_file,
+            'pedieat': pedieat_file,
+            'clinical_notes': clinical_notes_file
         }
         
-        logger.info("📄 Processing uploaded files...")
-        for file_type, file_obj in file_mappings.items():
-            if file_obj and file_obj.filename:
-                # Check file size
-                file_content = await file_obj.read()
-                file_size_mb = len(file_content) / 1024 / 1024
-                
-                if file_size_mb > config.app['max_file_size_mb']:
-                    raise HTTPException(status_code=413, detail=f"File {file_obj.filename} too large: {file_size_mb:.1f}MB (max: {config.app['max_file_size_mb']}MB)")
-                
+        for file_type, file in files_to_process.items():
+            if file:
                 file_path = os.path.join(session_dir, f"{file_type}.pdf")
-                try:
-                    with open(file_path, "wb") as buffer:
-                        buffer.write(file_content)
-                    uploaded_files[file_type] = file_path
-                    logger.info(f"✅ Saved {file_type}: {file_obj.filename} ({file_size_mb:.2f} MB)")
-                except Exception as e:
-                    logger.error(f"❌ Failed to save {file_type}: {e}")
-            else:
-                logger.info(f"⏭️ Skipped {file_type}: No file provided")
-        
-        logger.info(f"📊 Total files uploaded: {len(uploaded_files)}")
+                with open(file_path, "wb") as f:
+                    f.write(await file.read())
+                uploaded_files[file_type] = file_path
+                logger.info(f"📄 Saved {file_type} file: {file_path}")
         
         # Calculate chronological age
-        logger.info("🧮 Calculating chronological age...")
         try:
             dob = datetime.strptime(date_of_birth, "%Y-%m-%d")
             encounter = datetime.strptime(encounter_date, "%Y-%m-%d")
-            
-            if not pdf_processor:
-                raise Exception("PDF processor not available")
-                
             chronological_age = pdf_processor.calculate_chronological_age(dob, encounter)
-            logger.info(f"✅ Age calculated: {chronological_age.get('formatted', 'Unknown')}")
         except Exception as e:
-            logger.error(f"❌ Failed to calculate age: {e}")
-            chronological_age = {"formatted": "Unknown", "total_days": 0}
+            logger.error(f"❌ Failed to calculate chronological age: {e}")
+            chronological_age = None
         
-        # Process all uploaded PDFs
-        logger.info("🔍 Processing PDF assessments...")
-        try:
-            if not pdf_processor:
-                raise Exception("PDF processor not initialized")
-                
-            extracted_data = await pdf_processor.process_multiple_assessments(uploaded_files)
-            logger.info("✅ PDF processing completed successfully")
-            
-            # Log what was extracted
-            for assessment_type, data in extracted_data.items():
-                if data:
-                    logger.info(f"📋 Extracted data from {assessment_type}: {len(str(data))} characters")
-                else:
-                    logger.warning(f"⚠️ No data extracted from {assessment_type}")
-                    
-        except Exception as e:
-            logger.error(f"❌ PDF processing failed: {e}")
-            extracted_data = {}
-        
-        # Compile patient information
-        patient_info = {
-            "name": patient_name,
-            "date_of_birth": date_of_birth,
-            "encounter_date": encounter_date,
-            "chronological_age": chronological_age,
-            "parent_guardian": parent_guardian,
-            "uci_number": uci_number,
-            "sex": sex,
-            "language": language,
-            "report_date": datetime.now().strftime("%Y-%m-%d")
-        }
-        logger.info("✅ Patient information compiled")
-        
-        # Compile comprehensive report data
+        # Compile report data
         report_data = {
-            "patient_info": patient_info,
-            "extracted_data": extracted_data,
-            "assessments": {
-                "bayley4": extracted_data.get("bayley4_cognitive", {}) or extracted_data.get("bayley4_social", {}),
-                "sp2": extracted_data.get("sp2", {}),
-                "chomps": extracted_data.get("chomps", {}),
-                "pedieat": extracted_data.get("pedieat", {}),
-                "clinical_notes": extracted_data.get("clinical_notes", {})
+            "patient_info": {
+                "name": patient_name,
+                "date_of_birth": date_of_birth,
+                "encounter_date": encounter_date,
+                "parent_guardian": parent_guardian,
+                "uci_number": uci_number,
+                "sex": sex,
+                "language": language,
+                "chronological_age": chronological_age
+            },
+            "uploaded_files": uploaded_files,
+            "report_preferences": {
+                "output_format": output_format,
+                "report_type": report_type,
+                "notify_email": notify_email
             }
         }
+        
+        # Save report data for potential regeneration
+        report_data_path = os.path.join("outputs", f"report_data_{session_id}.json")
+        with open(report_data_path, 'w') as f:
+            json.dump(report_data, f)
         logger.info("✅ Report data compiled")
         
-        # Generate reports based on output format preference
-        output_links = {}
-        logger.info(f"📝 Generating reports in {output_format} format...")
+        # Initialize output links dictionary with error tracking
+        output_links = {
+            "pdf": None,
+            "google_docs": None,
+            "error": None,
+            "session_id": session_id
+        }
         
+        # Generate reports based on output format preference
         if output_format in ["pdf", "both"]:
-            logger.info(f"📄 Generating PDF report (type: {report_type})...")
+            logger.info(f"📝 Generating PDF report (type: {report_type})...")
             try:
                 if report_type == "professional" and is_openai_enabled() and openai_report_generator:
+                    # Use AI-enhanced report generation
                     pdf_path = await openai_report_generator.generate_comprehensive_report(report_data, session_id)
                     logger.info("✅ Professional AI-enhanced PDF report generated")
-                elif report_generator:
-                    pdf_path = await report_generator.generate_report(report_data, session_id)
-                    logger.info("✅ Enhanced PDF report generated")
                 else:
-                    raise Exception("No report generator available")
-                    
-                output_links["pdf"] = f"/download/{session_id}"
-                logger.info(f"✅ PDF download link created: {output_links['pdf']}")
+                    # Use basic report generation
+                    pdf_path = await report_generator.generate_report(report_data, session_id)
+                    logger.info("✅ Basic PDF report generated")
                 
+                output_links["pdf"] = f"/download/{session_id}"
+                logger.info(f"✅ PDF report created: {pdf_path}")
             except Exception as e:
-                logger.error(f"❌ PDF generation failed: {e}")
-                # Continue processing for other formats
+                error_msg = f"Failed to generate PDF report: {str(e)}"
+                logger.error(f"❌ {error_msg}")
+                output_links["error"] = error_msg
+                output_links["pdf"] = None
         
         if output_format in ["google_docs", "both"]:
             logger.info(f"📝 Generating Google Docs report (type: {report_type})...")
@@ -381,52 +343,26 @@ async def upload_files(
                 if not is_google_docs_enabled() or not google_docs_generator:
                     raise Exception("Google Docs generator not available")
                 
-                # Follow the same pattern as PDF generation
                 if report_type == "professional" and is_openai_enabled() and openai_report_generator:
-                    # Use AI-enhanced Google Docs generation if available
-                    if hasattr(openai_report_generator, 'generate_google_docs_report'):
-                        doc_url = await openai_report_generator.generate_google_docs_report(report_data, session_id)
-                        logger.info("✅ Professional AI-enhanced Google Docs report generated")
-                    else:
-                        # Fallback to basic Google Docs generation for professional reports
-                        doc_url = await google_docs_generator.create_report(report_data, session_id)
-                        logger.info("✅ Professional Google Docs report generated (using basic generator)")
+                    doc_url = await openai_report_generator.generate_google_docs_report(report_data, session_id)
+                    logger.info("✅ Professional AI-enhanced Google Docs report generated")
                 else:
-                    # Use basic Google Docs generation
                     doc_url = await google_docs_generator.create_report(report_data, session_id)
-                    logger.info("✅ Enhanced Google Docs report generated")
+                    logger.info("✅ Basic Google Docs report generated")
                 
                 output_links["google_docs"] = doc_url
                 logger.info(f"✅ Google Docs report created: {doc_url}")
-                
-                # Send email notification if enabled
-                if is_email_enabled() and email_notifier:
-                    logger.info("📧 Sending email notification...")
-                    try:
-                        await email_notifier.send_completion_notification(
-                            recipient_email=notify_email,
-                            patient_name=patient_name,
-                            doc_url=doc_url,
-                            session_id=session_id
-                        )
-                        logger.info(f"✅ Email notification sent to: {notify_email}")
-                        
-                    except Exception as e:
-                        logger.error(f"❌ Email notification failed: {e}")
-                        # Continue processing
-                else:
-                    logger.info("📧 Email notifications disabled in configuration")
-                    
             except Exception as e:
-                logger.error(f"❌ Google Docs generation failed: {e}")
-                # Continue processing
+                error_msg = f"Failed to generate Google Docs report: {str(e)}"
+                logger.error(f"❌ {error_msg}")
+                if not output_links["error"]:
+                    output_links["error"] = error_msg
         
-        logger.info(f"🎉 Report generation completed for session {session_id}")
-        logger.info(f"📊 Generated outputs: {list(output_links.keys())}")
-        
+        # Return template response with output links and status
         return templates.TemplateResponse("result.html", {
             "request": request,
-            "success": True,
+            "success": not output_links["error"],
+            "error": output_links["error"],
             "patient_name": patient_name,
             "chronological_age": chronological_age,
             "output_links": output_links,
@@ -437,12 +373,13 @@ async def upload_files(
         })
         
     except Exception as e:
-        print(format_exc())
-        logger.error(f"❌ Report generation failed: {e}")
+        error_msg = f"Failed to process report generation: {str(e)}"
+        logger.error(f"❌ {error_msg}")
         return templates.TemplateResponse("result.html", {
             "request": request,
             "success": False,
-            "error": str(e),
+            "error": error_msg,
+            "session_id": session_id if 'session_id' in locals() else None,
             "features": config.get_feature_status()
         })
 
@@ -894,6 +831,70 @@ async def get_assessment_types():
             {"type": "clinical_notes", "name": "Clinical Notes", "required": False}
         ]
     }
+
+@app.post("/regenerate-report/{session_id}")
+async def regenerate_report(session_id: str, output_format: str = "pdf"):
+    """Regenerate report for a given session"""
+    try:
+        # Load saved report data
+        report_data_path = os.path.join("outputs", f"report_data_{session_id}.json")
+        if not os.path.exists(report_data_path):
+            raise HTTPException(status_code=404, detail="Report data not found")
+            
+        with open(report_data_path, 'r') as f:
+            report_data = json.load(f)
+            
+        output_links = {
+            "pdf": None,
+            "google_docs": None,
+            "error": None,
+            "session_id": session_id
+        }
+        
+        # Regenerate PDF
+        if output_format in ["pdf", "both"]:
+            try:
+                if is_openai_enabled() and openai_report_generator:
+                    pdf_path = await openai_report_generator.generate_comprehensive_report(report_data, session_id)
+                    logger.info("✅ Professional AI-enhanced PDF report regenerated")
+                else:
+                    pdf_path = await report_generator.generate_report(report_data, session_id)
+                    logger.info("✅ Basic PDF report regenerated")
+                    
+                output_links["pdf"] = f"/download/{session_id}"
+                logger.info(f"✅ PDF report regenerated: {pdf_path}")
+            except Exception as e:
+                error_msg = f"Failed to regenerate PDF report: {str(e)}"
+                logger.error(f"❌ {error_msg}")
+                output_links["error"] = error_msg
+                
+        # Regenerate Google Docs if requested
+        if output_format in ["google_docs", "both"]:
+            try:
+                if not is_google_docs_enabled() or not google_docs_generator:
+                    raise Exception("Google Docs generator not available")
+                    
+                if is_openai_enabled() and openai_report_generator:
+                    doc_url = await openai_report_generator.generate_google_docs_report(report_data, session_id)
+                    logger.info("✅ Professional AI-enhanced Google Docs report regenerated")
+                else:
+                    doc_url = await google_docs_generator.create_report(report_data, session_id)
+                    logger.info("✅ Basic Google Docs report regenerated")
+                    
+                output_links["google_docs"] = doc_url
+                logger.info(f"✅ Google Docs report regenerated: {doc_url}")
+            except Exception as e:
+                error_msg = f"Failed to regenerate Google Docs report: {str(e)}"
+                logger.error(f"❌ {error_msg}")
+                if not output_links["error"]:
+                    output_links["error"] = error_msg
+                    
+        return output_links
+        
+    except Exception as e:
+        error_msg = f"Failed to regenerate report: {str(e)}"
+        logger.error(f"❌ {error_msg}")
+        raise HTTPException(status_code=500, detail=error_msg)
 
 if __name__ == "__main__":
     import uvicorn

@@ -358,6 +358,15 @@ class OpenAIEnhancedReportGenerator:
         """Generate comprehensive professional OT report using OpenAI enhancement"""
         self.logger.info(f"📝 Starting comprehensive report generation for session: {session_id}")
         
+        # Save report data for potential regeneration
+        report_data_path = os.path.join("outputs", f"report_data_{session_id}.json")
+        try:
+            with open(report_data_path, 'w') as f:
+                json.dump(report_data, f)
+            self.logger.info(f"💾 Saved report data for regeneration: {report_data_path}")
+        except Exception as e:
+            self.logger.warning(f"⚠️ Failed to save report data: {e}")
+        
         # Enhanced data extraction and processing
         enhanced_data = await self._enhance_report_data(report_data)
         

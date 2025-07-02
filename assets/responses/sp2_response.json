@@ -19,27 +19,27 @@
             "rows": [
                 [
                     "Seeking",
-                    "Low",
-                    "Limited interest in sensory exploration, may appear withdrawn from sensory experiences.",
-                    "May result in reduced engagement in exploratory play and decreased curiosity in novel environments."
+                    "Typical, Probable Difference, Definite Difference",
+                    "Seeks sensory input to support engagement and interaction.",
+                    "May show heightened curiosity in exploration, potentially benefiting play and creativity, but may also distract from focused activities."
                 ],
                 [
                     "Avoiding",
-                    "Low",
-                    "Tolerates most sensory experiences well.",
-                    "This can facilitate adaptability in various environments, with minimal disruption during daily transitions."
+                    "Typical, Probable Difference, Definite Difference",
+                    "Actively avoids certain sensory experiences to maintain comfort and control.",
+                    "Could lead to withdrawal from sensory-rich environments, impacting social participation and adaptability in new situations."
                 ],
                 [
                     "Sensitivity",
-                    "Low",
-                    "May miss subtle sensory cues in the environment.",
-                    "Could lead to decreased awareness of essential sensory inputs, affecting attention and response to changes."
+                    "Typical, Probable Difference, Definite Difference",
+                    "Exhibits high reactivity to sensory stimuli, often becoming distressed or overwhelmed.",
+                    "Challenges may arise in maintaining attention and emotional regulation, affecting tasks such as grooming and social interaction."
                 ],
                 [
                     "Registration",
-                    "Good",
-                    "Consistently notices and responds to sensory input.",
-                    "Supports effective interaction with the immediate environment and participation in routine activities."
+                    "Typical, Probable Difference, Definite Difference",
+                    "Shows a reduced response to sensory input, often requiring more stimuli to respond.",
+                    "Potential challenges in noticing environmental cues, which can impact safety awareness and responsiveness in activities."
                 ]
             ]
         }
@@ -47,23 +47,23 @@
     "real_world_implications": {
         "type": "bullet_points",
         "content": [
-            "Grooming: Low sensory seeking and sensitivity can contribute to challenges in initiating grooming tasks, although low avoidance allows for participation once involved.",
-            "Play: May exhibit reduced interest in sensory-rich play activities due to low seeking behaviors, potentially impacting peer interaction opportunities.",
-            "Feeding: Good registration aids food acceptance; however, low seeking behaviors might limit exposure to varied food textures and tastes.",
-            "Daily Routines: Low avoidance supports smooth transitions; however, missing subtle cues may impact the ability to follow nuanced and complex routines."
+            "Grooming: Impact on self-care activities and hygiene routines, possibly requiring adapted methods to enhance independence and comfort.",
+            "Play: Effects on toy selection, play preferences, and peer interaction, influencing engagement in group activities and imaginative play.",
+            "Feeding: Influence on food acceptance, mealtime behavior, and nutrition, with potential aversions affecting dietary variety and mealtime participation.",
+            "Daily Routines: Impact on transitions, sleep, and activity participation, which may necessitate structured routines and transitions to improve daily participation."
         ]
     },
     "sensory_strategies": {
         "type": "bullet_points",
         "content": [
-            "Environmental modifications to support optimal sensory processing, focusing on enhancing sensory cue visibility.",
-            "Sensory diet activities for regulation and organization, promoting active engagement in sensory experiences.",
-            "Specific sensory tools and equipment recommendations, such as weighted items or textured materials for increased sensory input.",
-            "Caregiver education for implementing sensory strategies, focusing on the integration of structured sensory activities in daily routines."
+            "Environmental modifications to support optimal sensory processing, such as altering lighting or noise levels to accommodate sensory preferences.",
+            "Sensory diet activities for regulation and organization, incorporating proprioceptive and vestibular stimuli to improve alertness and calmness.",
+            "Specific sensory tools and equipment recommendations, including weighted blankets or noise-reducing headphones to aid in self-regulation.",
+            "Caregiver education for implementing sensory strategies effectively at home and in community settings to enhance daily functioning."
         ]
     },
     "intervention_recommendations": {
         "type": "paragraph",
-        "content": "Based on the SP2 findings, occupational therapy intervention should focus on sensory integration principles and environmental modifications to support optimal sensory processing and functional participation in daily activities."
+        "content": "Based on the SP2 findings, occupational therapy intervention should focus on sensory integration principles and environmental modifications to support optimal sensory processing and functional participation in daily activities. These strategies are designed to enhance the child's ability to engage more fully in educational, social, and personal care activities, promoting overall development and quality of life."
     }
 }

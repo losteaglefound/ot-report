@@ -243,38 +243,32 @@
                 
                 <div class="alert alert-danger" role="alert">
                     <i class="fas fa-info-circle me-2"></i>
-                    <strong>Error Details:</strong> {{ error }}
+                    <strong>Error Details:</strong> <span id="error-message">{{ error }}</span>
                 </div>
                 
                 <p class="text-muted mb-4">
                     We encountered an issue while processing your assessment files. This could be due to:
+                    <ul class="text-start">
+                        <li>Temporary system issues</li>
+                        <li>File processing errors</li>
+                        <li>Network connectivity problems</li>
+                    </ul>
                 </p>
-                
-                <ul class="text-start text-muted mb-4">
-                    <li>Corrupted or unreadable PDF files</li>
-                    <li>Files that are not in the expected assessment format</li>
-                    <li>Missing required patient information</li>
-                    <li>Network connectivity issues</li>
-                    <li>Server processing errors</li>
-                    <li>Incompatible file formats or content structure</li>
-                </ul>
+
+                {% if session_id %}
+                <div class="mb-4">
+                    <button onclick="regenerateReport('{{ session_id }}')" class="btn btn-warning btn-lg">
+                        <i class="fas fa-sync me-2"></i>
+                        Regenerate Report
+                    </button>
+                </div>
+                {% endif %}
                 
                 <div class="d-flex justify-content-center flex-wrap">
                     <a href="/" class="btn btn-primary btn-lg">
-                        <i class="fas fa-redo me-2"></i>
-                        Try Again
+                        <i class="fas fa-arrow-left me-2"></i>
+                        Return to Upload
                     </a>
-                </div>
-
-                <div class="mt-4">
-                    <small class="text-muted">
-                        If the problem persists, please ensure that:<br>
-                        • All uploaded PDFs are text-based (not scanned images)<br>
-                        • Files contain the expected assessment data and scores<br>
-                        • Patient information is complete and accurate<br>
-                        • File sizes are reasonable (&lt; 10MB each)<br><br>
-                        For technical support, provide the error details and session ID above.
-                    </small>
                 </div>
             {% endif %}
         </div>
@@ -283,42 +277,68 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
     <script>
         // Set current date
-        const dateElement = document.getElementById('current-date');
-        if (dateElement) {
-            dateElement.textContent = new Date().toLocaleDateString('en-US', {
-                year: 'numeric',
-                month: 'long',
-                day: 'numeric',
-                hour: '2-digit',
-                minute: '2-digit'
-            });
+        document.getElementById('current-date').textContent = new Date().toLocaleDateString('en-US', {
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit'
+        });
+
+        // Function to regenerate report
+        async function regenerateReport(sessionId) {
+            const button = event.target;
+            const originalText = button.innerHTML;
+            button.disabled = true;
+            button.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Regenerating...';
+
+            try {
+                const response = await fetch(`/regenerate-report/${sessionId}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                const result = await response.json();
+
+                if (result.error) {
+                    document.getElementById('error-message').textContent = result.error;
+                    button.innerHTML = originalText;
+                    button.disabled = false;
+                } else {
+                    // Redirect to success view with new links
+                    window.location.href = `/?success=true&pdf=${result.pdf}&google_docs=${result.google_docs}`;
+                }
+            } catch (error) {
+                document.getElementById('error-message').textContent = 'Failed to regenerate report. Please try again.';
+                button.innerHTML = originalText;
+                button.disabled = false;
+            }
         }
 
-        // Check if report was successful and has Google Docs link
-        const isSuccess = {% if success %}true{% else %}false{% endif %};
-        const hasGoogleDocs = {% if success and output_links and output_links.google_docs %}true{% else %}false{% endif %};
-        const googleDocsUrl = '{% if success and output_links and output_links.google_docs %}{{ output_links.google_docs }}{% endif %}';
-
-        // Auto-open Google Docs if available (optional)
-        if (isSuccess && hasGoogleDocs && googleDocsUrl) {
-            setTimeout(function() {
-                if (confirm('Would you like to open the Google Docs report now?\n\nNote: An email notification has also been sent with the report link.')) {
-                    window.open(googleDocsUrl, '_blank');
-                }
-            }, 2000);
-        }
-
-        // Show notification about email being sent
-        if (isSuccess && hasGoogleDocs) {
-            setTimeout(function() {
-                const emailInfo = document.createElement('div');
-                emailInfo.className = 'alert alert-info mt-3';
-                emailInfo.innerHTML = '<i class="fas fa-envelope me-2"></i><strong>Email Sent:</strong> A notification with the report link has been sent to the specified email address.';
-                const resultCard = document.querySelector('.result-card');
-                if (resultCard) {
-                    resultCard.appendChild(emailInfo);
-                }
-            }, 3000);
+        // Handle success parameters in URL
+        const urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.get('success') === 'true') {
+            const pdf = urlParams.get('pdf');
+            const googleDocs = urlParams.get('google_docs');
+            
+            if (pdf) {
+                const pdfLink = document.createElement('a');
+                pdfLink.href = pdf;
+                pdfLink.className = 'btn btn-info btn-lg';
+                pdfLink.innerHTML = '<i class="fas fa-file-pdf me-2"></i>Download PDF Report';
+                document.querySelector('.output-links').appendChild(pdfLink);
+            }
+            
+            if (googleDocs) {
+                const docsLink = document.createElement('a');
+                docsLink.href = googleDocs;
+                docsLink.target = '_blank';
+                docsLink.className = 'btn btn-success btn-lg';
+                docsLink.innerHTML = '<i class="fab fa-google-drive me-2"></i>Open in Google Docs';
+                document.querySelector('.output-links').appendChild(docsLink);
+            }
         }
     </script>
 </body>
