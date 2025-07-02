@@ -39,16 +39,14 @@ def validate_json(state):
         output = output.replace("```json", "").replace("```", "")
     try:
         parsed = json.loads(output)
-        # Optional: strict schema validation
-        if "summary" in parsed and isinstance(parsed["keywords"], list):
-            return {**state, "valid": True}
+        return {**state, "valid": True}
     except json.JSONDecodeError:
         pass
     return {**state, "valid": False}
 
 # Router to determine next step
 def route_by_validation(state):
-    return "generate_response" if state["valid"] else END
+    return "generate_response" if not state["valid"] else END
 
 # Build the LangGraph
 builder = StateGraph(state_schema=dict)  # Use simple dict for flexible state

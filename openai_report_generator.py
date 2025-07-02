@@ -1720,6 +1720,7 @@ class OpenAIEnhancedReportGenerator:
     
     async def _create_chomps_detailed_section(self, report_data: Dict[str, Any]) -> List:
         """Create detailed ChOMPS section with feeding risk assessment"""
+        print("Extracting chomps details")
         elements = []
         
         # ChOMPS header
@@ -1733,6 +1734,7 @@ class OpenAIEnhancedReportGenerator:
         
         # Generate ChOMPS interpretation
         chomps_prompt = await get_prompt(prompt_type="chomps", data=chomps_analysis, json_format=True)
+        print("########### PROMPT ##########", chomps_prompt)
         chomps_narrative = await self._generate_with_openai(chomps_prompt, max_tokens=2000)
         chomps_narrative = await remove_lang_tags(chomps_narrative)
         try:

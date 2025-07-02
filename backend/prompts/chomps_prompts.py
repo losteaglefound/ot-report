@@ -32,7 +32,7 @@ async def get_chomps_prompt(chomps_analysis: str, json_format=False) -> str:
 
         Ensure the structure supports downstream formatting and interface display. Focus on feeding safety, efficiency, and evidence-based recommendations.
 
-        JSON response format:
+        Response format:
         {{
             "Physiology": {{
                 "type": "header",
