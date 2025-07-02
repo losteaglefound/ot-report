@@ -399,26 +399,26 @@ class OpenAIEnhancedReportGenerator:
             
             # Header section (clinic branding and patient info)
             self.logger.info("📋 Generating header section...")
-            # story.extend(self._create_professional_header(enhanced_data["patient_info"]))
+            story.extend(self._create_professional_header(enhanced_data["patient_info"]))
             
             # Main report sections
-            # self.logger.info("📝 Generating background section...")
-            # story.extend(await self._create_background_section(enhanced_data))
+            self.logger.info("📝 Generating background section...")
+            story.extend(await self._create_background_section(enhanced_data))
             
-            # self.logger.info("👥 Generating caregiver concerns...")
-            # story.extend(await self._create_caregiver_concerns(enhanced_data))
+            self.logger.info("👥 Generating caregiver concerns...")
+            story.extend(await self._create_caregiver_concerns(enhanced_data))
             
-            # self.logger.info("👁️ Generating clinical observations...")
-            # story.extend(await self._create_clinical_observations(enhanced_data))
+            self.logger.info("👁️ Generating clinical observations...")
+            story.extend(await self._create_clinical_observations(enhanced_data))
             
-            # self.logger.info("🔧 Adding assessment tools description...")
-            # story.extend(self._create_assessment_tools_description())
+            self.logger.info("🔧 Adding assessment tools description...")
+            story.extend(self._create_assessment_tools_description())
             
             self.logger.info("📊 Generating detailed assessment results...")
             story.extend(await self._create_detailed_assessment_results(enhanced_data))
             
-            # self.logger.info("💡 Generating recommendations...")
-            # story.extend(await self._create_recommendations_section(enhanced_data))
+            self.logger.info("💡 Generating recommendations...")
+            story.extend(await self._create_recommendations_section(enhanced_data))
             
             # self.logger.info("📋 Generating professional summary...")
             # story.extend(await self._create_professional_summary(enhanced_data))
@@ -1513,117 +1513,117 @@ class OpenAIEnhancedReportGenerator:
         """Create detailed Bayley-4 section with comprehensive interpretation and professional score table"""
         elements = []
         
-        # Bayley-4 header with enhanced styling
-        header = Paragraph("Bayley Scales of Infant and Toddler Development - Fourth Edition (Bayley-4)", 
-                          self.styles['DomainHeader'])
-        elements.append(header)
-        elements.append(Spacer(1, 8))
+        # # Bayley-4 header with enhanced styling
+        # header = Paragraph("Bayley Scales of Infant and Toddler Development - Fourth Edition (Bayley-4)", 
+        #                   self.styles['DomainHeader'])
+        # elements.append(header)
+        # elements.append(Spacer(1, 8))
         
-        # Get extracted Bayley data
-        extracted_data = report_data.get("extracted_data", {})
-        bayley_cognitive = extracted_data.get("bayley4_cognitive", {})
-        bayley_social = extracted_data.get("bayley4_social", {})
+        # # Get extracted Bayley data
+        # extracted_data = report_data.get("extracted_data", {})
+        # bayley_cognitive = extracted_data.get("bayley4_cognitive", {})
+        # bayley_social = extracted_data.get("bayley4_social", {})
         
-        # Create professional scores table if we have data
-        if bayley_cognitive.get("raw_scores") or bayley_social.get("raw_scores"):
+        # # Create professional scores table if we have data
+        # if bayley_cognitive.get("raw_scores") or bayley_social.get("raw_scores"):
             
-            # Scores table header
-            score_header = Paragraph("Assessment Scores Summary", self.styles['KeyFindings'])
-            elements.append(score_header)
-            elements.append(Spacer(1, 6))
+        #     # Scores table header
+        #     score_header = Paragraph("Assessment Scores Summary", self.styles['KeyFindings'])
+        #     elements.append(score_header)
+        #     elements.append(Spacer(1, 6))
             
-            # Build comprehensive scores table
-            score_data = [
-                # Table headers with enhanced styling
-                [Paragraph("Domain", self.styles['TableHeader']),
-                 Paragraph("Raw Score", self.styles['TableHeader']),
-                 Paragraph("Scaled Score", self.styles['TableHeader']),
-                 Paragraph("Percentile", self.styles['TableHeader']),
-                 Paragraph("Age Equivalent", self.styles['TableHeader']),
-                 Paragraph("Classification", self.styles['TableHeader'])]
-            ]
+        #     # Build comprehensive scores table
+        #     score_data = [
+        #         # Table headers with enhanced styling
+        #         [Paragraph("Domain", self.styles['TableHeader']),
+        #          Paragraph("Raw Score", self.styles['TableHeader']),
+        #          Paragraph("Scaled Score", self.styles['TableHeader']),
+        #          Paragraph("Percentile", self.styles['TableHeader']),
+        #          Paragraph("Age Equivalent", self.styles['TableHeader']),
+        #          Paragraph("Classification", self.styles['TableHeader'])]
+        #     ]
             
-            # Add cognitive/language/motor scores if available
-            if bayley_cognitive.get("raw_scores"):
-                cog_scores = bayley_cognitive["raw_scores"]
-                for domain, scores in cog_scores.items():
-                    if isinstance(scores, dict) and scores.get("scaled_score"):
-                        classification = self._get_score_classification(scores.get("scaled_score", 0))
-                        percentile = self._score_to_percentile(scores.get("scaled_score", 0))
+        #     # Add cognitive/language/motor scores if available
+        #     if bayley_cognitive.get("raw_scores"):
+        #         cog_scores = bayley_cognitive["raw_scores"]
+        #         for domain, scores in cog_scores.items():
+        #             if isinstance(scores, dict) and scores.get("scaled_score"):
+        #                 classification = self._get_score_classification(scores.get("scaled_score", 0))
+        #                 percentile = self._score_to_percentile(scores.get("scaled_score", 0))
                         
-                        score_data.append([
-                            Paragraph(f"<b>{domain.title()}</b>", self.styles['TableCell']),
-                            Paragraph(str(scores.get("raw_score", "N/A")), self.styles['TableCell']),
-                            Paragraph(str(scores.get("scaled_score", "N/A")), self.styles['TableCell']),
-                            Paragraph(f"{percentile}%", self.styles['TableCell']),
-                            Paragraph(scores.get("age_equivalent", "N/A"), self.styles['TableCell']),
-                            Paragraph(classification, self.styles['TableCell'])
-                        ])
+        #                 score_data.append([
+        #                     Paragraph(f"<b>{domain.title()}</b>", self.styles['TableCell']),
+        #                     Paragraph(str(scores.get("raw_score", "N/A")), self.styles['TableCell']),
+        #                     Paragraph(str(scores.get("scaled_score", "N/A")), self.styles['TableCell']),
+        #                     Paragraph(f"{percentile}%", self.styles['TableCell']),
+        #                     Paragraph(scores.get("age_equivalent", "N/A"), self.styles['TableCell']),
+        #                     Paragraph(classification, self.styles['TableCell'])
+        #                 ])
             
-            # Add social-emotional/adaptive scores if available
-            if bayley_social.get("raw_scores"):
-                social_scores = bayley_social["raw_scores"]
-                for domain, scores in social_scores.items():
-                    if isinstance(scores, dict) and scores.get("scaled_score"):
-                        classification = self._get_score_classification(scores.get("scaled_score", 0))
-                        percentile = self._score_to_percentile(scores.get("scaled_score", 0))
+        #     # Add social-emotional/adaptive scores if available
+        #     if bayley_social.get("raw_scores"):
+        #         social_scores = bayley_social["raw_scores"]
+        #         for domain, scores in social_scores.items():
+        #             if isinstance(scores, dict) and scores.get("scaled_score"):
+        #                 classification = self._get_score_classification(scores.get("scaled_score", 0))
+        #                 percentile = self._score_to_percentile(scores.get("scaled_score", 0))
                         
-                        score_data.append([
-                            Paragraph(f"<b>{domain.replace('_', ' ').title()}</b>", self.styles['TableCell']),
-                            Paragraph(str(scores.get("raw_score", "N/A")), self.styles['TableCell']),
-                            Paragraph(str(scores.get("scaled_score", "N/A")), self.styles['TableCell']),
-                            Paragraph(f"{percentile}%", self.styles['TableCell']),
-                            Paragraph(scores.get("age_equivalent", "N/A"), self.styles['TableCell']),
-                            Paragraph(classification, self.styles['TableCell'])
-                        ])
+        #                 score_data.append([
+        #                     Paragraph(f"<b>{domain.replace('_', ' ').title()}</b>", self.styles['TableCell']),
+        #                     Paragraph(str(scores.get("raw_score", "N/A")), self.styles['TableCell']),
+        #                     Paragraph(str(scores.get("scaled_score", "N/A")), self.styles['TableCell']),
+        #                     Paragraph(f"{percentile}%", self.styles['TableCell']),
+        #                     Paragraph(scores.get("age_equivalent", "N/A"), self.styles['TableCell']),
+        #                     Paragraph(classification, self.styles['TableCell'])
+        #                 ])
             
-            # Create the scores table with professional styling
-            scores_table = Table(score_data, 
-                               colWidths=[1.4*inch, 0.8*inch, 0.9*inch, 0.8*inch, 1.0*inch, 1.5*inch])
+        #     # Create the scores table with professional styling
+        #     scores_table = Table(score_data, 
+        #                        colWidths=[1.4*inch, 0.8*inch, 0.9*inch, 0.8*inch, 1.0*inch, 1.5*inch])
             
-            # Enhanced table styling
-            scores_table.setStyle(TableStyle([
-                # Header row styling
-                ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor('#1f4788')),
-                ('TEXTCOLOR', (0, 0), (-1, 0), colors.white),
-                ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
-                ('FONTSIZE', (0, 0), (-1, 0), 10),
-                ('ALIGN', (0, 0), (-1, 0), 'CENTER'),
+        #     # Enhanced table styling
+        #     scores_table.setStyle(TableStyle([
+        #         # Header row styling
+        #         ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor('#1f4788')),
+        #         ('TEXTCOLOR', (0, 0), (-1, 0), colors.white),
+        #         ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+        #         ('FONTSIZE', (0, 0), (-1, 0), 10),
+        #         ('ALIGN', (0, 0), (-1, 0), 'CENTER'),
                 
-                # Data rows styling
-                ('BACKGROUND', (0, 1), (-1, -1), colors.white),
-                ('TEXTCOLOR', (0, 1), (-1, -1), colors.HexColor('#2d3748')),
-                ('FONTNAME', (0, 1), (-1, -1), 'Helvetica'),
-                ('FONTSIZE', (0, 1), (-1, -1), 9),
-                ('ALIGN', (1, 1), (-1, -1), 'CENTER'),  # Center all except domain names
-                ('ALIGN', (0, 1), (0, -1), 'LEFT'),     # Left align domain names
+        #         # Data rows styling
+        #         ('BACKGROUND', (0, 1), (-1, -1), colors.white),
+        #         ('TEXTCOLOR', (0, 1), (-1, -1), colors.HexColor('#2d3748')),
+        #         ('FONTNAME', (0, 1), (-1, -1), 'Helvetica'),
+        #         ('FONTSIZE', (0, 1), (-1, -1), 9),
+        #         ('ALIGN', (1, 1), (-1, -1), 'CENTER'),  # Center all except domain names
+        #         ('ALIGN', (0, 1), (0, -1), 'LEFT'),     # Left align domain names
                 
-                # Borders and grid
-                ('GRID', (0, 0), (-1, -1), 0.75, colors.HexColor('#cbd5e0')),
-                ('LINEBELOW', (0, 0), (-1, 0), 2, colors.HexColor('#1f4788')),
+        #         # Borders and grid
+        #         ('GRID', (0, 0), (-1, -1), 0.75, colors.HexColor('#cbd5e0')),
+        #         ('LINEBELOW', (0, 0), (-1, 0), 2, colors.HexColor('#1f4788')),
                 
-                # Padding
-                ('TOPPADDING', (0, 0), (-1, -1), 6),
-                ('BOTTOMPADDING', (0, 0), (-1, -1), 6),
-                ('LEFTPADDING', (0, 0), (-1, -1), 8),
-                ('RIGHTPADDING', (0, 0), (-1, -1), 8),
+        #         # Padding
+        #         ('TOPPADDING', (0, 0), (-1, -1), 6),
+        #         ('BOTTOMPADDING', (0, 0), (-1, -1), 6),
+        #         ('LEFTPADDING', (0, 0), (-1, -1), 8),
+        #         ('RIGHTPADDING', (0, 0), (-1, -1), 8),
                 
-                # Alternating row colors for better readability
-                ('ROWBACKGROUNDS', (0, 1), (-1, -1), [colors.white, colors.HexColor('#f7fafc')]),
+        #         # Alternating row colors for better readability
+        #         ('ROWBACKGROUNDS', (0, 1), (-1, -1), [colors.white, colors.HexColor('#f7fafc')]),
                 
-                # Highlight low scores in red
-                ('TEXTCOLOR', (2, 1), (2, -1), colors.HexColor('#e53e3e')),  # Scaled scores
-            ]))
+        #         # Highlight low scores in red
+        #         ('TEXTCOLOR', (2, 1), (2, -1), colors.HexColor('#e53e3e')),  # Scaled scores
+        #     ]))
             
-            elements.append(scores_table)
-            elements.append(Spacer(1, 16))
+        #     elements.append(scores_table)
+        #     elements.append(Spacer(1, 16))
         
-        # Patient info for age comparison
-        patient_info = report_data.get("patient_info", {})
-        chronological_age = patient_info.get("chronological_age", {})
+        # # Patient info for age comparison
+        # patient_info = report_data.get("patient_info", {})
+        # chronological_age = patient_info.get("chronological_age", {})
         
-        # Assessment analysis data
-        bayley_analysis = report_data.get("assessment_analysis", {}).get("bayley4", {})
+        # # Assessment analysis data
+        # bayley_analysis = report_data.get("assessment_analysis", {}).get("bayley4", {})
         
         # Generate comprehensive Bayley interpretation
         prompt = await get_prompt(prompt_type="bayley4", report_data=report_data, json_format=True)
@@ -1632,10 +1632,10 @@ class OpenAIEnhancedReportGenerator:
         response = remove_lang_tags(response)
         try:
             response = json.loads(response)
-            await save_response(response, file_name="sp2", json_format=True)
+            await save_response(response, file_name="bayley4", json_format=True)
         except json.JSONDecodeError as e:
             print(format_exc())
-            await save_response(response, file_name="sp2", json_format=True)
+            await save_response(response, file_name="bayley4", json_format=True)
             self.logger.error(f"❌ SP2 response parsing failed: {e}")
             raise
         body = await format_data_for_pdf(response)
@@ -2072,10 +2072,10 @@ class OpenAIEnhancedReportGenerator:
         elements.append(header)
         
         # Use OpenAI to generate professional background narrative
-        background_text = await self._generate_background_narrative(report_data)
+        body = await self._generate_background_narrative(report_data)
         
-        background_para = Paragraph(background_text, self.styles['ClinicalBody'])
-        elements.append(background_para)
+        # background_para = Paragraph(background_text, self.styles['ClinicalBody'])
+        elements.extend(body)
         elements.append(Spacer(1, 12))
         
         return elements
@@ -2088,10 +2088,13 @@ class OpenAIEnhancedReportGenerator:
         elements.append(header)
         
         # Generate professional caregiver concerns narrative
-        concerns_text = await self._generate_caregiver_concerns_narrative(report_data)
+        # concerns_text = await self._generate_caregiver_concerns_narrative(report_data)
         
-        concerns_para = Paragraph(concerns_text, self.styles['ClinicalBody'])
-        elements.append(concerns_para)
+        # concerns_para = Paragraph(concerns_text, self.styles['ClinicalBody'])
+        # elements.append(concerns_para)
+
+        body = await self._generate_caregiver_concerns_narrative(report_data)
+        elements.extend(body)
         elements.append(Spacer(1, 12))
         
         return elements
@@ -2104,10 +2107,13 @@ class OpenAIEnhancedReportGenerator:
         elements.append(header)
         
         # Generate professional clinical observations
-        observations_text = await self._generate_clinical_observations_narrative(report_data)
+        # observations_text = await self._generate_clinical_observations_narrative(report_data)
         
-        observations_para = Paragraph(observations_text, self.styles['ClinicalBody'])
-        elements.append(observations_para)
+        # observations_para = Paragraph(observations_text, self.styles['ClinicalBody'])
+        # elements.append(observations_para)
+
+        body = await self._generate_clinical_observations_narrative(report_data)
+        elements.extend(body)
         elements.append(Spacer(1, 12))
         
         return elements
@@ -2177,24 +2183,41 @@ class OpenAIEnhancedReportGenerator:
             - Comprehensive developmental evaluation across multiple domains
             """
         
-        prompt = f"""
-        Write a professional "Reason for referral and background information" section for a pediatric OT evaluation report. 
+        # prompt = f"""
+        # Write a professional "Reason for referral and background information" section for a pediatric OT evaluation report. 
         
-        Patient: {patient_name} (age: {age})
+        # Patient: {patient_name} (age: {age})
         
-        {assessment_context}
+        # {assessment_context}
         
-        Requirements:
-        - Start with "A developmental evaluation was recommended by the Regional Center..."
-        - Explain the purpose: determine current level of performance and guide service frequency recommendations for early intervention
-        - Keep it concise but professional
-        - Use clinical terminology appropriate for a pediatric OT evaluation
-        - Match the tone and format of professional OT reports
+        # Requirements:
+        # - Start with "A developmental evaluation was recommended by the Regional Center..."
+        # - Explain the purpose: determine current level of performance and guide service frequency recommendations for early intervention
+        # - Keep it concise but professional
+        # - Use clinical terminology appropriate for a pediatric OT evaluation
+        # - Match the tone and format of professional OT reports
         
-        Write 2-3 sentences maximum, similar to this style: "A developmental evaluation was recommended by the Regional Center to determine [patient name]'s current level of performance and to guide service frequency recommendations for early intervention."
-        """
+        # Write 2-3 sentences maximum, similar to this style: "A developmental evaluation was recommended by the Regional Center to determine [patient name]'s current level of performance and to guide service frequency recommendations for early intervention."
+        # """
         
-        return await self._generate_with_openai(prompt, max_tokens=150)
+        # return await self._generate_with_openai(prompt, max_tokens=150)
+        elements = []
+        prompt = await get_prompt(prompt_type="background", report_data=report_data, json_format=True)
+        response = await self._generate_with_openai(prompt, max_tokens=1000)
+        response = remove_lang_tags(response)
+        try:
+            response = json.loads(response)
+            await save_response(response, file_name="background", json_format=True)
+        except json.JSONDecodeError as e:
+            print(format_exc())
+            await save_response(response, file_name="background", json_format=True)
+            self.logger.error(f"❌ SP2 response parsing failed: {e}")
+            raise
+        body = await format_data_for_pdf(response)
+        elements.extend(body)
+
+        return elements
+    
     
     async def _generate_caregiver_concerns_narrative(self, report_data: Dict[str, Any]) -> str:
         """Generate detailed caregiver concerns narrative using assessment data"""
@@ -2240,7 +2263,23 @@ class OpenAIEnhancedReportGenerator:
         Example style: "Ms. [Parent] expressed broad concerns regarding her daughter's overall development. She noted that [child] becomes easily upset when the iPad is removed, indicating difficulty with transitions and emotional regulation. Ms. [Parent] also reported challenges with [child]'s ability to attend to fine motor tasks and maintain focus during structured activities. Of primary concern is [child]'s speech and language development, which Ms. [Parent] described as significantly delayed compared to same-age peers."
         """
         
-        return await self._generate_with_openai(prompt, max_tokens=400)
+        # return await self._generate_with_openai(prompt, max_tokens=400)
+        elements = []
+        prompt = await get_prompt(prompt_type="caregiver_concerns", report_data=report_data, json_format=True)
+        response = await self._generate_with_openai(prompt, max_tokens=1000)
+        response = remove_lang_tags(response)
+        try:
+            response = json.loads(response)
+            await save_response(response, file_name="caregiver_concerns", json_format=True)
+        except json.JSONDecodeError as e:
+            print(format_exc())
+            await save_response(response, file_name="caregiver_concerns", json_format=True)
+            self.logger.error(f"❌ SP2 response parsing failed: {e}")
+            raise
+        body = await format_data_for_pdf(response)
+        elements.extend(body)
+
+        return elements
     
     async def _generate_clinical_observations_narrative(self, report_data: Dict[str, Any]) -> str:
         """Generate detailed clinical observations using assessment data"""
@@ -2261,37 +2300,53 @@ class OpenAIEnhancedReportGenerator:
         
         self.logger.info(f"👁️ Generating clinical observations for {child_name}")
         
-        prompt = f"""
-        Write a detailed "Observation" section for a pediatric OT evaluation report.
+        # prompt = f"""
+        # Write a detailed "Observation" section for a pediatric OT evaluation report.
         
-        Patient: {child_name}
-        Performance analysis: {performance_analysis}
+        # Patient: {child_name}
+        # Performance analysis: {performance_analysis}
         
-        Specific clinical observations from assessment: {'; '.join(observations[:3]) if observations else 'Standard pediatric assessment observations'}
+        # Specific clinical observations from assessment: {'; '.join(observations[:3]) if observations else 'Standard pediatric assessment observations'}
         
-        Requirements:
-        - Start with "{child_name} participated in an in-clinic evaluation with [his/her] mother present"
-        - Include detailed clinical observations:
-          * Affect and general presentation (cheerful, cooperative, etc.)
-          * Muscle tone and range of motion assessment
-          * Attention span and distractibility levels
-          * Engagement patterns and task participation
-          * Response to structured vs. self-directed activities
-          * Fine motor coordination and visual-motor skills
-          * Need for cues, redirection, and assistance levels
-          * Specific behavioral observations during testing
-          * Impact on standardized testing validity
+        # Requirements:
+        # - Start with "{child_name} participated in an in-clinic evaluation with [his/her] mother present"
+        # - Include detailed clinical observations:
+        #   * Affect and general presentation (cheerful, cooperative, etc.)
+        #   * Muscle tone and range of motion assessment
+        #   * Attention span and distractibility levels
+        #   * Engagement patterns and task participation
+        #   * Response to structured vs. self-directed activities
+        #   * Fine motor coordination and visual-motor skills
+        #   * Need for cues, redirection, and assistance levels
+        #   * Specific behavioral observations during testing
+        #   * Impact on standardized testing validity
         
-        - Use professional clinical terminology
-        - Include specific details like "required hand-over-hand assistance", "maximal verbal/visual cues"
-        - Mention testing modifications needed
-        - Write 6-8 sentences with rich clinical detail
-        - Match the professional tone of clinical evaluation reports
+        # - Use professional clinical terminology
+        # - Include specific details like "required hand-over-hand assistance", "maximal verbal/visual cues"
+        # - Mention testing modifications needed
+        # - Write 6-8 sentences with rich clinical detail
+        # - Match the professional tone of clinical evaluation reports
         
-        Example elements to include: muscle tone assessment, attention span observations, task engagement, assistance levels needed, behavioral responses, testing conditions impact.
-        """
+        # Example elements to include: muscle tone assessment, attention span observations, task engagement, assistance levels needed, behavioral responses, testing conditions impact.
+        # """
         
-        return await self._generate_with_openai(prompt, max_tokens=600)
+        # return await self._generate_with_openai(prompt, max_tokens=600)
+        elements = []
+        prompt = await get_prompt(prompt_type="clinical_observations", report_data=report_data, json_format=True)
+        response = await self._generate_with_openai(prompt, max_tokens=1000)
+        response = remove_lang_tags(response)
+        try:
+            response = json.loads(response)
+            await save_response(response, file_name="clinical_observations", json_format=True)
+        except json.JSONDecodeError as e:
+            print(format_exc())
+            await save_response(response, file_name="clinical_observations", json_format=True)
+            self.logger.error(f"❌ clinical_observations response parsing failed: {e}")
+            raise
+        body = await format_data_for_pdf(response)
+        elements.extend(body)
+
+        return elements
     
     def _analyze_assessment_concerns(self, bayley_cognitive: Dict, bayley_social: Dict) -> str:
         """Analyze assessment data to identify areas of concern"""
@@ -2356,20 +2411,36 @@ class OpenAIEnhancedReportGenerator:
         - Early intervention services
         Use bullet point format, be specific and professional."""
         
-        recommendations_text = await self._generate_with_openai(prompt, max_tokens=300)
+        # recommendations_text = await self._generate_with_openai(prompt, max_tokens=300)
         
-        # Parse into list or use default
-        if "•" in recommendations_text:
-            recommendations = [rec.strip() for rec in recommendations_text.split("•") if rec.strip()]
-        else:
-            recommendations = [
-                "Physical Therapy",
-                "Speech Therapy",
-                "Infant Stim",
-                "Occupational Therapy 2x/week"
-            ]
+        # # Parse into list or use default
+        # if "•" in recommendations_text:
+        #     recommendations = [rec.strip() for rec in recommendations_text.split("•") if rec.strip()]
+        # else:
+        #     recommendations = [
+        #         "Physical Therapy",
+        #         "Speech Therapy",
+        #         "Infant Stim",
+        #         "Occupational Therapy 2x/week"
+        #     ]
         
-        return recommendations
+        # return recommendations
+        elements = []
+        prompt = await get_prompt(prompt_type="recommendations", report_data=report_data, json_format=True)
+        response = await self._generate_with_openai(prompt, max_tokens=1000)
+        response = remove_lang_tags(response)
+        try:
+            response = json.loads(response)
+            await save_response(response, file_name="recommendations", json_format=True)
+        except json.JSONDecodeError as e:
+            print(format_exc())
+            await save_response(response, file_name="recommendations", json_format=True)
+            self.logger.error(f"❌ recommendations response parsing failed: {e}")
+            raise
+        body = await format_data_for_pdf(response)
+        elements.extend(body)
+
+        return elements
     
     async def _create_professional_summary(self, report_data: Dict[str, Any]) -> List:
         """Create comprehensive professional summary section"""

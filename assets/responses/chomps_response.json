@@ -9,15 +9,15 @@
     },
     "domain_analysis": {
         "type": "paragraph",
-        "content": "Analysis of ChOMPS domains revealed increased levels of concern in the areas of bolus control, timely swallowing initiation, and texture management. The assessment identified moderate concern requiring intervention attention in these domains to prevent risk and improve feeding efficiency."
+        "content": "Analysis of ChOMPS domains revealed mild to moderate concerns regarding feeding safety and efficiency, particularly in bolus formation and oral transit. The assessment identified significant concern in the oral-motor domain, noting difficulties in maintaining bolus integrity and premature spillage, necessitating targeted intervention."
     },
     "feeding_safety": {
         "type": "paragraph",
-        "content": "Feeding safety assessment indicated notable concerns related to bolus control and potential aspiration risks. Specific considerations include inconsistent bolus formation and delayed swallowing reflex, increasing the risk for aspiration and choking episodes. These findings suggest the need for close monitoring and implementation of safety precautions during feeding."
+        "content": "Feeding safety assessment indicated moderate safety concerns. Specific considerations include inconsistent bolus control leading to potential aspiration risk and occasional coughing episodes, which suggest the need for vigilant monitoring during oral intake and potential referral for further instrumental evaluation if persistent."
     },
     "feeding_efficiency": {
         "type": "paragraph",
-        "content": "Feeding efficiency evaluation demonstrated challenges in coordinating breathing and swallowing, impacting overall feeding competence. The child exhibited difficulty managing mixed textures, which implicates compromised efficiency and requires ongoing assessment and intervention support."
+        "content": "Feeding efficiency evaluation demonstrated delayed timing in oral manipulation and reduced coordination, impacting the child's feeding competence. The child's capacity to manage mixed textures reveals a need for gradual texture progression to enhance feeding efficiency while ensuring safety."
     },
     "clinical_recommendations": {
         "type": "bullet_points",
@@ -32,6 +32,6 @@
     },
     "intervention_priorities": {
         "type": "paragraph",
-        "content": "Based on ChOMPS findings, intervention priorities focus on enhancing bolus control, improving timely swallowing initiation, and safely introducing texture modifications. Regular reassessment will be important to monitor feeding development and adjust intervention strategies as needed."
+        "content": "Based on ChOMPS findings, intervention priorities focus on improving oral-motor control and safe swallowing practices. Regular reassessment will be important to monitor feeding development and adjust intervention strategies as needed."
     }
 }

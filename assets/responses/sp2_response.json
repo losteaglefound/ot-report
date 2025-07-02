@@ -20,26 +20,26 @@
                 [
                     "Seeking",
                     "Low",
-                    "Limited interest in sensory exploration; may appear withdrawn from sensory experiences",
-                    "May exhibit limited interaction with novel activities and environments requiring sensory exploration."
+                    "Limited interest in sensory exploration, may appear withdrawn from sensory experiences",
+                    "Potential under-engagement in exploratory and play activities; may require adult guidance to enhance sensory engagement"
                 ],
                 [
                     "Avoiding",
                     "Low",
                     "Tolerates most sensory experiences well",
-                    "Able to engage in various activities without signs of distress or avoidance."
+                    "Flexibility in various environments; typically able to navigate new sensory scenarios without significant distress"
                 ],
                 [
                     "Sensitivity",
                     "Low",
                     "May miss subtle sensory cues in environment",
-                    "Potential challenges in responding promptly to environmental changes or subtle stimuli."
+                    "Possible challenges in detecting minor environmental changes, which could affect response to social and contextual cues"
                 ],
                 [
                     "Registration",
                     "Good",
                     "Consistently notices and responds to sensory input",
-                    "Appropriately reacts to sensory input facilitating participation in daily routines."
+                    "Proficient in engaging with sensory input, aiding interaction with surroundings and promoting effective participation in tasks"
                 ]
             ]
         }
@@ -47,19 +47,19 @@
     "real_world_implications": {
         "type": "bullet_points",
         "content": [
-            "Grooming: Potential for delayed response to tactile cues, which may affect self-care routines.",
-            "Play: Limited interest in exploratory play may impact engagement and peer interaction, possibly reducing opportunities for sensory-rich play experiences.",
-            "Feeding: Tolerance of most sensory inputs may support varied food acceptance, but potential subtle cues during meals could be overlooked.",
-            "Daily Routines: Generally adapts well to routine transitions and sensory inputs but may benefit from increased support in recognizing subtle changes in the environment or routine."
+            "Grooming: May require reminders for self-care tasks; generally navigates hygiene routines effectively when engaged.",
+            "Play: Limited initiation of sensory-rich play activities; might benefit from structured sensory play setups.",
+            "Feeding: Generally open to diverse textures; occasional need for encouragement to explore new foods.",
+            "Daily Routines: Smooth transitions and adaptability to varied activities due to low sensory avoiding tendencies."
         ]
     },
     "sensory_strategies": {
         "type": "bullet_points",
         "content": [
-            "Environmental modifications to support optimal sensory processing, such as adjusting lighting and noise levels.",
-            "Incorporation of sensory diet activities to promote regulation and organization, like proprioceptive and vestibular activities.",
-            "Recommendation for specific sensory tools and equipment such as fidget toys or weighted items to enhance focus and attention.",
-            "Caregiver education on implementing sensory strategies effectively in natural environments to enhance the child's engagement and participation."
+            "Environmental modifications to support optimal sensory processing",
+            "Sensory diet activities for regulation and organization",
+            "Specific sensory tools and equipment recommendations",
+            "Caregiver education for implementing sensory strategies"
         ]
     },
     "intervention_recommendations": {

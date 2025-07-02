@@ -9,19 +9,19 @@
     },
     "physiology_domain": {
         "type": "paragraph",
-        "content": "Physiology domain assessment revealed moderate challenges with oral motor control, including decreased tongue lateralization and reduced lip closure, contributing to mild dysphagia with thin liquids. These findings indicate a heightened risk for penetration and aspiration, necessitating targeted intervention for safe swallowing."
+        "content": "Physiology domain assessment revealed challenges in oral motor coordination and reduced bolus control, impacting swallowing safety. There is a noted mild aspiration risk during thin liquid intake, requiring vigilance. These findings indicate a need for targeted oral motor interventions to enhance feeding safety and prevent aspiration."
     },
     "processing_domain": {
         "type": "paragraph",
-        "content": "Processing domain evaluation demonstrated limited acceptance of mixed textures, indicating sensory processing challenges that affect the child's ability to handle multiple food consistencies. The child's ability to process various food textures is below the expected age level, suggesting the need for enhanced desensitization and exposure strategies."
+        "content": "Processing domain evaluation demonstrated limited acceptance of solid textures and hypersensitivity to certain food consistencies, indicating sensory processing difficulties. The child's ability to process various food textures is partially developed, necessitating gradual exposure to diverse textures alongside sensory integration techniques."
     },
     "behavior_domain": {
         "type": "paragraph",
-        "content": "Behavior domain analysis indicated frequent mealtime tantrums and distraction, alongside prolonged feeding durations. These patterns suggest that behavioral intervention strategies are warranted to improve focus and reduce negative associations with mealtime."
+        "content": "Behavior domain analysis indicated frequent refusal of new foods and prolonged mealtime duration, suggesting anxiety and negative mealtime behaviors. These patterns imply that behavioral interventions focusing on positive mealtime interactions will be beneficial."
     },
     "selectivity_domain": {
         "type": "paragraph",
-        "content": "Selectivity assessment revealed a narrow range of accepted foods, primarily consisting of carbohydrates, with minimal variety in protein sources or vegetables. The degree of food selectivity demonstrates a significant impact on nutritional adequacy, requiring interventions focused on expanding the diet variety to support balanced nutrition."
+        "content": "Selectivity assessment revealed a preference for smooth purees and aversion to mixed textures, limiting dietary variety and posing a risk to nutritional adequacy. The degree of food selectivity impacts feeding development, requiring nutritional interventions to ensure dietary balance."
     },
     "feeding_recommendations": {
         "type": "bullet_points",
@@ -36,6 +36,6 @@
     },
     "safety_considerations": {
         "type": "paragraph",
-        "content": "Based on the PediEAT findings, feeding safety considerations include monitoring for signs of aspiration, especially with liquids, and regular reassessment of feeding skills to tailor intervention approaches. Regular follow-up is essential to ensure optimal nutrition and mitigate any potential feeding-related complications."
+        "content": "Based on the PediEAT findings, feeding safety considerations include consistent monitoring for signs of aspiration, especially with liquids, and adjustments in feeding techniques to mitigate risks. Regular reassessment of feeding skills and safety is recommended to ensure optimal nutrition and prevent feeding-related complications."
     }
 }
