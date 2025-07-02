@@ -45,6 +45,7 @@ from reportlab.lib import colors
 
 from backend.prompts import save_response, remove_lang_tags, get_prompt
 from backend.utils.response import format_data_for_pdf
+from backend.langgraph import graph_invoke
 
 
 class OpenAIEnhancedReportGenerator:
@@ -2615,24 +2616,26 @@ class OpenAIEnhancedReportGenerator:
         
         try:
             self.logger.info(f"📡 Sending request to OpenAI API with model: {model}...")
-            response = self.openai_client.chat.completions.create(
-                model=model,
-                messages=[
-                    {
-                        "role": "system",
-                        "content": "You are a professional pediatric occupational therapist writing clinical evaluation reports. Use sophisticated clinical terminology, evidence-based interpretations, and maintain a professional, objective tone. Base your responses on standard pediatric developmental assessments and best practices in occupational therapy."
-                    },
-                    {
-                        "role": "user",
-                        "content": prompt
-                    }
-                ],
-                max_tokens=max_tokens,
-                temperature=0.3
-            )
+            # response = self.openai_client.chat.completions.create(
+            #     model=model,
+            #     messages=[
+            #         {
+            #             "role": "system",
+            #             "content": "You are a professional pediatric occupational therapist writing clinical evaluation reports. Use sophisticated clinical terminology, evidence-based interpretations, and maintain a professional, objective tone. Base your responses on standard pediatric developmental assessments and best practices in occupational therapy."
+            #         },
+            #         {
+            #             "role": "user",
+            #             "content": prompt
+            #         }
+            #     ],
+            #     max_tokens=max_tokens,
+            #     temperature=0.3
+            # )
             
-            generated_text = response.choices[0].message.content.strip()
+            # generated_text = response.choices[0].message.content.strip()
+            generated_text = graph_invoke(prompt)
             self.logger.info(f"✅ OpenAI generation successful ({len(generated_text)} characters)")
+            print("############ ", generated_text)
             return generated_text
             
         except Exception as e:

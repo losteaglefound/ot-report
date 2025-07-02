@@ -5,10 +5,14 @@ import os
 import shutil
 from typing import Dict, Any, Optional
 from traceback import format_exc
+import sys
 import uuid
 
 # Load configuration first
 from config import config, is_openai_enabled, is_email_enabled, is_google_docs_enabled, get_app_host, get_app_port
+
+
+sys.stdout.reconfigure(encoding='utf-8')
 
 # Create logs directory if needed
 if config.app['log_to_file']:
@@ -17,7 +21,7 @@ if config.app['log_to_file']:
 # Configure logging based on config
 log_handlers = [logging.StreamHandler()]
 if config.app['log_to_file']:
-    log_handlers.append(logging.FileHandler('logs/app.log'))
+    log_handlers.append(logging.FileHandler('logs/app.log', encoding='utf-8'))
 
 logging.basicConfig(
     level=getattr(logging, config.app['log_level']),

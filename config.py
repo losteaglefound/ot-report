@@ -33,11 +33,19 @@ class Config:
         self.google = self._load_google_config()
         self.app = self._load_app_config()
         self.dev = self._load_dev_config()
+        self.platform = self._get_platform()
+        self.platform_model = self._get_platform_model()
         
         # Validate configuration
         self._validate_config()
         
         self.logger.info("✅ Configuration loaded successfully")
+        
+    def _get_platform(self) -> str:
+        return os.getenv('PLATFORM', "openai")
+    
+    def _get_platform_model(self) -> str:
+        return os.getenv('PLATFORM_MODEL', "gpt-4o")
     
     def _load_openai_config(self) -> Dict[str, Any]:
         """Load OpenAI configuration"""
