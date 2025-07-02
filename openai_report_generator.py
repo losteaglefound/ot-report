@@ -1492,20 +1492,20 @@ class OpenAIEnhancedReportGenerator:
         assessment_analysis = report_data.get("assessment_analysis", {})
         
         # Bayley-4 detailed results
-        # if assessment_analysis.get("bayley4"):
-        #     elements.extend(await self._create_bayley4_detailed_section(report_data))
+        if assessment_analysis.get("bayley4"):
+            elements.extend(await self._create_bayley4_detailed_section(report_data))
         
-        # # SP2 detailed results
-        # if assessment_analysis.get("sp2"):
-        #     elements.extend(await self._create_sp2_detailed_section(report_data))
+        # SP2 detailed results
+        if assessment_analysis.get("sp2"):
+            elements.extend(await self._create_sp2_detailed_section(report_data))
         
         # ChOMPS detailed results
         if assessment_analysis.get("chomps"):
             elements.extend(await self._create_chomps_detailed_section(report_data))
         
         # PediEAT detailed results  
-        # if assessment_analysis.get("pedieat"):
-        #     elements.extend(await self._create_pedieat_detailed_section(report_data))
+        if assessment_analysis.get("pedieat"):
+            elements.extend(await self._create_pedieat_detailed_section(report_data))
         
         return elements
     
@@ -1626,32 +1626,20 @@ class OpenAIEnhancedReportGenerator:
         bayley_analysis = report_data.get("assessment_analysis", {}).get("bayley4", {})
         
         # Generate comprehensive Bayley interpretation
-        bayley_prompt = f"""
-        Write a comprehensive Bayley-4 assessment interpretation for a pediatric OT report.
-        
-        Patient chronological age: {chronological_age.get('formatted', 'Not available')}
-        
-        Assessment Analysis: {bayley_analysis}
-        
-        Requirements:
-        - Include specific scaled scores, age equivalents, and percentile rankings
-        - Calculate and report percentage delays where applicable
-        - Compare performance to chronological age expectations
-        - Include range classifications (extremely low, below average, average, above average)
-        - Link findings to observed functional limitations
-        - Describe specific tasks and child's performance
-        - Use professional clinical language
-        - Provide detailed interpretation for each domain tested
-        - Include implications for intervention planning
-        
-        Write as detailed clinical narrative covering all tested domains with specific scores and interpretations.
-        """
-        
-        bayley_narrative = await self._generate_with_openai(bayley_prompt, max_tokens=800)
-        
-        narrative_para = Paragraph(bayley_narrative, self.styles['ClinicalBody'])
-        elements.append(narrative_para)
-        elements.append(Spacer(1, 12))
+        prompt = await get_prompt(prompt_type="bayley4", report_data=report_data, json_format=True)
+
+        response = await self._generate_with_openai(prompt, max_tokens=1000)
+        response = remove_lang_tags(response)
+        try:
+            response = json.loads(response)
+            await save_response(response, file_name="sp2", json_format=True)
+        except json.JSONDecodeError as e:
+            print(format_exc())
+            await save_response(response, file_name="sp2", json_format=True)
+            self.logger.error(f"❌ SP2 response parsing failed: {e}")
+            raise
+        body = await format_data_for_pdf(response)
+        elements.extend(body)
         
         return elements
     
@@ -1710,11 +1698,26 @@ class OpenAIEnhancedReportGenerator:
         Focus on how sensory processing affects daily living skills and participation.
         """
         
-        sp2_narrative = await self._generate_with_openai(sp2_prompt, max_tokens=600)
+        # sp2_narrative = await self._generate_with_openai(sp2_prompt, max_tokens=600)
         
-        narrative_para = Paragraph(sp2_narrative, self.styles['ClinicalBody'])
-        elements.append(narrative_para)
-        elements.append(Spacer(1, 12))
+        # narrative_para = Paragraph(sp2_narrative, self.styles['ClinicalBody'])
+        # elements.append(narrative_para)
+        # elements.append(Spacer(1, 12))
+
+        prompt = await get_prompt(prompt_type="sp2", report_data=report_data, json_format=True)
+
+        response = await self._generate_with_openai(prompt, max_tokens=1000)
+        response = remove_lang_tags(response)
+        try:
+            response = json.loads(response)
+            await save_response(response, file_name="sp2", json_format=True)
+        except json.JSONDecodeError as e:
+            print(format_exc())
+            await save_response(response, file_name="sp2", json_format=True)
+            self.logger.error(f"❌ SP2 response parsing failed: {e}")
+            raise
+        body = await format_data_for_pdf(response)
+        elements.extend(body)
         
         return elements
     
@@ -1733,10 +1736,10 @@ class OpenAIEnhancedReportGenerator:
         chomps_analysis = report_data.get("assessment_analysis", {}).get("chomps", {})
         
         # Generate ChOMPS interpretation
-        chomps_prompt = await get_prompt(prompt_type="chomps", data=chomps_analysis, json_format=True)
+        chomps_prompt = await get_prompt(prompt_type="chomps", report_data=chomps_analysis, json_format=True)
         print("########### PROMPT ##########", chomps_prompt)
         chomps_narrative = await self._generate_with_openai(chomps_prompt, max_tokens=2000)
-        chomps_narrative = await remove_lang_tags(chomps_narrative)
+        chomps_narrative = remove_lang_tags(chomps_narrative)
         try:
             chomps_narrative = json.loads(chomps_narrative)
             await save_response(chomps_narrative, file_name="chomps", json_format=True)
@@ -1767,7 +1770,7 @@ class OpenAIEnhancedReportGenerator:
         # PediEAT analysis data
         pedieat_analysis = report_data.get("assessment_analysis", {}).get("pedieat", {})
         
-        pedieat_prompt = await get_prompt(prompt_type="pedieat", data=pedieat_analysis, json_format=True)
+        pedieat_prompt = await get_prompt(prompt_type="pedieat", report_data=pedieat_analysis, json_format=True)
 
         # def parse_pedieat_report(text):
         #     """
@@ -1826,9 +1829,15 @@ class OpenAIEnhancedReportGenerator:
         # elements.append(Spacer(1, 12))
 
         pedieat_response = await self._generate_with_openai(pedieat_prompt, max_tokens=1000)
-        pedieat_response = await remove_lang_tags(pedieat_response)
-        pedieat_response = json.loads(pedieat_response)
-        await save_response(pedieat_response, file_name="pedieat", json_format=True)
+        pedieat_response = remove_lang_tags(pedieat_response)
+        try:
+            pedieat_response = json.loads(pedieat_response)
+            await save_response(pedieat_response, file_name="pedieat", json_format=True)
+        except json.JSONDecodeError as e:
+            print(format_exc())
+            await save_response(pedieat_response, file_name="pedieat", json_format=True)
+            self.logger.error(f"❌ PediEAT response parsing failed: {e}")
+            raise
         body = await format_data_for_pdf(pedieat_response)
         elements.extend(body)
         

@@ -1,0 +1,69 @@
+{
+    "sp2_overview": {
+        "type": "header",
+        "content": "Sensory Profile 2 (SP2) Assessment"
+    },
+    "assessment_description": {
+        "type": "paragraph",
+        "content": "The Sensory Profile 2 is a standardized assessment that evaluates sensory processing patterns and their impact on daily functioning. The assessment examines four sensory processing quadrants: Seeking, Avoiding, Sensitivity, and Registration."
+    },
+    "quadrant_analysis": {
+        "type": "table",
+        "content": {
+            "columns": [
+                "Sensory Quadrant",
+                "Score Range",
+                "Interpretation",
+                "Functional Impact"
+            ],
+            "rows": [
+                [
+                    "Seeking",
+                    "Low",
+                    "Limited interest in sensory exploration; may appear withdrawn from sensory experiences",
+                    "May exhibit limited interaction with novel activities and environments requiring sensory exploration."
+                ],
+                [
+                    "Avoiding",
+                    "Low",
+                    "Tolerates most sensory experiences well",
+                    "Able to engage in various activities without signs of distress or avoidance."
+                ],
+                [
+                    "Sensitivity",
+                    "Low",
+                    "May miss subtle sensory cues in environment",
+                    "Potential challenges in responding promptly to environmental changes or subtle stimuli."
+                ],
+                [
+                    "Registration",
+                    "Good",
+                    "Consistently notices and responds to sensory input",
+                    "Appropriately reacts to sensory input facilitating participation in daily routines."
+                ]
+            ]
+        }
+    },
+    "real_world_implications": {
+        "type": "bullet_points",
+        "content": [
+            "Grooming: Potential for delayed response to tactile cues, which may affect self-care routines.",
+            "Play: Limited interest in exploratory play may impact engagement and peer interaction, possibly reducing opportunities for sensory-rich play experiences.",
+            "Feeding: Tolerance of most sensory inputs may support varied food acceptance, but potential subtle cues during meals could be overlooked.",
+            "Daily Routines: Generally adapts well to routine transitions and sensory inputs but may benefit from increased support in recognizing subtle changes in the environment or routine."
+        ]
+    },
+    "sensory_strategies": {
+        "type": "bullet_points",
+        "content": [
+            "Environmental modifications to support optimal sensory processing, such as adjusting lighting and noise levels.",
+            "Incorporation of sensory diet activities to promote regulation and organization, like proprioceptive and vestibular activities.",
+            "Recommendation for specific sensory tools and equipment such as fidget toys or weighted items to enhance focus and attention.",
+            "Caregiver education on implementing sensory strategies effectively in natural environments to enhance the child's engagement and participation."
+        ]
+    },
+    "intervention_recommendations": {
+        "type": "paragraph",
+        "content": "Based on the SP2 findings, occupational therapy intervention should focus on sensory integration principles and environmental modifications to support optimal sensory processing and functional participation in daily activities."
+    }
+}

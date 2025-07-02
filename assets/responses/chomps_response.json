@@ -1,1 +1,37 @@
-"**Clinical Evaluation Report: ChOMPS Assessment Interpretation**\n\n**Patient Information:**\n- Name: [Patient Name]\n- Age: [Patient Age]\n- Date of Assessment: [Date]\n- Evaluator: [Evaluator Name]\n\n**Assessment Tool:**\n- ChOMPS (Child Oral and Motor Proficiency Scale)\n\n**Domain-Specific Scores and Levels of Concern:**\n\nThe ChOMPS assessment revealed the following domain-specific scores and associated levels of concern:\n\n1. **Oral Motor Skills:**\n   - Score: [Score]\n   - Level of Concern: Moderate\n   - Interpretation: The patient demonstrates moderate deficits in oral motor skills, particularly in the areas of lip closure and tongue lateralization, which are critical for effective bolus formation and manipulation.\n\n2. **Sensory Processing:**\n   - Score: [Score]\n   - Level of Concern: Mild\n   - Interpretation: Mild sensory processing difficulties were noted, with the patient exhibiting some aversions to certain textures, which may impact food acceptance and variety.\n\n3. **Feeding Efficiency:**\n   - Score: [Score]\n   - Level of Concern: Significant\n   - Interpretation: Significant concerns were observed in feeding efficiency, characterized by prolonged meal times and fatigue during feeding sessions.\n\n**Feeding Risks:**\n\n- **Bolus Control:** The patient exhibits compromised bolus control, with frequent anterior spillage and difficulty maintaining a cohesive bolus, increasing the risk of aspiration.\n- **Gagging:** Occasional gagging was observed, particularly with mixed textures, indicating potential hypersensitivity or delayed oral transit time.\n- **Food Hoarding:** The patient demonstrates a tendency to hoard food in the buccal cavities, which may lead to inefficient mastication and increased risk of choking.\n\n**Safety Considerations and Aspiration Risk Assessment:**\n\nThe assessment indicates a moderate risk of aspiration due to inadequate bolus control and delayed swallow initiation. Close monitoring during feeding is recommended to ensure safety and prevent aspiration-related complications.\n\n**Clinical Recommendations:**\n\n1. **Texture Modification:**\n   - Transition to soft, cohesive textures to facilitate safer swallowing and improve bolus control. Gradual introduction of mixed textures should be considered as oral motor skills improve.\n\n2. **Feeding Strategies:**\n   - Implement paced feeding techniques to manage fatigue and enhance feeding efficiency. Encourage small, manageable bites to reduce the risk of aspiration.\n\n3. **Oral Motor Exercises:**\n   - Engage in targeted oral motor exercises to strengthen lip closure, improve tongue lateralization, and enhance overall oral motor coordination.\n\n4. **Caregiver Education:**\n   - Educate caregivers on safe feeding practices, including appropriate positioning during meals and signs of aspiration. Provide training on how to implement recommended feeding strategies and texture modifications at home.\n\n5. **Interdisciplinary Collaboration:**\n   - Collaborate with a speech-language pathologist for a comprehensive dysphagia evaluation and to address any underlying swallowing disorders.\n\n**Conclusion:**\n\nThe ChOMPS assessment highlights significant concerns in the patient's feeding safety and efficiency, necessitating immediate intervention. The outlined clinical recommendations aim to enhance the patient's functional feeding abilities, ensuring a safer and more effective feeding experience. Continued monitoring and adaptation of the intervention plan will be essential to address evolving needs and promote optimal feeding outcomes.\n\n**Follow-Up:**\n- Schedule follow-up assessment in [Time Frame] to evaluate progress and adjust the intervention plan as necessary.\n\n**Evaluator Signature:**\n- [Evaluator Name]\n- [Evaluator Credentials]\n- [Date]"
+{
+    "chomps_overview": {
+        "type": "header",
+        "content": "ChOMPS Assessment (Feeding Evaluation)"
+    },
+    "assessment_description": {
+        "type": "paragraph",
+        "content": "The ChOMPS assessment evaluates feeding and swallowing function across multiple domains to identify feeding difficulties and safety concerns. This assessment provides critical information for developing feeding intervention strategies."
+    },
+    "domain_analysis": {
+        "type": "paragraph",
+        "content": "Analysis of ChOMPS domains revealed increased levels of concern in the areas of bolus control, timely swallowing initiation, and texture management. The assessment identified moderate concern requiring intervention attention in these domains to prevent risk and improve feeding efficiency."
+    },
+    "feeding_safety": {
+        "type": "paragraph",
+        "content": "Feeding safety assessment indicated notable concerns related to bolus control and potential aspiration risks. Specific considerations include inconsistent bolus formation and delayed swallowing reflex, increasing the risk for aspiration and choking episodes. These findings suggest the need for close monitoring and implementation of safety precautions during feeding."
+    },
+    "feeding_efficiency": {
+        "type": "paragraph",
+        "content": "Feeding efficiency evaluation demonstrated challenges in coordinating breathing and swallowing, impacting overall feeding competence. The child exhibited difficulty managing mixed textures, which implicates compromised efficiency and requires ongoing assessment and intervention support."
+    },
+    "clinical_recommendations": {
+        "type": "bullet_points",
+        "content": [
+            "Feeding therapy services to address identified safety and efficiency concerns",
+            "Texture modification recommendations based on swallowing abilities",
+            "Environmental modifications to support optimal feeding performance",
+            "Caregiver education on feeding techniques and safety precautions",
+            "Monitoring protocols for feeding progression and safety",
+            "Coordination with speech-language pathology for comprehensive feeding support"
+        ]
+    },
+    "intervention_priorities": {
+        "type": "paragraph",
+        "content": "Based on ChOMPS findings, intervention priorities focus on enhancing bolus control, improving timely swallowing initiation, and safely introducing texture modifications. Regular reassessment will be important to monitor feeding development and adjust intervention strategies as needed."
+    }
+}

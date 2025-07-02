@@ -1,5 +1,25 @@
+"""
+DEPRECATED: This script is deprecated.
 
+The langraph functionality has been moved to backend/langgraph/__init__.py
+Use the following instead:
 
+    from backend.langgraph import graph_invoke
+    result = graph_invoke("your prompt here")
+
+Or for the ChatBot interface:
+
+    from backend.langgraph.graph import ChatBot
+    chatbot = ChatBot()
+    result = chatbot.chat("your message here")
+"""
+
+print("⚠️  WARNING: This script is deprecated!")
+print("   Use backend.langgraph instead:")
+print("   from backend.langgraph import graph_invoke")
+print("   result = graph_invoke('your prompt')")
+
+# Original implementation kept for reference
 from langgraph.graph import START, StateGraph, END
 from langchain.chat_models import init_chat_model
 from langchain.prompts import ChatPromptTemplate
@@ -64,6 +84,8 @@ builder.add_conditional_edges("validate_json", route_by_validation)
 graph = builder.compile()
 
 def graph_invoke(prompt: str):
+    print("⚠️  WARNING: Using deprecated graph_invoke from scripts/agent.py")
+    print("   Please update your code to use: from backend.langgraph import graph_invoke")
     final_state = graph.invoke({"prompt": prompt})
     return final_state
 

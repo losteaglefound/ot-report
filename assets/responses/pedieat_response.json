@@ -1,77 +1,41 @@
 {
-    "Physiology": {
+    "pedieat_overview": {
         "type": "header",
-        "content": "Physiology"
+        "content": "PediEAT Assessment (Feeding Assessment)"
     },
-    "Physiology Interpretation": {
+    "assessment_description": {
         "type": "paragraph",
-        "content": "The PediEAT assessment did not indicate any elevated symptoms in the domain of physiology. This suggests that the child does not exhibit significant physiological challenges such as dysphagia, oral-motor dysfunction, or other related issues that would impede the mechanical aspects of feeding. The absence of physiological concerns supports functional oral intake without apparent physical barriers."
+        "content": "The PediEAT assessment evaluates feeding and swallowing abilities across four key domains: Physiology, Processing, Behavior, and Selectivity. This comprehensive assessment provides insight into feeding safety, efficiency, and participation."
     },
-    "Processing": {
-        "type": "header",
-        "content": "Processing"
-    },
-    "Processing Interpretation": {
+    "physiology_domain": {
         "type": "paragraph",
-        "content": "The assessment did not reveal any notable processing difficulties. This indicates that the child is likely able to process sensory information related to food textures, temperatures, and consistencies effectively, allowing for appropriate responses during mealtime. The lack of processing concerns suggests that sensory integration is not a limiting factor in this child's feeding experience."
+        "content": "Physiology domain assessment revealed moderate challenges with oral motor control, including decreased tongue lateralization and reduced lip closure, contributing to mild dysphagia with thin liquids. These findings indicate a heightened risk for penetration and aspiration, necessitating targeted intervention for safe swallowing."
     },
-    "Mealtime Behavior": {
-        "type": "header",
-        "content": "Mealtime Behavior"
-    },
-    "Mealtime Behavior Interpretation": {
+    "processing_domain": {
         "type": "paragraph",
-        "content": "There were no elevated symptoms identified in the domain of mealtime behavior. This implies that the child demonstrates typical behaviors during meals, such as appropriate attention, compliance, and participation. The absence of behavioral concerns indicates that mealtime interactions are likely positive and conducive to effective feeding."
+        "content": "Processing domain evaluation demonstrated limited acceptance of mixed textures, indicating sensory processing challenges that affect the child's ability to handle multiple food consistencies. The child's ability to process various food textures is below the expected age level, suggesting the need for enhanced desensitization and exposure strategies."
     },
-    "Selectivity": {
-        "type": "header",
-        "content": "Selectivity"
-    },
-    "Selectivity Interpretation": {
+    "behavior_domain": {
         "type": "paragraph",
-        "content": "The assessment did not highlight any issues with food selectivity. This suggests that the child is not exhibiting restrictive eating patterns or preferences that would limit dietary variety. The lack of selectivity concerns supports a diverse nutritional intake, which is beneficial for overall health and development."
+        "content": "Behavior domain analysis indicated frequent mealtime tantrums and distraction, alongside prolonged feeding durations. These patterns suggest that behavioral intervention strategies are warranted to improve focus and reduce negative associations with mealtime."
     },
-    "Safety & Endurance": {
-        "type": "header",
-        "content": "Safety & Endurance"
+    "selectivity_domain": {
+        "type": "paragraph",
+        "content": "Selectivity assessment revealed a narrow range of accepted foods, primarily consisting of carbohydrates, with minimal variety in protein sources or vegetables. The degree of food selectivity demonstrates a significant impact on nutritional adequacy, requiring interventions focused on expanding the diet variety to support balanced nutrition."
     },
-    "Safety & Endurance Concerns": {
+    "feeding_recommendations": {
         "type": "bullet_points",
         "content": [
-            "No safety concerns were identified, indicating that the child is able to consume food without risk of choking or aspiration.",
-            "There are no endurance concerns, suggesting that the child can sustain adequate energy and attention throughout the duration of meals."
+            "Feeding therapy services to address identified areas of need",
+            "Texture modifications and feeding progression strategies",
+            "Oral motor exercises and feeding skill development",
+            "Mealtime behavioral strategies and environmental modifications",
+            "Caregiver education on safe feeding practices",
+            "Nutritional monitoring and consultation as needed"
         ]
     },
-    "Family Dynamics": {
-        "type": "header",
-        "content": "Family Dynamics"
-    },
-    "Family Dynamics Interpretation": {
+    "safety_considerations": {
         "type": "paragraph",
-        "content": "Given the absence of physiological, processing, behavioral, and selectivity concerns, it is likely that family mealtime dynamics are positive. The child\u2019s ability to participate functionally in meals supports harmonious interactions and reduces stress during shared eating experiences."
-    },
-    "Nutritional Risk": {
-        "type": "header",
-        "content": "Nutritional Risk"
-    },
-    "Nutritional Risk Assessment": {
-        "type": "paragraph",
-        "content": "The lack of selectivity and physiological concerns suggests a low nutritional risk. The child is likely receiving a balanced diet with sufficient variety to meet developmental needs, supporting optimal growth and health."
-    },
-    "Growth/Development": {
-        "type": "header",
-        "content": "Growth/Development"
-    },
-    "Growth/Development Concerns": {
-        "type": "paragraph",
-        "content": "There are no concerns regarding growth and development based on the current assessment. The child's feeding skills appear to be age-appropriate, supporting continued physical and cognitive development."
-    },
-    "Recommendations": {
-        "type": "header",
-        "content": "Recommendations"
-    },
-    "Intervention Recommendations": {
-        "type": "paragraph",
-        "content": "Given the absence of significant concerns across all domains, no specific intervention is recommended at this time. It is advised to continue monitoring the child's feeding and nutritional intake as part of routine pediatric care to ensure ongoing health and development. Family-centered approaches should be maintained to support positive mealtime experiences."
+        "content": "Based on the PediEAT findings, feeding safety considerations include monitoring for signs of aspiration, especially with liquids, and regular reassessment of feeding skills to tailor intervention approaches. Regular follow-up is essential to ensure optimal nutrition and mitigate any potential feeding-related complications."
     }
 }
