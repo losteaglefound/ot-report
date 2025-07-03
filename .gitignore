@@ -209,5 +209,6 @@ __marimo__/
 
 token.json
 professional_ot_report_*.pdf
+ot_report_*.pdf
 report_data_*.json
 uploads/*

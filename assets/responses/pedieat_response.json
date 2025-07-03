@@ -9,19 +9,19 @@
     },
     "physiology_domain": {
         "type": "paragraph",
-        "content": "Physiology domain assessment revealed decreased oral motor control and discoordinated swallowing patterns, raising potential concerns for aspiration risk during oral intake. These findings indicate a need for targeted intervention to enhance oral motor proficiency and ensure swallowing safety."
+        "content": "Physiology domain assessment revealed challenges in oral motor coordination and relative difficulties with bolus formation and transfer. The child demonstrates mild to moderate oral hyposensitivity. Swallowing safety is within functional limits, though monitoring of residue and aspiration risk is advisable. These findings indicate a need for targeted intervention to improve oral motor proficiency and reduce potential risks associated with feeding."
     },
     "processing_domain": {
         "type": "paragraph",
-        "content": "Processing domain evaluation demonstrated limited acceptance of mixed textures, coupled with delayed sensory processing of certain food consistencies. The child's ability to process various food textures and consistencies shows marked difficulty with texture transitions, suggesting a need for desensitization strategies and adaptive techniques."
+        "content": "Processing domain evaluation showed limited acceptance of various textures, particularly those requiring mastication, such as textured solids. Sensory processing difficulties were observed with heightened aversion to mixed textures. Adaptive feeding skills, including utensil use, are developing but require further support. The child's processing abilities suggest a need for a gradual and systematic approach to texture introduction and sensory desensitization."
     },
     "behavior_domain": {
         "type": "paragraph",
-        "content": "Behavior domain analysis indicated significant mealtime avoidance behaviors and limited attention to feeding tasks. These patterns suggest a behavioral feeding intervention focused on enhancing engagement and decreasing anxiety related to mealtime."
+        "content": "Behavior domain analysis indicated reluctance to engage during mealtimes and prolonged feeding durations. The child exhibits selective eating patterns and demonstrates avoidance behaviors with unfamiliar foods. These patterns suggest that behavioral interventions focusing on increasing positive mealtime experiences and reducing escape behaviors are necessary."
     },
     "selectivity_domain": {
         "type": "paragraph",
-        "content": "Selectivity assessment revealed a strong preference for a narrow range of foods, mostly processed carbohydrates, with substantial resistance to novel foods. The degree of food selectivity demonstrates noticeable limitations that impact nutritional adequacy and require strategic intervention to broaden dietary variety."
+        "content": "Selectivity assessment revealed a narrow range of accepted foods, with strong preferences for carbohydrate-based items and an aversion to fruits and vegetables. The degree of food selectivity has implications for nutritional adequacy, potentially affecting caloric and micronutrient intake, thus highlighting the need for dietary diversification strategies."
     },
     "feeding_recommendations": {
         "type": "bullet_points",
@@ -36,6 +36,6 @@
     },
     "safety_considerations": {
         "type": "paragraph",
-        "content": "Based on the PediEAT findings, feeding safety considerations include close monitoring for signs of aspiration, particularly with liquids and mixed textures. It is recommended to conduct regular reassessments of feeding skills and safety to ensure optimal nutrition and prevent feeding-related complications."
+        "content": "Based on the PediEAT findings, feeding safety considerations include close monitoring for signs of aspiration and regular assessment of swallowing safety. Thorough education for caregivers on positioning and pacing during meals is essential. Regular reassessment of feeding skills and safety is recommended to ensure optimal nutrition and prevent feeding-related complications."
     }
 }

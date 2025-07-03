@@ -162,7 +162,7 @@ class Config:
 
     def get_header_image_path(self) -> str:
         """Get the path to the header image"""
-        return os.path.join(BASE_DIR, 'assets', 'images', 'header.png')
+        return os.path.join(BASE_DIR, 'assets', 'images', 'header-small.png')
     
 
     def get_ai_save_response_dir(self) -> str:

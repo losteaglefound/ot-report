@@ -30,6 +30,7 @@ from PIL import Image as PILImage
 from reportlab.lib.pagesizes import letter
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 from reportlab.lib.units import inch
+from reportlab.lib.utils import ImageReader
 from reportlab.platypus import (
     Image,
     Paragraph, 
@@ -377,36 +378,73 @@ class OpenAIEnhancedReportGenerator:
         self.logger.info(f"📁 Output path: {output_path}")
         
         try:
+            top_margin = 1.85*inch
+            bottom_margin = 0.85*inch
+            left_margin = 0.9*inch
+            right_margin = 0.9*inch
             # Create the PDF document with enhanced settings
             self.logger.info("📄 Creating PDF document with professional formatting...")
             doc = SimpleDocTemplate(
                 output_path,
                 pagesize=letter,
-                topMargin=0.85*inch,      # Slightly larger top margin for header spacing
-                bottomMargin=0.85*inch,   # Larger bottom margin for footer/signature
-                leftMargin=0.9*inch,      # Increased left margin for better readability
-                rightMargin=0.9*inch,     # Increased right margin for better readability
+                topMargin=top_margin,      # Slightly larger top margin for header spacing
+                bottomMargin=bottom_margin,   # Larger bottom margin for footer/signature
+                leftMargin=left_margin,      # Increased left margin for better readability
+                rightMargin=right_margin,     # Increased right margin for better readability
                 title="FMRC Health Group - OT Evaluation Report",
                 author="Fushia Crooms, MOT, OTR/L",
                 subject="Occupational Therapy Developmental Evaluation",
                 creator="FMRC Health Group Report Generator",
                 keywords="occupational therapy, developmental evaluation, pediatric assessment"
             )
-            
-            page_width, page_width = doc.pagesize
 
-            img_path = self.config.get_header_image_path()
-            with PILImage.open(img_path) as img:
-                img_width, img_height = img.size
-                aspect_ratio = img_height / img_width
-                scaled_height = page_width * aspect_ratio
+            def add_logo(canvas, doc: SimpleDocTemplate):
+                # First Image at center
+                logo_path = self.config.get_header_image_path()
+                logo_width = 1.5 * inch
+                logo_height = 0.75 * inch
 
-            # Create Platypus Image with scaled dimensions
-            header_image = Image(img_path, width=page_width, height=scaled_height)
+                # Place logo at top-left corner inside the margin
+                # x = doc.rightMargin
+                # y = doc.height + doc.topMargin - logo_height  # Align top
 
-            # Build the report content
+                # Place logo at top-right corner inside the margin
+                x = doc.pagesize[0] - doc.rightMargin - logo_width  # Right-aligned
+                y = doc.height + doc.topMargin - logo_height        # Top-aligned
+
+                canvas.drawImage(logo_path, x, y, width=logo_width, height=logo_height, preserveAspectRatio=True)
+
+
+            # List of reportlab elements to be added to the story
             story = []
-            story.extend([header_image, Spacer(1, 12)])
+            
+            page_width, page_height = letter
+            page_height_half = page_height / 2
+
+            
+
+            # Second Image at center
+            img_path = self.config.get_header_image_path()
+            image = ImageReader(img_path)
+            img_width, img_height = image.getSize()
+            space_above = ((page_height_half) - img_height) / 2
+            # Create Platypus Image with scaled dimensions
+            second_header_image = Image(img_path)
+            scale = min(
+                (img_width-100) / img_width,
+                (img_height-100) / img_height
+            )
+            img_width = img_width * scale
+            img_height = img_height * scale
+            second_header_image.width = img_width
+            second_header_image.drawHeight = img_height
+            second_header_image.drawWidth = img_width
+            # Build the report content
+            story.extend([
+                Spacer(1, space_above),
+                second_header_image, 
+                Spacer(1, 15)
+            ])
             
             # Header section (clinic branding and patient info)
             self.logger.info("📋 Generating header section...")
@@ -442,7 +480,7 @@ class OpenAIEnhancedReportGenerator:
             
             # Build the PDF
             self.logger.info("🔨 Building final PDF document...")
-            doc.build(story)
+            doc.build(story, onFirstPage=add_logo, onLaterPages=add_logo)
             
             # Verify file was created
             if os.path.exists(output_path):
@@ -1494,8 +1532,7 @@ class OpenAIEnhancedReportGenerator:
         elements = []
         
         # Main title
-        header = Paragraph("Assessment Results and Clinical Interpretation", 
-                          self.styles['SectionHeader'])
+        header = self._section_header("Assessment Results and Clinical Interpretation")
         elements.append(header)
         elements.append(Spacer(1, 8))
         
@@ -1859,7 +1896,7 @@ class OpenAIEnhancedReportGenerator:
         elements = []
         
         # Enhanced recommendations header
-        header = Paragraph("Clinical Recommendations", self.styles['SectionHeader'])
+        header = self._section_header("Clinical Recommendations")
         elements.append(header)
         elements.append(Spacer(1, 10))
         
@@ -1954,7 +1991,7 @@ class OpenAIEnhancedReportGenerator:
         elements = []
         
         # Section header
-        header = Paragraph("Occupational Therapy Goals", self.styles['SectionHeader'])
+        header = self._section_header("Occupational Therapy Goals")
         elements.append(header)
         elements.append(Spacer(1, 8))
         
@@ -2021,12 +2058,12 @@ class OpenAIEnhancedReportGenerator:
         """Create professional header with FMRC logo and clinic info, matching Sabrina OT Report style"""
         elements = []
         # Centered FMRC logo
-        logo_path = self.config.get_header_image_path()
-        if os.path.exists(logo_path):
-            logo_img = Image(logo_path, width=2.2*inch, height=2.2*inch)
-            logo_img.hAlign = 'CENTER'
-            elements.append(logo_img)
-            elements.append(Spacer(1, 12))
+        # logo_path = self.config.get_header_image_path()
+        # if os.path.exists(logo_path):
+        #     logo_img = Image(logo_path, width=2.2*inch, height=2.2*inch)
+        #     logo_img.hAlign = 'CENTER'
+        #     elements.append(logo_img)
+        #     elements.append(Spacer(1, 12))
         # Centered clinic info
         clinic_lines = [
             '<b>FMRC Health Group</b>',
@@ -2041,19 +2078,31 @@ class OpenAIEnhancedReportGenerator:
         elements.append(Spacer(1, 12))
         # Patient info table (bordered, bold labels)
         patient_data = [
-            [Paragraph('<b>Name:</b>', self.styles['Normal']), patient_info.get('name', ''),
-             Paragraph('<b>Date of Birth:</b>', self.styles['Normal']), patient_info.get('date_of_birth', '')],
-            [Paragraph('<b>Parent/Guardian:</b>', self.styles['Normal']), patient_info.get('parent_guardian', ''),
-             Paragraph('<b>Chronological Age:</b>', self.styles['Normal']), patient_info.get('chronological_age', {}).get('formatted', '')],
-            [Paragraph('<b>UCI#</b>', self.styles['Normal']), patient_info.get('uci_number', ''),
-             Paragraph('<b>Service Coordinator:</b>', self.styles['Normal']), patient_info.get('service_coordinator', '')],
-            [Paragraph('<b>Sex:</b>', self.styles['Normal']), patient_info.get('sex', ''),
-             Paragraph('<b>Primary Language:</b>', self.styles['Normal']), patient_info.get('language', '')],
-            [Paragraph('<b>Examiner:</b>', self.styles['Normal']), 'Fushia Crooms, MOT, OTR/L',
-             Paragraph('<b>Date of Report:</b>', self.styles['Normal']), patient_info.get('report_date', '')],
-            ['', '', Paragraph('<b>Date of Encounter:</b>', self.styles['Normal']), patient_info.get('encounter_date', '')]
+            [
+                Paragraph(f'<b>Name:</b> {patient_info.get("name", "")}', self.styles['Normal']),
+                Paragraph(f'<b>Date of Birth:</b> {patient_info.get("date_of_birth", "")}', self.styles['Normal']),
+            ],
+            [
+                Paragraph(f'<b>Parent/Guardian:</b> {patient_info.get("parent_guardian", "")}', self.styles['Normal']),
+                Paragraph(f'<b>Chronological Age:</b> {patient_info.get("chronological_age", {}).get("formatted", "")}', self.styles['Normal']),
+            ],
+            [
+                Paragraph(f'<b>UCI#</b> {patient_info.get("uci_number", "")}', self.styles['Normal']),
+                Paragraph(f'<b>Service Coordinator:</b> {patient_info.get("service_coordinator", "")}', self.styles['Normal']),
+            ],
+            [
+                Paragraph(f'<b>Sex:</b> {patient_info.get("sex", "")}', self.styles['Normal']),
+                Paragraph(f'<b>Primary Language:</b> {patient_info.get("language", "")}', self.styles['Normal']),
+            ],
+            [
+                Paragraph(f'<b>Examiner:</b> Fushia Crooms, MOT, OTR/L', self.styles['Normal']),
+                Paragraph(f'<b>Date of Report:</b> {patient_info.get("report_date", "")}', self.styles['Normal']),
+            ],
+            [   "",
+                Paragraph(f'<b>Date of Encounter:</b> {patient_info.get("encounter_date", "")}', self.styles['Normal']),
+            ]
         ]
-        patient_table = Table(patient_data, colWidths=[1.5*inch, 2.1*inch, 1.5*inch, 2.1*inch])
+        patient_table = Table(patient_data, colWidths=[3.2*inch, 3.2*inch])
         patient_table.setStyle(TableStyle([
             ('GRID', (0,0), (-1,-1), 1, colors.black),
             ('FONTNAME', (0,0), (-1,-1), 'Helvetica'),
@@ -2070,25 +2119,36 @@ class OpenAIEnhancedReportGenerator:
         elements.append(Spacer(1, 18))
         return elements
 
-    def _section_header(self, text: str) -> Paragraph:
+    def _section_header(self, text: str) -> Table:
         """Return a full-width orange section header with bold black text"""
-        return Paragraph(
-            f'<b>{text}</b>',
+        # Create paragraph with background color and centered text
+        section_header = Paragraph(
+            f"<b>{text}</b>",
             ParagraphStyle(
                 name='OrangeSectionHeader',
                 fontName='Helvetica-Bold',
                 fontSize=13,
-                alignment=TA_LEFT,
+                alignment=TA_CENTER,
                 textColor=colors.black,
-                backColor=colors.HexColor('#F9A825'),
-                spaceBefore=12,
-                spaceAfter=8,
+                leading=16,
+                spaceBefore=6,
+                spaceAfter=6,
                 leftIndent=0,
-                rightIndent=0,
-                borderPadding=4,
-                leading=16
+                rightIndent=0
             )
         )
+
+        # Wrap in table to simulate border and padding
+        table = Table([[section_header]], colWidths=[6.5 * inch])  # Adjust width for page
+        table.setStyle(TableStyle([
+            ('BACKGROUND', (0, 0), (-1, -1), colors.HexColor("#ff8f42")),  # Orange background
+            ('BOX', (0, 0), (-1, -1), 1, colors.black),  # 3pt black border
+            ('LEFTPADDING', (0, 0), (-1, -1), 6),
+            ('RIGHTPADDING', (0, 0), (-1, -1), 6),
+            ('TOPPADDING', (0, 0), (-1, -1), 6),
+            ('BOTTOMPADDING', (0, 0), (-1, -1), 6),
+        ]))
+        return table
 
     # Example usage in section methods:
     # elements.append(self._section_header('Reason for referral and background information'))
@@ -2478,7 +2538,7 @@ class OpenAIEnhancedReportGenerator:
         """Create comprehensive professional summary section"""
         elements = []
         
-        header = Paragraph("Summary:", self.styles['SectionHeader'])
+        header = self._section_header("Summary")
         elements.append(header)
         
         # Generate comprehensive summary using enhanced method
@@ -2502,7 +2562,7 @@ class OpenAIEnhancedReportGenerator:
         elements.append(PageBreak())  # Start signature on new page if needed
         
         # Signature header
-        sig_header = Paragraph("Report Prepared By", self.styles['SectionHeader'])
+        sig_header = self._section_header("Report Prepared By")
         elements.append(sig_header)
         elements.append(Spacer(1, 12))
         
