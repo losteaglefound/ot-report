@@ -20,26 +20,26 @@
                 [
                     "Seeking",
                     "Score range",
-                    "High seeking behaviors indicate a strong drive for sensory experiences; low scores suggest lesser sensory seeking",
-                    "May appear active, fidgety, or have difficulty regulating energy levels in structured tasks"
+                    "Interpretation",
+                    "Impact on daily activities"
                 ],
                 [
                     "Avoiding",
                     "Score range",
-                    "High scores show avoidance behavior; low scores indicate minimal withdrawal",
-                    "May withdraw from sensory-rich environments, impacting participation in group activities"
+                    "Interpretation",
+                    "Impact on daily activities"
                 ],
                 [
                     "Sensitivity",
                     "Score range",
-                    "Elevated sensitivity scores suggest heightened awareness to sensory stimuli; low scores denote reduced awareness",
-                    "Can lead to over-reactivity to sensory inputs, resulting in distractibility and discomfort"
+                    "Interpretation",
+                    "Impact on daily activities"
                 ],
                 [
                     "Registration",
                     "Score range",
-                    "High registration scores indicate diminished perception of available sensory input; low scores suggest adequate recognition",
-                    "Can result in missing key sensory details during routines, affecting responsiveness to environmental cues"
+                    "Interpretation",
+                    "Impact on daily activities"
                 ]
             ]
         }

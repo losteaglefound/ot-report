@@ -1721,9 +1721,9 @@ class OpenAIEnhancedReportGenerator:
         elements = []
         
         # SP2 header
-        header = Paragraph("Sensory Profile 2 (SP2)", self.styles['DomainHeader'])
-        elements.append(header)
-        elements.append(Spacer(1, 6))
+        # header = Paragraph("Sensory Profile 2 (SP2)", self.styles['DomainHeader'])
+        # elements.append(header)
+        # elements.append(Spacer(1, 6))
         
         # SP2 analysis data
         sp2_analysis = report_data.get("assessment_analysis", {}).get("sp2", {})
@@ -1775,10 +1775,10 @@ class OpenAIEnhancedReportGenerator:
         elements = []
         
         # ChOMPS header
-        header = Paragraph("Chicago Oral Motor and Swallowing Scale (ChOMPS)", 
-                          self.styles['DomainHeader'])
-        elements.append(header)
-        elements.append(Spacer(1, 6))
+        # header = Paragraph("Chicago Oral Motor and Swallowing Scale (ChOMPS)", 
+        #                   self.styles['DomainHeader'])
+        # elements.append(header)
+        # elements.append(Spacer(1, 6))
         
         # ChOMPS analysis data
         chomps_analysis = report_data.get("assessment_analysis", {}).get("chomps", {})
@@ -1810,10 +1810,10 @@ class OpenAIEnhancedReportGenerator:
         elements = []
         
         # PediEAT header
-        header = Paragraph("Pediatric Eating Assessment Tool (PediEAT)", 
-                          self.styles['DomainHeader'])
-        elements.append(header)
-        elements.append(Spacer(1, 6))
+        # header = Paragraph("Pediatric Eating Assessment Tool (PediEAT)", 
+        #                   self.styles['DomainHeader'])
+        # elements.append(header)
+        # elements.append(Spacer(1, 6))
         
         # PediEAT analysis data
         pedieat_analysis = report_data.get("assessment_analysis", {}).get("pedieat", {})
@@ -2141,7 +2141,8 @@ class OpenAIEnhancedReportGenerator:
         # Wrap in table to simulate border and padding
         table = Table([[section_header]], colWidths=[6.5 * inch])  # Adjust width for page
         table.setStyle(TableStyle([
-            ('BACKGROUND', (0, 0), (-1, -1), colors.HexColor("#ff8f42")),  # Orange background
+            # ('BACKGROUND', (0, 0), (-1, -1), colors.HexColor("#ff8f42")),  # Orange background
+            ('BACKGROUND', (0, 0), (-1, -1), colors.darkorange),  # Orange background
             ('BOX', (0, 0), (-1, -1), 1, colors.black),  # 3pt black border
             ('LEFTPADDING', (0, 0), (-1, -1), 6),
             ('RIGHTPADDING', (0, 0), (-1, -1), 6),
@@ -2588,15 +2589,15 @@ class OpenAIEnhancedReportGenerator:
             # Signature line styling
             ('FONTNAME', (0, 0), (0, 0), 'Helvetica-Bold'),
             ('FONTNAME', (1, 0), (1, 0), 'Helvetica-Bold'),
-            ('TEXTCOLOR', (0, 0), (-1, 0), colors.HexColor('#2d3748')),
+            ('TEXTCOLOR', (0, 0), (-1, 0), colors.black),
             
             # Professional name and credentials
             ('FONTNAME', (0, 2), (0, 2), 'Helvetica-Bold'),
             ('FONTSIZE', (0, 2), (0, 2), 12),
-            ('TEXTCOLOR', (0, 2), (0, 2), colors.HexColor('#1f4788')),
+            ('TEXTCOLOR', (0, 2), (0, 2), colors.black),
             
             # Title and license
-            ('TEXTCOLOR', (0, 3), (0, 4), colors.HexColor('#4a5568')),
+            ('TEXTCOLOR', (0, 3), (0, 4), colors.black),
             ('FONTSIZE', (0, 3), (0, 4), 10),
             
             # Padding
@@ -2627,15 +2628,15 @@ class OpenAIEnhancedReportGenerator:
         contact_table = Table(contact_data, colWidths=[1.2*inch, 4*inch])
         contact_table.setStyle(TableStyle([
             # Background and borders
-            ('BACKGROUND', (0, 0), (-1, -1), colors.HexColor('#f8f9fa')),
+            # ('BACKGROUND', (0, 0), (-1, -1), colors.HexColor('#f8f9fa')),
             ('GRID', (0, 0), (-1, -1), 0.5, colors.HexColor('#cbd5e0')),
             
             # Text styling
             ('FONTNAME', (0, 0), (0, -1), 'Helvetica-Bold'),
             ('FONTNAME', (1, 0), (1, -1), 'Helvetica'),
             ('FONTSIZE', (0, 0), (-1, -1), 10),
-            ('TEXTCOLOR', (0, 0), (0, -1), colors.HexColor('#2d3748')),
-            ('TEXTCOLOR', (1, 0), (1, -1), colors.HexColor('#1a202c')),
+            # ('TEXTCOLOR', (0, 0), (0, -1), colors.HexColor('#2d3748')),
+            ('TEXTCOLOR', (1, 0), (1, -1), colors.black),
             
             # Alignment
             ('ALIGN', (0, 0), (-1, -1), 'LEFT'),
