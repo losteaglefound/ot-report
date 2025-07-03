@@ -218,7 +218,8 @@ class OpenAIEnhancedReportGenerator:
             name='DomainHeader',
             parent=self.styles['Heading3'],
             fontSize=12,
-            textColor=colors.HexColor('#2c5282'),
+            # textColor=colors.HexColor('#2c5282'),
+            textColor=colors.black,
             spaceAfter=8,
             spaceBefore=12,
             alignment=TA_LEFT,
@@ -2232,23 +2233,33 @@ class OpenAIEnhancedReportGenerator:
         )
         elements.append(intro)
         elements.append(Spacer(1, 6))
+
+        # small_bullet_style = ParagraphStyle(
+        #     name='SmallBullet',
+        #     fontSize=12,                # Regular text size
+        #     bulletFontSize=6,           # Make bullet smaller
+        #     bulletFontName='Helvetica', 
+        #     bulletIndent=0,             # Where bullet appears
+        #     leftIndent=20,              # Where text starts
+        #     leading=14
+        # )
+        # bulletText="•"
         bayley_domains = [
-            ListItem(Paragraph("<b>1. Cognitive Scale:</b> Assesses problem-solving skills, memory, attention, and concept formation.", self.styles['ClinicalBody'])),
-            ListItem(Paragraph("<b>2. Language Scale:</b>", self.styles['ClinicalBody'])),
-            ListItem(Paragraph("Receptive Language: Evaluates the child's understanding of words, gestures, and simple instructions.", self.styles['BulletPoint']), leftIndent=36),
-            ListItem(Paragraph("Expressive Language: Measures verbal communication, including babbling, single words, and early sentence formation.", self.styles['BulletPoint']), leftIndent=36),
-            ListItem(Paragraph("<b>3. Motor Scale:</b>", self.styles['ClinicalBody'])),
-            ListItem(Paragraph("Fine Motor: Examines grasping, manipulation of objects, hand-eye coordination, and early writing skills.", self.styles['BulletPoint']), leftIndent=36),
-            ListItem(Paragraph("Gross Motor: Evaluates posture, crawling, standing, balance, and walking patterns.", self.styles['BulletPoint']), leftIndent=36),
-            ListItem(Paragraph("<b>4. Social-Emotional Scale:</b> Measures the child's ability to interact with others, regulate emotions, and respond to social cues.", self.styles['ClinicalBody'])),
-            ListItem(Paragraph("<b>5. Adaptive Behavior Scale:</b> Assesses daily functional tasks, including self-care skills such as feeding, dressing, and toileting.", self.styles['ClinicalBody']))
+            Paragraph("<b>1. Cognitive Scale:</b> Assesses problem-solving skills, memory, attention, and concept formation.", self.styles['ClinicalBody']),
+            Paragraph("<b>2. Language Scale:</b>", self.styles['ClinicalBody']),
+            ListFlowable([
+                ListItem(Paragraph("Receptive Language: Evaluates the child's understanding of words, gestures, and simple instructions.", self.styles['BulletPoint']), leftIndent=36),
+                ListItem(Paragraph("Expressive Language: Measures verbal communication, including babbling, single words, and early sentence formation.", self.styles['BulletPoint']), leftIndent=36),
+            ], bulletType='bullet', start='circle', leftIndent=18, bulletText="•"),
+            Paragraph("<b>3. Motor Scale:</b>", self.styles['ClinicalBody']),
+            ListFlowable([
+                ListItem(Paragraph("Fine Motor: Examines grasping, manipulation of objects, hand-eye coordination, and early writing skills.", self.styles['BulletPoint']), leftIndent=36),
+                ListItem(Paragraph("Gross Motor: Evaluates posture, crawling, standing, balance, and walking patterns.", self.styles['BulletPoint']), leftIndent=36),
+            ], bulletType='bullet', start='circle', leftIndent=18, bulletText="•"),
+            Paragraph("<b>4. Social-Emotional Scale:</b> Measures the child's ability to interact with others, regulate emotions, and respond to social cues.", self.styles['ClinicalBody']),
+            Paragraph("<b>5. Adaptive Behavior Scale:</b> Assesses daily functional tasks, including self-care skills such as feeding, dressing, and toileting.", self.styles['ClinicalBody'])
         ]
-        elements.append(ListFlowable(
-            bayley_domains,
-            bulletType='bullet',
-            start='circle',
-            leftIndent=18
-        ))
+        elements.extend(bayley_domains)
         elements.append(Spacer(1, 15))
         return elements
     

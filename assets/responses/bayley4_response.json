@@ -9,27 +9,27 @@
     },
     "cognitive_domain": {
         "type": "paragraph",
-        "content": "In the Cognitive domain, Sabrina achieved a scaled score that falls within the average range (50th percentile), indicating age-appropriate performance. Performance in this domain reflects the child's ability to problem-solve, explore the environment, and demonstrate early learning skills."
+        "content": "In the Cognitive domain, Sabrina achieved a scaled score that falls within the average range (50th percentile), indicating age-appropriate cognitive processing skills. Performance in this domain reflects the child's ability to problem-solve, explore the environment, and demonstrate early learning skills typical for her age."
     },
     "language_domains": {
         "type": "paragraph",
-        "content": "Language assessment revealed receptive communication findings that are within the below average range, as Sabrina shows emerging skills in understanding simple instructions and recognizing names of familiar people and objects. Expressive communication skills also fall within the below average range, as she demonstrates an emerging ability to use vocalizations and gestures to express needs and emotions. These results indicate the child's current level of language comprehension and verbal expression compared to developmental expectations."
+        "content": "Language assessment revealed receptive communication findings falling in the below average range, with a scaled score placing her in the 25th percentile, and expressive communication findings in the average range at the 55th percentile. These results indicate that Sabrina's receptive language skills are slightly delayed compared to her peers, while her expressive language skills are age-appropriate, reflecting a need for enhanced support in understanding and processing spoken language."
     },
     "motor_domains": {
         "type": "paragraph",
-        "content": "Motor evaluation demonstrated fine motor skills within the average range, indicating appropriate development in grasping small objects and transferring items between hands. Gross motor skills also fall within the average range, reflecting the child's ability to roll, sit with support, and initiate crawling. These scores reflect the child's ability to coordinate movements and manipulate objects in the environment."
+        "content": "Motor evaluation demonstrated fine motor findings within the below average range, with a scaled score at the 30th percentile, and gross motor findings in the average range at the 60th percentile. These scores reflect Sabrina's relative strengths in gross motor development, such as crawling and sitting, while indicating a need for intervention to enhance her ability in tasks requiring hand-eye coordination and manipulation of small objects."
     },
     "social_emotional_adaptive": {
         "type": "paragraph",
-        "content": "Social-emotional and adaptive behavior assessment indicated performance within the below average range. Sabrina shows emerging ability in engaging with caregivers and responding to social cues but may exhibit some delays in self-soothing and adapting to change. These domains reflect the child's ability to interact with others, regulate emotions, and demonstrate age-appropriate self-care skills."
+        "content": "Social-emotional and adaptive behavior assessments indicated scaled scores within the average range, which reflects Sabrina's age-appropriate capability to interact with others, regulate emotions, and demonstrate self-care skills congruent with developmental expectations."
     },
     "clinical_implications": {
         "type": "bullet_points",
         "content": [
-            "Cognitive and motor skills are areas of strength that can be leveraged in intervention planning.",
-            "Language and social-emotional domains require targeted intervention to enhance communication skills and emotional regulation.",
-            "Functional implications include potential challenges in social interactions and self-expression in daily activities.",
-            "Recommendations for family and intervention team include engaging Sabrina in routine-based play activities to foster language development and encouraging peer interaction through structured play groups."
+            "Strengths in gross motor skills can be leveraged to support further development in other areas.",
+            "Receptive language and fine motor skills show potential areas for focused intervention.",
+            "Moderate delays in receptive communication may impact Sabrina's ability to follow instructions, necessitating targeted language interventions.",
+            "Recommendations include family education on strategies to promote language and fine motor development, collaboration with early intervention services, and use of play as a vehicle for skill acquisition."
         ]
     }
 }

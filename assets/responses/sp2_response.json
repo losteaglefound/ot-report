@@ -20,26 +20,26 @@
                 [
                     "Seeking",
                     "Score range",
-                    "Interpretation",
-                    "Impact on daily activities"
+                    "Children scoring high in seeking may exhibit a tendency to explore their environment actively, seeking sensory input frequently.",
+                    "May lead to adaptive engagement in new activities and social exploration; however, could also result in over-stimulation or distraction from critical tasks."
                 ],
                 [
                     "Avoiding",
                     "Score range",
-                    "Interpretation",
-                    "Impact on daily activities"
+                    "High scores in avoiding indicate a preference for reducing exposure to sensory input, likely to engage in behaviors that limit or avoid sensory experiences.",
+                    "Children may demonstrate challenges in participating in group activities or new experiences due to sensory overload, impacting their adaptability."
                 ],
                 [
                     "Sensitivity",
                     "Score range",
-                    "Interpretation",
-                    "Impact on daily activities"
+                    "Elevated sensitivity scores suggest a lower sensory threshold and heightened awareness of sensory stimuli.",
+                    "It may affect attending to tasks or routines as the child might become easily overwhelmed by typical sensory input, affecting performance."
                 ],
                 [
                     "Registration",
                     "Score range",
-                    "Interpretation",
-                    "Impact on daily activities"
+                    "Low registration scores suggest diminished awareness or acknowledgment of sensory stimuli in the environment.",
+                    "Children may often miss cues necessary for interaction and task engagement, potentially affecting safety and learning opportunities."
                 ]
             ]
         }
