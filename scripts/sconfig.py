@@ -41,5 +41,6 @@ class Config:
 config = Config()
 
 sys.path.append(config.PROJECT_DIR.__str__())
+sys.path.append(config.BASE_DIR.__str__())
 
     
