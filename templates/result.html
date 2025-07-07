@@ -191,6 +191,19 @@
                     </div>
                     {% endif %}
                     
+                    {% if pdf_drive_url %}
+                    <div class="mb-3">
+                        <a href="{{ pdf_drive_url }}" target="_blank" class="btn btn-primary btn-lg">
+                            <i class="fab fa-google-drive me-2"></i>
+                            View PDF on Google Drive
+                        </a>
+                        <br><small class="text-muted mt-2 d-block">
+                            📁 Professional PDF stored in Google Drive<br>
+                            🔗 Shareable link for easy distribution
+                        </small>
+                    </div>
+                    {% endif %}
+                    
                     {% if output_links.pdf %}
                     <div class="mb-3">
                         <a href="{{ output_links.pdf }}" class="btn btn-info btn-lg">

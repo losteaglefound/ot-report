@@ -318,6 +318,10 @@ async def upload_files(
             "session_id": session_id
         }
         
+        # Initialize tracking variables for notifications
+        pdf_drive_url = None
+        google_docs_url = None
+        
         # Generate reports based on output format preference
         if output_format in ["pdf", "both"]:
             logger.info(f"📝 Generating PDF report (type: {report_type})...")
@@ -333,6 +337,16 @@ async def upload_files(
                 
                 output_links["pdf"] = f"/download/{session_id}"
                 logger.info(f"✅ PDF report created: {pdf_path}")
+                
+                # Upload PDF to Google Drive if Google Docs is enabled
+                if is_google_docs_enabled() and google_docs_generator:
+                    try:
+                        logger.info("📤 Uploading PDF to Google Drive...")
+                        pdf_drive_url = await google_docs_generator.upload_pdf_to_drive(pdf_path, patient_name, session_id)
+                        logger.info(f"✅ PDF uploaded to Google Drive: {pdf_drive_url}")
+                    except Exception as drive_error:
+                        logger.warning(f"⚠️ Failed to upload PDF to Google Drive: {drive_error}")
+                
             except Exception as e:
                 error_msg = f"Failed to generate PDF report: {str(e)}"
                 logger.error(f"❌ {error_msg}")
@@ -346,19 +360,57 @@ async def upload_files(
                     raise Exception("Google Docs generator not available")
                 
                 if report_type == "professional" and is_openai_enabled() and openai_report_generator:
-                    doc_url = await openai_report_generator.generate_google_docs_report(report_data, session_id)
+                    google_docs_url = await openai_report_generator.generate_google_docs_report(report_data, session_id)
                     logger.info("✅ Professional AI-enhanced Google Docs report generated")
                 else:
-                    doc_url = await google_docs_generator.create_report(report_data, session_id)
+                    google_docs_url = await google_docs_generator.create_report(report_data, session_id)
                     logger.info("✅ Basic Google Docs report generated")
                 
-                output_links["google_docs"] = doc_url
-                logger.info(f"✅ Google Docs report created: {doc_url}")
+                output_links["google_docs"] = google_docs_url
+                logger.info(f"✅ Google Docs report created: {google_docs_url}")
             except Exception as e:
                 error_msg = f"Failed to generate Google Docs report: {str(e)}"
                 logger.error(f"❌ {error_msg}")
                 if not output_links["error"]:
                     output_links["error"] = error_msg
+        
+        # Send email notification if email is enabled and reports were generated successfully
+        if is_email_enabled() and email_notifier and not output_links["error"]:
+            try:
+                logger.info(f"📧 Sending completion notification to {notify_email}...")
+                
+                # Prepare additional info for email
+                additional_info = {
+                    "chronological_age": chronological_age,
+                    "assessments_processed": list(uploaded_files.keys()),
+                    "report_type": report_type,
+                    "output_format": output_format,
+                    "pdf_drive_url": pdf_drive_url,
+                    "google_docs_url": google_docs_url
+                }
+                
+                # Determine the primary report URL for email
+                primary_report_url = google_docs_url if google_docs_url else pdf_drive_url
+                if not primary_report_url:
+                    primary_report_url = output_links.get("pdf", "Report generated successfully")
+                
+                # Send the completion notification
+                email_sent = await email_notifier.send_completion_notification(
+                    recipient_email=notify_email,
+                    patient_name=patient_name,
+                    doc_url=primary_report_url,
+                    session_id=session_id,
+                    additional_info=additional_info
+                )
+                
+                if email_sent:
+                    logger.info("✅ Email notification sent successfully")
+                else:
+                    logger.warning("⚠️ Email notification failed to send")
+                    
+            except Exception as email_error:
+                logger.error(f"❌ Failed to send email notification: {email_error}")
+                # Don't fail the entire process if email fails
         
         # Return template response with output links and status
         return templates.TemplateResponse("result.html", {
@@ -371,7 +423,9 @@ async def upload_files(
             "session_id": session_id,
             "assessments_processed": list(uploaded_files.keys()),
             "features": config.get_feature_status(),
-            "notify_email": notify_email
+            "notify_email": notify_email,
+            "pdf_drive_url": pdf_drive_url,
+            "google_docs_url": google_docs_url
         })
         
     except Exception as e:

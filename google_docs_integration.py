@@ -1538,4 +1538,62 @@ This assessment provides a foundation for developing an individualized intervent
             }
         })
         
-        return requests 
+        return requests
+    
+    async def upload_pdf_to_drive(self, pdf_path: str, patient_name: str, session_id: str) -> str:
+        """Upload PDF report to Google Drive root directory and return the shareable link"""
+        self.logger.info(f"📤 Uploading PDF to Google Drive for {patient_name}")
+        
+        if not self.drive_service:
+            self.logger.error("❌ Google Drive service not available")
+            raise Exception("Google Drive service not initialized")
+            
+        try:
+            # Create file metadata - no parents field means upload to root directory
+            file_name = f"OT Evaluation Report - {patient_name} - {datetime.now().strftime('%Y-%m-%d')}.pdf"
+            file_metadata = {
+                'name': file_name
+                # Note: No 'parents' field = upload to Google Drive root directory
+            }
+            
+            self.logger.info(f"📁 Uploading to Google Drive root directory: {file_name}")
+            
+            # Upload the file
+            from googleapiclient.http import MediaFileUpload
+            
+            media = MediaFileUpload(pdf_path, mimetype='application/pdf')
+            file_result = self.drive_service.files().create(
+                body=file_metadata,
+                media_body=media,
+                fields='id,name,webViewLink'
+            ).execute()
+            
+            file_id = file_result.get('id')
+            file_name = file_result.get('name')
+            
+            self.logger.info(f"✅ PDF uploaded successfully to Google Drive root: {file_name}")
+            self.logger.info(f"📁 File ID: {file_id}")
+            
+            # Make the file publicly readable
+            try:
+                permission = {
+                    'type': 'anyone',
+                    'role': 'reader'
+                }
+                self.drive_service.permissions().create(
+                    fileId=file_id,
+                    body=permission
+                ).execute()
+                self.logger.info("✅ PDF made publicly readable")
+            except Exception as perm_error:
+                self.logger.warning(f"⚠️ Failed to set PDF permissions: {perm_error}")
+            
+            # Get the shareable link
+            drive_url = f"https://drive.google.com/file/d/{file_id}/view"
+            self.logger.info(f"🔗 Google Drive URL: {drive_url}")
+            
+            return drive_url
+            
+        except Exception as e:
+            self.logger.error(f"❌ Failed to upload PDF to Google Drive: {e}")
+            raise 

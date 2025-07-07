@@ -188,6 +188,10 @@ class EmailNotifier:
         additional_info = additional_info or {}
         chronological_age = additional_info.get('chronological_age', 'Not specified')
         assessments_processed = additional_info.get('assessments_processed', [])
+        report_type = additional_info.get('report_type', 'Standard')
+        output_format = additional_info.get('output_format', 'pdf')
+        pdf_drive_url = additional_info.get('pdf_drive_url')
+        google_docs_url = additional_info.get('google_docs_url')
         
         html_content = f"""
         <html>
@@ -207,8 +211,13 @@ class EmailNotifier:
                     margin: 15px 0;
                 }}
                 .button:hover {{ background-color: #45a049; }}
+                .button.google-drive {{ background-color: #1976D2; }}
+                .button.google-drive:hover {{ background-color: #1565C0; }}
+                .button.google-docs {{ background-color: #0F9D58; }}
+                .button.google-docs:hover {{ background-color: #0D8043; }}
                 .footer {{ background-color: #f1f1f1; padding: 15px; text-align: center; font-size: 12px; }}
                 .assessment-list {{ background-color: #e8f5e8; padding: 10px; border-radius: 5px; }}
+                .report-links {{ background-color: #f0f8ff; padding: 15px; border-radius: 5px; border: 1px solid #1976D2; }}
             </style>
         </head>
         <body>
@@ -226,6 +235,8 @@ class EmailNotifier:
                     <h3>📋 Patient Information</h3>
                     <p><strong>Patient Name:</strong> {patient_name}</p>
                     <p><strong>Chronological Age:</strong> {chronological_age}</p>
+                    <p><strong>Report Type:</strong> {report_type.title()}</p>
+                    <p><strong>Output Format:</strong> {output_format.replace('_', ' ').title()}</p>
                     <p><strong>Report Generated:</strong> {datetime.now().strftime('%B %d, %Y at %I:%M %p')}</p>
                     <p><strong>Session ID:</strong> {session_id[:8]}</p>
                 </div>
@@ -257,7 +268,51 @@ class EmailNotifier:
                     </ul>
                 </div>
                 
-                <h3>📄 Access Your Report</h3>
+                <div class="report-links">
+                    <h3>📄 Access Your Report</h3>
+                    <p>Your report has been generated in the following format(s):</p>
+                    
+                    <div style="text-align: center; margin: 20px 0;">
+        """
+        
+        # Add Google Docs link if available
+        if google_docs_url:
+            html_content += f"""
+                        <div style="margin: 10px 0;">
+                            <a href="{google_docs_url}" class="button google-docs">
+                                📝 Open Google Docs Report
+                            </a>
+                            <br><small style="color: #666;">✅ Editable, shareable, and accessible from anywhere</small>
+                        </div>
+            """
+        
+        # Add Google Drive PDF link if available
+        if pdf_drive_url:
+            html_content += f"""
+                        <div style="margin: 10px 0;">
+                            <a href="{pdf_drive_url}" class="button google-drive">
+                                📁 View PDF on Google Drive
+                            </a>
+                            <br><small style="color: #666;">📄 Professional PDF format stored in Google Drive</small>
+                        </div>
+            """
+        
+        # Add primary report link if no specific Google links
+        if not google_docs_url and not pdf_drive_url and doc_url:
+            html_content += f"""
+                        <div style="margin: 10px 0;">
+                            <a href="{doc_url}" class="button">
+                                📄 Access Report
+                            </a>
+                            <br><small style="color: #666;">Your generated report is ready for review</small>
+                        </div>
+            """
+        
+        html_content += f"""
+                    </div>
+                </div>
+                
+                <h3>📋 Report Contents</h3>
                 <p>The comprehensive evaluation report includes:</p>
                 <ul>
                     <li>Detailed assessment results and score interpretations</li>
@@ -268,11 +323,7 @@ class EmailNotifier:
                     <li>Professional summary and clinical insights</li>
                 </ul>
                 
-                <p style="text-align: center;">
-                    <a href="{doc_url}" class="button">🔗 Access Report in Google Docs</a>
-                </p>
-                
-                <p><em>Note: The report document is ready for review, editing, and sharing with your team. All patient information has been securely processed and the source files have been handled according to HIPAA guidelines.</em></p>
+                <p><em>Note: All report documents are ready for review, editing, and sharing with your team. Patient information has been securely processed and source files handled according to HIPAA guidelines.</em></p>
                 
                 <h3>📞 Next Steps</h3>
                 <ul>
@@ -306,6 +357,10 @@ class EmailNotifier:
         additional_info = additional_info or {}
         chronological_age = additional_info.get('chronological_age', 'Not specified')
         assessments_processed = additional_info.get('assessments_processed', [])
+        report_type = additional_info.get('report_type', 'Standard')
+        output_format = additional_info.get('output_format', 'pdf')
+        pdf_drive_url = additional_info.get('pdf_drive_url')
+        google_docs_url = additional_info.get('google_docs_url')
         
         text_content = f"""
 PEDIATRIC OT REPORT GENERATED
@@ -320,6 +375,8 @@ PATIENT INFORMATION
 -------------------
 Patient Name: {patient_name}
 Chronological Age: {chronological_age}
+Report Type: {report_type.title()}
+Output Format: {output_format.replace('_', ' ').title()}
 Report Generated: {datetime.now().strftime('%B %d, %Y at %I:%M %p')}
 Session ID: {session_id[:8]}
 
@@ -348,6 +405,36 @@ ASSESSMENTS PROCESSED
         text_content += f"""
 ACCESS YOUR REPORT
 ------------------
+Your report has been generated in the following format(s):
+
+"""
+        
+        # Add Google Docs link if available
+        if google_docs_url:
+            text_content += f"""📝 Google Docs Report (Editable):
+   {google_docs_url}
+   ✅ Editable, shareable, and accessible from anywhere
+
+"""
+        
+        # Add Google Drive PDF link if available
+        if pdf_drive_url:
+            text_content += f"""📁 PDF Report on Google Drive:
+   {pdf_drive_url}
+   📄 Professional PDF format stored in Google Drive
+
+"""
+        
+        # Add primary report link if no specific Google links
+        if not google_docs_url and not pdf_drive_url and doc_url:
+            text_content += f"""📄 Report Access:
+   {doc_url}
+   Your generated report is ready for review
+
+"""
+        
+        text_content += f"""REPORT CONTENTS
+---------------
 The comprehensive evaluation report includes:
 • Detailed assessment results and score interpretations
 • Clinical observations and behavioral notes
@@ -356,8 +443,6 @@ The comprehensive evaluation report includes:
 • Short-term and long-term treatment goals
 • Professional summary and clinical insights
 
-Report URL: {doc_url}
-
 NEXT STEPS
 ----------
 1. Review the generated report for accuracy and completeness
@@ -365,7 +450,7 @@ NEXT STEPS
 3. Share with interdisciplinary team members as needed
 4. Schedule follow-up assessments if recommended
 
-NOTE: The report document is ready for review, editing, and sharing with your team. All patient information has been securely processed and the source files have been handled according to HIPAA guidelines.
+NOTE: All report documents are ready for review, editing, and sharing with your team. Patient information has been securely processed and source files handled according to HIPAA guidelines.
 
 ================================================
 This is an automated notification from the FMRC Health Group Pediatric OT Report Generator
