@@ -9,19 +9,19 @@
     },
     "physiology_domain": {
         "type": "paragraph",
-        "content": "Physiology domain assessment revealed adequate oral motor coordination with intermittent groping movements during mastication. Swallowing safety was compromised by mild coughing episodes during trials with thin liquids, indicating a potential risk for aspiration. These findings suggest the need for ongoing monitoring of swallowing safety and implementation of compensatory strategies to mitigate aspiration risk."
+        "content": "Physiology domain assessment revealed adequate oral motor skills with slight delays in coordinated swallowing reflex, and a moderate risk for aspiration due to infrequent coughing during fluid intake. These findings indicate the need for ongoing monitoring of swallowing safety and potential intervention to mitigate risk factors associated with aspiration."
     },
     "processing_domain": {
         "type": "paragraph",
-        "content": "Processing domain evaluation demonstrated moderate acceptance of pureed textures, while more substantial difficulties were noted with mixed textures, indicating potential sensory processing challenges. The child's ability to process various food textures and consistencies is inconsistent, which might affect overall feeding efficiency and nutritional intake."
+        "content": "Processing domain evaluation demonstrated a moderate acceptance of pureed and soft textures, but difficulty with chewy or crunchy textures indicating hyposensitivity to certain sensory inputs. The child's ability to process various food textures and consistencies shows a need for gradual exposure to a wider range of textures to support sensory integration and adaptive feeding skills."
     },
     "behavior_domain": {
         "type": "paragraph",
-        "content": "Behavior domain analysis indicated frequent avoidant behaviors such as turning head away and refusing spoon-fed items, particularly during the introduction of novel textures. These patterns suggest that the child may have underlying sensory sensitivities or past negative feeding experiences impacting mealtime dynamics, which require targeted behavioral interventions."
+        "content": "Behavior domain analysis indicated consistent mealtime distraction and refusal behaviors, with a notable decrease in engagement during prolonged feeding sessions. These patterns suggest a necessity for structured mealtime routines to enhance feeding focus and reduce avoidance behaviors, which are critical for developing effective feeding participation."
     },
     "selectivity_domain": {
         "type": "paragraph",
-        "content": "Selectivity assessment revealed a strong preference for crunchy and salty foods with limited acceptance of fruits and vegetables. The degree of food selectivity demonstrates a risk for nutritional deficiencies, affecting caloric intake and balanced diet maintenance, which necessitates nutritional counseling and strategic exposure techniques."
+        "content": "Selectivity assessment revealed strong preference for carbohydrate-rich foods, with limited acceptance of protein and vegetable options. The degree of food selectivity demonstrates a potential impact on nutritional adequacy and an increase in the risk for dietary insufficiencies, necessitating targeted interventions to expand the variety in the child's diet."
     },
     "feeding_recommendations": {
         "type": "bullet_points",
@@ -36,6 +36,6 @@
     },
     "safety_considerations": {
         "type": "paragraph",
-        "content": "Based on the PediEAT findings, feeding safety considerations include monitoring for signs of aspiration, especially with thin liquids. Implementation of adaptive feeding positions and controlled pacing during meals is recommended. Regular reassessment of feeding skills and safety is advised to ensure optimal nutrition and prevent feeding-related complications."
+        "content": "Based on the PediEAT findings, feeding safety considerations include maintaining upright positioning during meals and close monitoring for signs of aspiration, such as coughing or choking. Regular reassessment of feeding skills and safety is recommended to ensure optimal nutrition and prevent feeding-related complications."
     }
 }

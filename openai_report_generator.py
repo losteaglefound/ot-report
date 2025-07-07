@@ -48,7 +48,7 @@ from reportlab.lib.enums import TA_LEFT, TA_CENTER, TA_JUSTIFY
 from reportlab.lib import colors
 
 from backend.prompts import save_response, remove_lang_tags, get_prompt
-from backend.utils.response import format_data_for_pdf
+from backend.utils.response import format_data_for_pdf, format_bayley_data_for_pdf
 from backend.langgraph import graph_invoke
 
 
@@ -1597,16 +1597,16 @@ class OpenAIEnhancedReportGenerator:
             elements.extend(await self._create_bayley4_detailed_section(report_data))
         
         # SP2 detailed results
-        if assessment_analysis.get("sp2"):
-            elements.extend(await self._create_sp2_detailed_section(report_data))
+        # if assessment_analysis.get("sp2"):
+        #     elements.extend(await self._create_sp2_detailed_section(report_data))
         
         # ChOMPS detailed results
-        if assessment_analysis.get("chomps"):
-            elements.extend(await self._create_chomps_detailed_section(report_data))
+        # if assessment_analysis.get("chomps"):
+        #     elements.extend(await self._create_chomps_detailed_section(report_data))
         
-        # PediEAT detailed results  
-        if assessment_analysis.get("pedieat"):
-            elements.extend(await self._create_pedieat_detailed_section(report_data))
+        # # PediEAT detailed results  
+        # if assessment_analysis.get("pedieat"):
+        #     elements.extend(await self._create_pedieat_detailed_section(report_data))
         
         return elements
     
@@ -1614,126 +1614,6 @@ class OpenAIEnhancedReportGenerator:
         """Create detailed Bayley-4 section with comprehensive interpretation and professional score table"""
         elements = []
 
-        # elements.append(Paragraph(
-        #     "<b>Cognitive tasks assess how your child thinks, reacts, and learns about the world.</b>",
-        #     ParagraphStyle(
-        #         fontName="TimesNewRoman-Bold",
-        #         fontSize=
-        #     )
-        # ))
-        
-        # # Bayley-4 header with enhanced styling
-        # header = Paragraph("Bayley Scales of Infant and Toddler Development - Fourth Edition (Bayley-4)", 
-        #                   self.styles['DomainHeader'])
-        # elements.append(header)
-        # elements.append(Spacer(1, 8))
-        
-        # # Get extracted Bayley data
-        # extracted_data = report_data.get("extracted_data", {})
-        # bayley_cognitive = extracted_data.get("bayley4_cognitive", {})
-        # bayley_social = extracted_data.get("bayley4_social", {})
-        
-        # # Create professional scores table if we have data
-        # if bayley_cognitive.get("raw_scores") or bayley_social.get("raw_scores"):
-            
-        #     # Scores table header
-        #     score_header = Paragraph("Assessment Scores Summary", self.styles['KeyFindings'])
-        #     elements.append(score_header)
-        #     elements.append(Spacer(1, 6))
-            
-        #     # Build comprehensive scores table
-        #     score_data = [
-        #         # Table headers with enhanced styling
-        #         [Paragraph("Domain", self.styles['TableHeader']),
-        #          Paragraph("Raw Score", self.styles['TableHeader']),
-        #          Paragraph("Scaled Score", self.styles['TableHeader']),
-        #          Paragraph("Percentile", self.styles['TableHeader']),
-        #          Paragraph("Age Equivalent", self.styles['TableHeader']),
-        #          Paragraph("Classification", self.styles['TableHeader'])]
-        #     ]
-            
-        #     # Add cognitive/language/motor scores if available
-        #     if bayley_cognitive.get("raw_scores"):
-        #         cog_scores = bayley_cognitive["raw_scores"]
-        #         for domain, scores in cog_scores.items():
-        #             if isinstance(scores, dict) and scores.get("scaled_score"):
-        #                 classification = self._get_score_classification(scores.get("scaled_score", 0))
-        #                 percentile = self._score_to_percentile(scores.get("scaled_score", 0))
-                        
-        #                 score_data.append([
-        #                     Paragraph(f"<b>{domain.title()}</b>", self.styles['TableCell']),
-        #                     Paragraph(str(scores.get("raw_score", "N/A")), self.styles['TableCell']),
-        #                     Paragraph(str(scores.get("scaled_score", "N/A")), self.styles['TableCell']),
-        #                     Paragraph(f"{percentile}%", self.styles['TableCell']),
-        #                     Paragraph(scores.get("age_equivalent", "N/A"), self.styles['TableCell']),
-        #                     Paragraph(classification, self.styles['TableCell'])
-        #                 ])
-            
-        #     # Add social-emotional/adaptive scores if available
-        #     if bayley_social.get("raw_scores"):
-        #         social_scores = bayley_social["raw_scores"]
-        #         for domain, scores in social_scores.items():
-        #             if isinstance(scores, dict) and scores.get("scaled_score"):
-        #                 classification = self._get_score_classification(scores.get("scaled_score", 0))
-        #                 percentile = self._score_to_percentile(scores.get("scaled_score", 0))
-                        
-        #                 score_data.append([
-        #                     Paragraph(f"<b>{domain.replace('_', ' ').title()}</b>", self.styles['TableCell']),
-        #                     Paragraph(str(scores.get("raw_score", "N/A")), self.styles['TableCell']),
-        #                     Paragraph(str(scores.get("scaled_score", "N/A")), self.styles['TableCell']),
-        #                     Paragraph(f"{percentile}%", self.styles['TableCell']),
-        #                     Paragraph(scores.get("age_equivalent", "N/A"), self.styles['TableCell']),
-        #                     Paragraph(classification, self.styles['TableCell'])
-        #                 ])
-            
-        #     # Create the scores table with professional styling
-        #     scores_table = Table(score_data, 
-        #                        colWidths=[1.4*inch, 0.8*inch, 0.9*inch, 0.8*inch, 1.0*inch, 1.5*inch])
-            
-        #     # Enhanced table styling
-        #     scores_table.setStyle(TableStyle([
-        #         # Header row styling
-        #         ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor('#1f4788')),
-        #         ('TEXTCOLOR', (0, 0), (-1, 0), colors.white),
-        #         ('FONTNAME', (0, 0), (-1, 0), 'TimesNewRoman-Bold'),
-        #         ('FONTSIZE', (0, 0), (-1, 0), 10),
-        #         ('ALIGN', (0, 0), (-1, 0), 'CENTER'),
-                
-        #         # Data rows styling
-        #         ('BACKGROUND', (0, 1), (-1, -1), colors.white),
-        #         ('TEXTCOLOR', (0, 1), (-1, -1), colors.HexColor('#2d3748')),
-        #         ('FONTNAME', (0, 1), (-1, -1), 'TimesNewRoman'),
-        #         ('FONTSIZE', (0, 1), (-1, -1), 9),
-        #         ('ALIGN', (1, 1), (-1, -1), 'CENTER'),  # Center all except domain names
-        #         ('ALIGN', (0, 1), (0, -1), 'LEFT'),     # Left align domain names
-                
-        #         # Borders and grid
-        #         ('GRID', (0, 0), (-1, -1), 0.75, colors.HexColor('#cbd5e0')),
-        #         ('LINEBELOW', (0, 0), (-1, 0), 2, colors.HexColor('#1f4788')),
-                
-        #         # Padding
-        #         ('TOPPADDING', (0, 0), (-1, -1), 6),
-        #         ('BOTTOMPADDING', (0, 0), (-1, -1), 6),
-        #         ('LEFTPADDING', (0, 0), (-1, -1), 8),
-        #         ('RIGHTPADDING', (0, 0), (-1, -1), 8),
-                
-        #         # Alternating row colors for better readability
-        #         ('ROWBACKGROUNDS', (0, 1), (-1, -1), [colors.white, colors.HexColor('#f7fafc')]),
-                
-        #         # Highlight low scores in red
-        #         ('TEXTCOLOR', (2, 1), (2, -1), colors.HexColor('#e53e3e')),  # Scaled scores
-        #     ]))
-            
-        #     elements.append(scores_table)
-        #     elements.append(Spacer(1, 16))
-        
-        # # Patient info for age comparison
-        # patient_info = report_data.get("patient_info", {})
-        # chronological_age = patient_info.get("chronological_age", {})
-        
-        # # Assessment analysis data
-        # bayley_analysis = report_data.get("assessment_analysis", {}).get("bayley4", {})
-        
         # Generate comprehensive Bayley interpretation
         prompt = await get_prompt(prompt_type="bayley4", report_data=report_data, json_format=True)
 
@@ -1747,7 +1627,7 @@ class OpenAIEnhancedReportGenerator:
             await save_response(response, file_name="bayley4", json_format=True)
             self.logger.error(f"❌ SP2 response parsing failed: {e}")
             raise
-        body = await format_data_for_pdf(response)
+        body = await format_bayley_data_for_pdf(response)
         elements.extend(body)
         
         return elements
@@ -1781,37 +1661,8 @@ class OpenAIEnhancedReportGenerator:
         """Create detailed SP2 section with real-world implications"""
         elements = []
         
-        # SP2 header
-        # header = Paragraph("Sensory Profile 2 (SP2)", self.styles['DomainHeader'])
-        # elements.append(header)
-        # elements.append(Spacer(1, 6))
-        
         # SP2 analysis data
         sp2_analysis = report_data.get("assessment_analysis", {}).get("sp2", {})
-        
-        # Generate SP2 interpretation
-        sp2_prompt = f"""
-        Write a detailed Sensory Profile 2 (SP2) interpretation for a pediatric OT report.
-        
-        SP2 Analysis: {sp2_analysis}
-        
-        Requirements:
-        - Explain Seeking, Avoiding, Sensitivity, and Registration scores
-        - Include specific score interpretations and quadrant analysis
-        - Provide real-world implications for grooming, play, and feeding
-        - Describe sensory processing patterns and their impact
-        - Include recommendations for sensory strategies
-        - Use professional sensory integration terminology
-        - Connect findings to functional performance in daily activities
-        
-        Focus on how sensory processing affects daily living skills and participation.
-        """
-        
-        # sp2_narrative = await self._generate_with_openai(sp2_prompt, max_tokens=600)
-        
-        # narrative_para = Paragraph(sp2_narrative, self.styles['ClinicalBody'])
-        # elements.append(narrative_para)
-        # elements.append(Spacer(1, 12))
 
         prompt = await get_prompt(prompt_type="sp2", report_data=report_data, json_format=True)
 
@@ -1835,11 +1686,6 @@ class OpenAIEnhancedReportGenerator:
         print("Extracting chomps details")
         elements = []
         
-        # ChOMPS header
-        # header = Paragraph("Chicago Oral Motor and Swallowing Scale (ChOMPS)", 
-        #                   self.styles['DomainHeader'])
-        # elements.append(header)
-        # elements.append(Spacer(1, 6))
         
         # ChOMPS analysis data
         chomps_analysis = report_data.get("assessment_analysis", {}).get("chomps", {})
@@ -1860,82 +1706,16 @@ class OpenAIEnhancedReportGenerator:
         body = await format_data_for_pdf(chomps_narrative)
         elements.extend(body)
         
-        # narrative_para = Paragraph(chomps_narrative, self.styles['ClinicalBody'])
-        # elements.append(narrative_para)
-        # elements.append(Spacer(1, 12))
-        
         return elements
     
     async def _create_pedieat_detailed_section(self, report_data: Dict[str, Any]) -> List:
         """Create detailed PediEAT section with symptom interpretation"""
         elements = []
         
-        # PediEAT header
-        # header = Paragraph("Pediatric Eating Assessment Tool (PediEAT)", 
-        #                   self.styles['DomainHeader'])
-        # elements.append(header)
-        # elements.append(Spacer(1, 6))
-        
         # PediEAT analysis data
         pedieat_analysis = report_data.get("assessment_analysis", {}).get("pedieat", {})
         
         pedieat_prompt = await get_prompt(prompt_type="pedieat", report_data=pedieat_analysis, json_format=True)
-
-        # def parse_pedieat_report(text):
-        #     """
-        #     Parses the OpenAI PediEAT response into a list of (section_title, content) tuples.
-        #     """
-        #     pattern = r"\*\*(.+?):\*\*"
-        #     matches = list(re.finditer(pattern, text))
-
-        #     sections = []
-        #     for i, match in enumerate(matches):
-        #         title = match.group(1).strip()
-        #         start = match.end()
-        #         end = matches[i + 1].start() if i + 1 < len(matches) else len(text)
-        #         content = text[start:end].strip().replace('\n', ' ')
-        #         sections.append((title, content))
-        #     return sections
-
-        # def create_story(parsed_sections):
-        #     styles = getSampleStyleSheet()
-        #     s = []
-        #     for title, content in parsed_sections:
-        #         if 'SectionTitle' not in styles:
-        #             style = styles.add(ParagraphStyle(
-        #                 name='SectionTitle',
-        #                 fontSize=14,
-        #                 leading=16,
-        #                 spaceAfter=10,
-        #                 spaceBefore=12,
-        #                 fontName='TimesNewRoman-Bold'
-        #             ))
-        #             s.append(style)
-        #         else:
-        #             s.append(Paragraph(title, styles['SectionTitle']))
-                
-        #         if 'Content' not in styles:
-        #             style = styles.add(ParagraphStyle(
-        #                 name='Content',
-        #                 fontSize=11,
-        #                 leading=14,
-        #                 alignment=TA_LEFT
-        #             ))
-        #             s.append(style)
-        #         else:
-        #             s.append(Paragraph(content, styles['Content']))
-        #         s.append(Spacer(1, 12))
-        #     return s
-        
-        # pedieat_narrative = await self._generate_with_openai(pedieat_prompt, max_tokens=600)
-        
-        # # narrative_para = Paragraph(pedieat_narrative, self.styles['ClinicalBody'])
-        # # elements.append(narrative_para)
-
-        # parsed_sections = parse_pedieat_report(pedieat_narrative)
-        # story = create_story(parsed_sections)
-        # elements.extend(story)
-        # elements.append(Spacer(1, 12))
 
         pedieat_response = await self._generate_with_openai(pedieat_prompt, max_tokens=1000)
         pedieat_response = remove_lang_tags(pedieat_response)
@@ -1957,7 +1737,15 @@ class OpenAIEnhancedReportGenerator:
         elements = []
         
         # Enhanced recommendations header
-        header = self._section_header("Clinical Recommendations")
+        header = Paragraph(
+            "<b>Recommendations</b>",
+            ParagraphStyle(
+                "recommendations",
+                fontName="TimesNewRoman-Bold",
+                fontSize=11,
+                leading=12
+            )
+        )
         elements.append(header)
         elements.append(Spacer(1, 10))
         
@@ -1978,14 +1766,21 @@ class OpenAIEnhancedReportGenerator:
                          "the following evidence-based recommendations are provided to support optimal "
                          "developmental progress and functional independence:")
             
-            intro_para = Paragraph(intro_text, self.styles['ClinicalBody'])
+            intro_para = Paragraph(
+                intro_text, ParagraphStyle(
+                    "recommendation_points",
+                    fontSize=11,
+                    leading=14,
+                    fontName="TimesNewRoman"
+                )
+            )
             elements.append(intro_para)
             elements.append(Spacer(1, 12))
             
             # Priority recommendations header
-            priority_header = Paragraph("Priority Intervention Areas", self.styles['KeyFindings'])
-            elements.append(priority_header)
-            elements.append(Spacer(1, 8))
+            # priority_header = Paragraph("Priority Intervention Areas", self.styles['KeyFindings'])
+            # elements.append(priority_header)
+            # elements.append(Spacer(1, 8))
             
             # Process and format each recommendation with enhanced styling
             for i, recommendation in enumerate(recommendations[:3], 1):  # Top 3 as priority
@@ -1994,7 +1789,15 @@ class OpenAIEnhancedReportGenerator:
                     if not clean_rec.endswith('.'):
                         clean_rec += '.'
                     formatted_rec = f"<b>{i}.</b> {clean_rec}"
-                    rec_para = Paragraph(formatted_rec, self.styles['RecommendationItem'])
+                    rec_para = Paragraph(
+                        formatted_rec, 
+                        ParagraphStyle(
+                            "recommendation_points",
+                            fontSize=11,
+                            leading=14,
+                            fontName="TimesNewRoman"
+                        )
+                    )
                     elements.append(rec_para)
                     elements.append(Spacer(1, 6))
                 else:
@@ -2022,18 +1825,18 @@ class OpenAIEnhancedReportGenerator:
                         elements.append(Spacer(1, 4))
             
             # Service frequency recommendation with highlighting
-            elements.append(Spacer(1, 12))
-            frequency_header = Paragraph("Recommended Service Frequency", self.styles['KeyFindings'])
-            elements.append(frequency_header)
-            elements.append(Spacer(1, 6))
+            # elements.append(Spacer(1, 12))
+            # frequency_header = Paragraph("Recommended Service Frequency", self.styles['KeyFindings'])
+            # elements.append(frequency_header)
+            # elements.append(Spacer(1, 6))
             
-            frequency_text = ("Based on assessment findings and identified areas of need, occupational therapy "
-                            "services are recommended at a frequency of 2-3 times per week for 45-60 minute "
-                            "sessions to address developmental delays and functional limitations identified in "
-                            "this evaluation.")
+            # frequency_text = ("Based on assessment findings and identified areas of need, occupational therapy "
+            #                 "services are recommended at a frequency of 2-3 times per week for 45-60 minute "
+            #                 "sessions to address developmental delays and functional limitations identified in "
+            #                 "this evaluation.")
             
-            frequency_para = Paragraph(frequency_text, self.styles['RecommendationItem'])
-            elements.append(frequency_para)
+            # frequency_para = Paragraph(frequency_text, self.styles['RecommendationItem'])
+            # elements.append(frequency_para)
             
         else:
             # Fallback if no recommendations generated
@@ -2052,7 +1855,15 @@ class OpenAIEnhancedReportGenerator:
         elements = []
         
         # Section header
-        header = self._section_header("Occupational Therapy Goals")
+        header = Paragraph(
+            "<b>OT Goals</b>",
+            ParagraphStyle(
+                name="ot_goals",
+                fontName="TimesNewRoman-Bold",
+                fontSize=11,
+                leading=14
+            )
+        )
         elements.append(header)
         elements.append(Spacer(1, 8))
         
@@ -2649,26 +2460,7 @@ class OpenAIEnhancedReportGenerator:
     
     async def _generate_recommendations(self, report_data: Dict[str, Any]) -> List[str]:
         """Generate evidence-based recommendations"""
-        prompt = """Generate 4-6 professional therapy recommendations for a pediatric client based on comprehensive assessment findings. Include:
-        - Physical Therapy
-        - Speech Therapy  
-        - Occupational Therapy with frequency
-        - Early intervention services
-        Use bullet point format, be specific and professional."""
-        
-        # recommendations_text = await self._generate_with_openai(prompt, max_tokens=300)
-        
-        # # Parse into list or use default
-        # if "•" in recommendations_text:
-        #     recommendations = [rec.strip() for rec in recommendations_text.split("•") if rec.strip()]
-        # else:
-        #     recommendations = [
-        #         "Physical Therapy",
-        #         "Speech Therapy",
-        #         "Infant Stim",
-        #         "Occupational Therapy 2x/week"
-        #     ]
-        
+
         # return recommendations
         elements = []
         prompt = await get_prompt(prompt_type="recommendations", report_data=report_data, json_format=True)
@@ -2691,15 +2483,20 @@ class OpenAIEnhancedReportGenerator:
         """Create comprehensive professional summary section"""
         elements = []
         
-        header = self._section_header("Summary")
+        header = Paragraph(
+            "<b>Summary</b>",
+            ParagraphStyle(
+                "recommendations",
+                fontName="TimesNewRoman-Bold",
+                fontSize=11,
+                leading=14
+            )
+        )
         elements.append(header)
         
         # Generate comprehensive summary using enhanced method
         summary_text = await self._generate_professional_summary(report_data)
         
-        # summary_para = Paragraph(summary_text, self.styles['ClinicalBody'])
-        # elements.append(summary_para)
-        # elements.append(Spacer(1, 15))
         elements.extend(summary_text)
         
         return elements
@@ -2712,8 +2509,6 @@ class OpenAIEnhancedReportGenerator:
         elements.append(PageBreak())  # Start signature on new page if needed
         
         # Signature header
-        # sig_header = self._section_header("Report Prepared By")
-        # elements.append(sig_header)
         elements.append(Spacer(20, 20))
 
         disclaimer = Paragraph(
@@ -2726,7 +2521,7 @@ class OpenAIEnhancedReportGenerator:
             )
         )
         elements.append(disclaimer)
-        elements.append(Spacer(20, 10))
+        elements.append(Spacer(20, 20))
         
         # Create signature table with professional layout
         sig_data = [
@@ -2762,55 +2557,7 @@ class OpenAIEnhancedReportGenerator:
         return elements
     
     async def _generate_professional_summary(self, report_data: Dict[str, Any]) -> str:
-        """Generate comprehensive professional summary"""
-        # patient_info = report_data.get("patient_info", {})
-        # child_name = patient_info.get("name", "The child")
-        # age = patient_info.get("chronological_age", {}).get("formatted", "unknown age")
         
-        # Extract and analyze all assessment data
-        # extracted_data = report_data.get("extracted_data", {})
-        # bayley_cognitive = extracted_data.get("bayley4_cognitive", {})
-        # bayley_social = extracted_data.get("bayley4_social", {})
-        
-        # Analyze overall performance pattern
-        # overall_analysis = self._generate_overall_performance_analysis(bayley_cognitive, bayley_social)
-        
-        # Identify strengths and needs
-        # strengths = self._identify_assessment_strengths(bayley_cognitive, bayley_social)
-        # needs = self._identify_assessment_needs(bayley_cognitive, bayley_social)
-        
-        # prompt = f"""
-        # Write a comprehensive professional "Summary" section for {child_name} ({age}) based on Bayley-4 assessment findings.
-        
-        # Overall Performance Analysis: {overall_analysis}
-        
-        # Key Strengths: {strengths}
-        # Areas of Need: {needs}
-        
-        # Requirements:
-        # - Start with "{child_name} (chronological age: {age}) was assessed using multiple standardized pediatric assessment tools..."
-        # - Include specific delay percentages where applicable
-        # - Mention both areas of strength and areas requiring intervention
-        # - Discuss impact on functional performance and daily activities
-        # - Recommend multidisciplinary intervention approach
-        # - Include prognosis and benefit from services
-        # - Address family involvement and education needs
-        # - Mention regular monitoring and reassessment
-        # - Use professional clinical language typical of pediatric OT summaries
-        # - Write 6-8 sentences comprehensive summary
-        
-        # Example elements:
-        # - "The comprehensive evaluation revealed both areas of strength and areas requiring targeted intervention support"
-        # - "Based on the assessment findings, occupational therapy services are recommended..."
-        # - "A collaborative, family-centered approach involving [services] will be beneficial..."
-        # - "Regular monitoring and reassessment will be important to track progress..."
-        # - "This assessment provides a foundation for developing an individualized intervention plan..."
-        
-        # Focus on evidence-based conclusions and specific recommendations based on actual assessment findings.
-        # """
-        
-        # return await self._generate_with_openai(prompt, max_tokens=600)
-
         elements = []
         prompt = await get_prompt(prompt_type="professional_summary", report_data=report_data, json_format=True)
         response = await self._generate_with_openai(prompt, max_tokens=1000)

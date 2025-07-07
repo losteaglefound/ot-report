@@ -9,15 +9,15 @@
     },
     "domain_analysis": {
         "type": "paragraph",
-        "content": "Analysis of ChOMPS domains revealed significant concerns regarding feeding safety and efficiency. The assessment identified moderate concern in the domains of bolus formation and aspiration risk that require intervention attention."
+        "content": "Analysis of ChOMPS domains revealed moderate concerns regarding feeding safety and efficiency. The assessment identified significant levels of concern in bolus control and gagging that require intervention attention."
     },
     "feeding_safety": {
         "type": "paragraph",
-        "content": "Feeding safety assessment indicated considerable safety concerns, particularly related to bolus control and a heightened aspiration risk, evidenced by frequent coughing and minor choking episodes during grainy texture consumption. These findings suggest the need for vigilant monitoring, potential texture adjustments, and caregiver training on emergency response strategies."
+        "content": "Feeding safety assessment indicated frequent gagging and mild choking episodes, coupled with inconsistencies in bolus control. Specific considerations include managing risks of aspiration and monitoring the child's response to different textures. These findings suggest heightened safety recommendations and continuous monitoring to prevent potential aspiration."
     },
     "feeding_efficiency": {
         "type": "paragraph",
-        "content": "Feeding efficiency evaluation demonstrated a delay in timing with prolonged meal durations and difficulty coordinating suck-swallow-breathe patterns. The child's ability to manage diverse textures, particularly those requiring advanced bolus manipulation, shows inefficiencies that may lead to nutritional deficits if not addressed."
+        "content": "Feeding efficiency evaluation demonstrated delayed timing and poor coordination indicative of dysphagia symptoms. The child's ability to manage solid textures is limited, highlighting specific efficiency patterns that impact functional feeding performance and necessitate immediate intervention."
     },
     "clinical_recommendations": {
         "type": "bullet_points",
@@ -32,6 +32,6 @@
     },
     "intervention_priorities": {
         "type": "paragraph",
-        "content": "Based on ChOMPS findings, intervention priorities focus on improving bolus management, enhancing safe swallowing mechanisms, and ensuring adequate nutritional intake. Regular reassessment will be important to monitor feeding development and adjust intervention strategies as needed."
+        "content": "Based on ChOMPS findings, intervention priorities focus on enhancing oral-motor control and reducing gagging and choking risks. Regular reassessment will be important to monitor feeding development and adjust intervention strategies as needed."
     }
 }

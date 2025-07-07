@@ -2,16 +2,10 @@
     "clinical_recommendations": {
         "type": "bullet_points",
         "content": [
-            "Occupational therapy services 2-3 times per week for 45-minute sessions to address sensory integration and fine motor development with a focus on age-appropriate play activities.",
-            "Physical therapy services once a week for 45-minute sessions to enhance gross motor skills, including crawling and standing.",
-            "Consideration of speech therapy evaluation to assess and support emerging communication skills, particularly focusing on babbling and oral motor development.",
-            "Engagement in early intervention services to provide a multidisciplinary approach for developmental support across all domains.",
-            "Implementation of a home program encouraging activities such as stacking blocks, playing with musical toys, and rolling a ball to stimulate fine motor skills and cognitive engagement.",
-            "Environmental modifications to include a safe, enriched play area with age-appropriate toys that promote exploration and curiosity.",
-            "Caregiver training sessions bi-monthly to educate on strategies to incorporate developmental activities into daily routines, emphasizing sensory-rich playtime.",
-            "Provision of adaptive equipment such as a supportive highchair or floor seat to enhance participation and engagement in mealtime activities.",
-            "Recommendations for daycare accommodations that support sensory-friendly environments, including quieter nap areas and diversified tactile experiences.",
-            "Follow-up assessments every 3 months to monitor Sabrina's progress and adjust therapeutic interventions as necessary."
+            "Physical Therapy",
+            "Speech Therapy",
+            "Infant Stim",
+            "Occupational Therapy 2x/week"
         ]
     }
 }

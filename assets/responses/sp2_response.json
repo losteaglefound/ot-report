@@ -19,27 +19,27 @@
             "rows": [
                 [
                     "Seeking",
-                    "Score range",
-                    "Children who score high in this quadrant demonstrate active engagement with sensory input and tend to seek out sensory experiences. This can manifest as high activity levels in play.",
-                    "Increased sensory seeking may lead to challenges in structured environments but can enhance creativity in less restrained settings."
+                    "Typical",
+                    "Engages in sensory-rich experiences actively, demonstrating appropriate exploration behaviors.",
+                    "Active participation in new and varied activities."
                 ],
                 [
                     "Avoiding",
-                    "Score range",
-                    "Elevated scores in this quadrant suggest that a child actively avoids sensory input, which can result in anxiety or distress in overstimulating environments.",
-                    "Sensory avoiding behaviors may interfere with participation in group activities or crowded spaces, impacting peer relationships and classroom engagement."
+                    "Elevated",
+                    "Shows a heightened response to sensory stimuli, likely leading to withdrawal from stimuli-rich environments.",
+                    "Difficulty with crowded, noisy, or chaotic situations."
                 ],
                 [
                     "Sensitivity",
-                    "Score range",
-                    "High sensitivity scores indicate a heightened awareness and reaction to sensory stimuli, often linked to distractibility or overstimulation.",
-                    "Sensitivity can lead to challenges with concentration in noisy environments or sensitivity to tactile input, affecting grooming and dressing tasks."
+                    "Elevated",
+                    "Exhibits an increased awareness and heightened response to sensory experiences, potentially resulting in distractibility.",
+                    "May struggle with maintaining attention and calmness in environments with high sensory inputs."
                 ],
                 [
                     "Registration",
-                    "Score range",
-                    "Low registration scores reflect a decreased awareness of sensory stimuli, often leading to a lack of response or missed cues in interaction.",
-                    "A child with low registration may not respond promptly to social cues or safety signals, impacting social participation and self-care routines."
+                    "Typical",
+                    "Accurately perceives and responds to sensory information in their environment, adjusting responses accordingly.",
+                    "Able to efficiently adapt to sensory changes and maintain engagement in tasks."
                 ]
             ]
         }
@@ -47,19 +47,19 @@
     "real_world_implications": {
         "type": "bullet_points",
         "content": [
-            "Grooming: Impact on self-care activities and hygiene routines",
-            "Play: Effects on toy selection, play preferences, and peer interaction",
-            "Feeding: Influence on food acceptance, mealtime behavior, and nutrition",
-            "Daily Routines: Impact on transitions, sleep, and activity participation"
+            "Grooming: The child may experience challenges during self-care tasks due to heightened sensory avoidance, necessitating modifications to routines.",
+            "Play: Sensory-seeking behaviors contribute positively to engagement, while sensitivity and avoidance may restrict play choices and social interactions.",
+            "Feeding: Heightened sensory sensitivity and avoidance can impact food preferences and acceptance, potentially leading to selective eating patterns.",
+            "Daily Routines: Elevated avoidance and sensitivity can make transitions and adaptation to routine changes challenging, affecting sleep and overall activity participation."
         ]
     },
     "sensory_strategies": {
         "type": "bullet_points",
         "content": [
-            "Environmental modifications to support optimal sensory processing",
-            "Sensory diet activities for regulation and organization",
-            "Specific sensory tools and equipment recommendations",
-            "Caregiver education for implementing sensory strategies"
+            "Environmental modifications to support optimal sensory processing, such as reducing environmental noise or visual clutter.",
+            "Sensory diet activities for regulation and organization, like deep pressure input or proprioceptive activities, tailored to individual sensory needs.",
+            "Specific sensory tools and equipment recommendations, such as weighted vests or noise-canceling headphones to support regulation.",
+            "Caregiver education for implementing sensory strategies, focusing on identifying optimal environments and routines for calming and alerting activities."
         ]
     },
     "intervention_recommendations": {
