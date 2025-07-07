@@ -22,8 +22,7 @@ sys.path.append(PROJECT_DIR.__str__())
 print(sys.path)
 
 from backend.common.logging import logging
-
-
+from langgraph_ocr_agent import LangGraphOCRAgent
 
 logger = logging.getLogger(__name__)
 
@@ -67,7 +66,12 @@ class EnhancedPDFProcessor:
         
         # Initialize extraction patterns
         self._setup_extraction_patterns()
+        
+        # Initialize LangGraph OCR agent
+        self.ocr_agent = LangGraphOCRAgent()
+        
         self.logger.info("✅ PDF extraction patterns configured")
+        self.logger.info("🤖 LangGraph OCR Agent initialized")
     
     def _setup_extraction_patterns(self):
         """Setup regex patterns for data extraction"""
@@ -1205,74 +1209,157 @@ class EnhancedPDFProcessor:
         
         return recommendations
 
-
-async def extract_image_text_with_gpt4(self, image_bytes: bytes, prompt: Optional[str] = None) -> Dict[str, Any]:
-    """Extract text from image using GPT-4 Vision"""
-    try:
-        # Convert image bytes to base64
-        base64_image = base64.b64encode(image_bytes).decode('utf-8')
+    async def extract_text_from_images_with_ocr(self, file_path: str) -> Dict[str, Any]:
+        """Extract text from images in PDF using LangGraph OCR agent"""
+        self.logger.info(f"🖼️ Extracting text from images in: {os.path.basename(file_path)}")
         
-        # Default prompt if none provided
-        if not prompt:
-            prompt = """Please analyze this image and extract all text content. 
-            Format the response as follows:
-            1. Main text content
-            2. Any relevant context about the text (e.g., headers, tables, formatting)
-            3. Any special characters or symbols
-            4. Confidence level in the extraction (high/medium/low)"""
-
-        # Prepare the messages for GPT-4 Vision
-        messages = [
-            {
-                "role": "user",
-                "content": [
-                    {
-                        "type": "text",
-                        "text": prompt
-                    },
-                    {
-                        "type": "image_url",
-                        "image_url": {
-                            "url": f"data:image/jpeg;base64,{base64_image}",
-                            "detail": "high"  # Use high detail for document processing
+        extracted_data = {
+            "total_images": 0,
+            "processed_images": 0,
+            "extracted_texts": [],
+            "processing_errors": [],
+            "metadata": {}
+        }
+        
+        try:
+            if not PYMUPDF_AVAILABLE:
+                self.logger.error("❌ PyMuPDF required for image extraction")
+                extracted_data["processing_errors"].append("PyMuPDF not available")
+                return extracted_data
+            
+            import fitz  # PyMuPDF
+            
+            # Open PDF
+            doc = fitz.open(file_path)
+            
+            # Process each page
+            for page_num in range(len(doc)):
+                page = doc.load_page(page_num)
+                image_list = page.get_images(full=True)
+                
+                extracted_data["total_images"] += len(image_list)
+                
+                for img_index, img in enumerate(image_list):
+                    try:
+                        # Extract image data
+                        xref = img[0]
+                        base_image = doc.extract_image(xref)
+                        image_bytes = base_image["image"]
+                        
+                        self.logger.info(f"📸 Processing image {img_index + 1} on page {page_num + 1}")
+                        
+                        # Use LangGraph OCR agent to extract text
+                        ocr_result = await self.ocr_agent.process_image(
+                            image_data=image_bytes,
+                            document_type="medical_assessment",
+                            page_number=page_num + 1,
+                            image_index=img_index + 1
+                        )
+                        
+                        # Store results
+                        image_result = {
+                            "page_number": page_num + 1,
+                            "image_index": img_index + 1,
+                            "extracted_text": ocr_result.get("extracted_text", ""),
+                            "confidence_level": ocr_result.get("confidence_level", "medium"),
+                            "context_info": ocr_result.get("context_info", ""),
+                            "quality_score": ocr_result.get("quality_score", 0),
+                            "enhanced": ocr_result.get("enhanced", False),
+                            "processing_errors": ocr_result.get("processing_errors", [])
                         }
-                    }
-                ]
+                        
+                        extracted_data["extracted_texts"].append(image_result)
+                        
+                        if ocr_result.get("extracted_text"):
+                            extracted_data["processed_images"] += 1
+                            self.logger.info(f"✅ Successfully extracted {len(ocr_result['extracted_text'])} characters")
+                        else:
+                            self.logger.warning(f"⚠️ No text extracted from image {img_index + 1}")
+                        
+                    except Exception as e:
+                        error_msg = f"Error processing image {img_index + 1} on page {page_num + 1}: {str(e)}"
+                        extracted_data["processing_errors"].append(error_msg)
+                        self.logger.error(f"❌ {error_msg}")
+            
+            doc.close()
+            
+            # Summary
+            extracted_data["metadata"] = {
+                "total_pages": len(doc),
+                "success_rate": (extracted_data["processed_images"] / extracted_data["total_images"]) * 100 if extracted_data["total_images"] > 0 else 0,
+                "total_text_length": sum(len(result["extracted_text"]) for result in extracted_data["extracted_texts"]),
+                "average_quality_score": sum(result["quality_score"] for result in extracted_data["extracted_texts"]) / len(extracted_data["extracted_texts"]) if extracted_data["extracted_texts"] else 0
             }
-        ]
-
-        # Call GPT-4 Vision API
-        response = await self.openai_client.chat.completions.create(
-            model="gpt-4-vision-preview",
-            messages=messages,
-            max_tokens=1000,
-            temperature=0.2  # Lower temperature for more focused extraction
-        )
-
-        # Process the response
-        extracted_text = response.choices[0].message.content
+            
+            self.logger.info(f"🎉 OCR processing completed:")
+            self.logger.info(f"   📊 {extracted_data['processed_images']}/{extracted_data['total_images']} images processed")
+            self.logger.info(f"   📝 {extracted_data['metadata']['total_text_length']} total characters extracted")
+            self.logger.info(f"   📈 {extracted_data['metadata']['success_rate']:.1f}% success rate")
+            
+        except Exception as e:
+            error_msg = f"OCR extraction failed: {str(e)}"
+            extracted_data["processing_errors"].append(error_msg)
+            self.logger.error(f"❌ {error_msg}")
         
-        # Parse the response into structured format
-        structured_result = self._parse_gpt4_vision_response(extracted_text)
-        
-        return {
-            "text": structured_result["main_text"],
-            "context": structured_result["context"],
-            "confidence": structured_result["confidence"],
-            "method_used": "gpt4_vision",
-            "special_characters": structured_result["special_characters"],
-            "raw_response": extracted_text
-        }
+        return extracted_data
 
-    except Exception as e:
-        self.logger.error(f"❌ GPT-4 Vision extraction failed: {e}")
-        return {
-            "text": "",
-            "error": str(e),
-            "method_used": "gpt4_vision",
-            "confidence": 0
+    async def process_pdf_with_ocr(self, file_path: str) -> Dict[str, Any]:
+        """Process PDF combining regular text extraction with OCR for images"""
+        self.logger.info(f"🔄 Processing PDF with OCR: {os.path.basename(file_path)}")
+        
+        combined_data = {
+            "file_path": file_path,
+            "text_extraction": {},
+            "image_extraction": {},
+            "combined_text": "",
+            "processing_summary": {}
         }
-    
+        
+        try:
+            # First extract regular text
+            text_content = await self.extract_text_from_pdf(file_path)
+            combined_data["text_extraction"] = {
+                "text": text_content,
+                "length": len(text_content)
+            }
+            
+            # Then extract text from images
+            if await self.check_pdf_has_images(file_path):
+                self.logger.info("📸 PDF contains images, running OCR...")
+                image_data = await self.extract_text_from_images_with_ocr(file_path)
+                combined_data["image_extraction"] = image_data
+                
+                # Combine all extracted texts
+                all_texts = [text_content] if text_content else []
+                for img_result in image_data.get("extracted_texts", []):
+                    if img_result.get("extracted_text"):
+                        all_texts.append(f"\n--- Image {img_result['image_index']} (Page {img_result['page_number']}) ---\n{img_result['extracted_text']}")
+                
+                combined_data["combined_text"] = "\n".join(all_texts)
+            else:
+                self.logger.info("📄 No images found, using text extraction only")
+                combined_data["combined_text"] = text_content
+            
+            # Create processing summary
+            combined_data["processing_summary"] = {
+                "total_text_length": len(combined_data["combined_text"]),
+                "regular_text_length": len(text_content),
+                "ocr_text_length": len(combined_data["combined_text"]) - len(text_content),
+                "images_processed": combined_data["image_extraction"].get("processed_images", 0),
+                "images_total": combined_data["image_extraction"].get("total_images", 0),
+                "has_images": "image_extraction" in combined_data and combined_data["image_extraction"].get("total_images", 0) > 0,
+                "processing_errors": combined_data["image_extraction"].get("processing_errors", [])
+            }
+            
+            self.logger.info(f"✅ Combined processing completed: {combined_data['processing_summary']['total_text_length']} total characters")
+            
+        except Exception as e:
+            error_msg = f"Combined PDF processing failed: {str(e)}"
+            combined_data["processing_summary"] = {"error": error_msg}
+            self.logger.error(f"❌ {error_msg}")
+        
+        return combined_data
+
 
 async def main():
     # Quick checks
@@ -1282,18 +1369,39 @@ async def main():
     input_path = os.path.join(PROJECT_DIR, "assets", 'inputs', "Bayley-image-4-Cognitive-Language-and-Motor-Scales-Score-Report_70360701_1751082282441.pdf")
     if not os.path.exists(input_path):
         raise RuntimeError("File does not exists: {}".format(input_path))
+    
+    # Test the new OCR functionality
+    print("\n=== Testing OCR Functionality ===")
+    combined_results = await processor.process_pdf_with_ocr(input_path)
+    
+    print(f"\nProcessing Summary:")
+    summary = combined_results.get("processing_summary", {})
+    print(f"  Total text length: {summary.get('total_text_length', 0)}")
+    print(f"  Regular text length: {summary.get('regular_text_length', 0)}")
+    print(f"  OCR text length: {summary.get('ocr_text_length', 0)}")
+    print(f"  Images processed: {summary.get('images_processed', 0)}/{summary.get('images_total', 0)}")
+    print(f"  Has images: {summary.get('has_images', False)}")
+    
+    if summary.get('processing_errors'):
+        print(f"  Errors: {len(summary['processing_errors'])}")
+        for error in summary['processing_errors'][:3]:  # Show first 3 errors
+            print(f"    - {error}")
+    
+    # Show combined text preview
+    combined_text = combined_results.get("combined_text", "")
+    if combined_text:
+        print(f"\nCombined text preview (first 500 chars):")
+        print(combined_text[:500] + "..." if len(combined_text) > 500 else combined_text)
+    
+    print("\n=== Testing Basic Analysis ===")
     has_images = await processor.check_pdf_has_images(input_path)
-    print(f"\nHas images: {has_images}\n")
-
-    # Check if PDF has A4 pages
-    # has_a4 = await processor.check_pdf_has_a4_pages("path/to/document.pdf")
-    # print(f"Has A4 pages: {has_a4}")
+    print(f"Has images: {has_images}")
 
     # Get complete analysis
     analysis = await processor.analyze_pdf_structure(input_path)
-    print(f"\nTotal pages: {analysis['total_pages']}")
+    print(f"Total pages: {analysis['total_pages']}")
     print(f"Images found: {analysis['images_found']}")
-    print(f"A4 pages: {analysis['a4_pages_count']}\n")
+    print(f"A4 pages: {analysis['a4_pages_count']}")
 
     # Get summary with recommendations
     summary = await processor.get_pdf_summary(input_path)

@@ -33,6 +33,7 @@ class Config:
                 self.PROJECT_DIR,
                 "assets",
                 "inputs",
+                "images",
                 "Bayley-image-4-Cognitive-Language-and-Motor-Scales-Score-Report_70360701_1751082282441.pdf"
             )
         )

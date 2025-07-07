@@ -213,3 +213,4 @@ ot_report_*.pdf
 report_data_*.json
 uploads/*
 scripts/outputs
+outputs/ocr_results
