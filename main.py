@@ -302,6 +302,8 @@ async def upload_files(
             }
         }
         
+        print("################# report data:",  json.dumps(report_data, indent=4))
+
         # Save report data for potential regeneration
         report_data_path = os.path.join("outputs", f"report_data_{session_id}.json")
         with open(report_data_path, 'w') as f:

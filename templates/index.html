@@ -123,6 +123,22 @@
             margin-top: 5px;
             font-size: 0.9rem;
         }
+        .form-control.is-invalid {
+            border-color: #dc3545;
+            box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.25);
+        }
+        .form-control.is-invalid:focus {
+            border-color: #dc3545;
+            box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.25);
+        }
+        .validation-message {
+            background: #f8d7da;
+            color: #721c24;
+            padding: 10px;
+            border-radius: 5px;
+            margin-top: 10px;
+            border: 1px solid #f5c6cb;
+        }
     </style>
 </head>
 <body>
@@ -165,15 +181,15 @@
                             <input type="date" class="form-control" id="encounter_date" name="encounter_date" required>
                         </div>
                         <div class="col-md-6">
-                            <label for="uci_number" class="form-label">UCI Number</label>
-                            <input type="text" class="form-control" id="uci_number" name="uci_number">
+                            <label for="uci_number" class="form-label">UCI Number <span class="required-badge">Required</span></label>
+                            <input type="text" class="form-control" id="uci_number" name="uci_number" required>
                         </div>
                     </div>
 
                     <div class="row mb-3">
                         <div class="col-md-4">
-                            <label for="sex" class="form-label">Sex</label>
-                            <select class="form-control" id="sex" name="sex">
+                            <label for="sex" class="form-label">Sex <span class="required-badge">Required</span></label>
+                            <select class="form-control" id="sex" name="sex" required>
                                 <option value="">Select...</option>
                                 <option value="Male">Male</option>
                                 <option value="Female">Female</option>
@@ -181,12 +197,12 @@
                             </select>
                         </div>
                         <div class="col-md-4">
-                            <label for="language" class="form-label">Primary Language</label>
-                            <input type="text" class="form-control" id="language" name="language" placeholder="e.g., English, Spanish">
+                            <label for="language" class="form-label">Primary Language <span class="required-badge">Required</span></label>
+                            <input type="text" class="form-control" id="language" name="language" placeholder="e.g., English, Spanish" required>
                         </div>
                         <div class="col-md-4">
-                            <label for="parent_guardian" class="form-label">Parent/Guardian</label>
-                            <input type="text" class="form-control" id="parent_guardian" name="parent_guardian">
+                            <label for="parent_guardian" class="form-label">Parent/Guardian <span class="required-badge">Required</span></label>
+                            <input type="text" class="form-control" id="parent_guardian" name="parent_guardian" required>
                         </div>
                     </div>
                 </div>
@@ -197,6 +213,10 @@
                         <i class="fas fa-clipboard-check me-2 text-success"></i>
                         Core Assessments <span class="required-badge">Required</span>
                     </h4>
+                    <div class="alert alert-info mb-3">
+                        <i class="fas fa-info-circle me-2"></i>
+                        <strong>Note:</strong> You must upload at least one assessment file to generate a report.
+                    </div>
 
                     <!-- Facesheet -->
                     <div class="file-upload-area required">
@@ -316,8 +336,8 @@
                         <div class="col-md-4">
                             <label for="output_format" class="form-label">Output Format</label>
                             <select class="form-control" id="output_format" name="output_format">
-                                <option value="google_docs">Google Docs (Recommended)</option>
                                 <option value="pdf">PDF Download</option>
+                                <option value="google_docs">Google Docs (Recommended)</option>
                                 <option value="both">Both Google Docs & PDF</option>
                             </select>
                         </div>
@@ -398,7 +418,7 @@
             e.preventDefault();
             
             // Validate required fields
-            const requiredFields = ['patient_name', 'date_of_birth', 'encounter_date'];
+            const requiredFields = ['patient_name', 'date_of_birth', 'encounter_date', 'uci_number', 'sex', 'language', 'parent_guardian'];
             let valid = true;
             
             for (const field of requiredFields) {
@@ -411,8 +431,28 @@
                 }
             }
             
+            // Validate at least one file is uploaded
+            const fileInputs = [
+                'facesheet_file', 'bayley4_cognitive_file', 'bayley4_social_file', 
+                'sp2_file', 'chomps_file', 'pedieat_file', 'clinical_notes_file'
+            ];
+            
+            let hasFile = false;
+            for (const fileId of fileInputs) {
+                const fileInput = document.getElementById(fileId);
+                if (fileInput.files.length > 0) {
+                    hasFile = true;
+                    break;
+                }
+            }
+            
+            if (!hasFile) {
+                alert('Please upload at least one assessment file.');
+                valid = false;
+            }
+            
             if (!valid) {
-                alert('Please fill in all required patient information fields.');
+                alert('Please fill in all required patient information fields and upload at least one file.');
                 return;
             }
             

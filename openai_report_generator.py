@@ -1585,7 +1585,8 @@ class OpenAIEnhancedReportGenerator:
         elements = []
         
         # Main title
-        header = self._section_header("Assessment Results and Clinical Interpretation")
+        elements.append(Spacer(10, 20))
+        header = self._section_header("Bayley Scales of Infant and Toddler Development - Fourth Edition (BSID-4)")
         elements.append(header)
         elements.append(Spacer(1, 8))
         
@@ -2672,7 +2673,7 @@ class OpenAIEnhancedReportGenerator:
             # generated_text = response.choices[0].message.content.strip()
             generated_text = graph_invoke(prompt)
             self.logger.info(f"✅ OpenAI generation successful ({len(generated_text)} characters)")
-            print("############ ", generated_text)
+            # print("############ ", generated_text)
             return generated_text
             
         except Exception as e:
