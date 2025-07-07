@@ -509,24 +509,24 @@ class OpenAIEnhancedReportGenerator:
             self.logger.info("👥 Generating caregiver concerns...")
             story.extend(await self._create_caregiver_concerns(enhanced_data))
             
-            # self.logger.info("👁️ Generating clinical observations...")
-            # story.extend(await self._create_clinical_observations(enhanced_data))
+            self.logger.info("👁️ Generating clinical observations...")
+            story.extend(await self._create_clinical_observations(enhanced_data))
             
-            # story.append(PageBreak())
-            # self.logger.info("🔧 Adding assessment tools description...")
-            # story.extend(self._create_assessment_tools_description())
+            story.append(PageBreak())
+            self.logger.info("🔧 Adding assessment tools description...")
+            story.extend(self._create_assessment_tools_description())
             
-            # self.logger.info("📊 Generating detailed assessment results...")
-            # story.extend(await self._create_detailed_assessment_results(enhanced_data))
+            self.logger.info("📊 Generating detailed assessment results...")
+            story.extend(await self._create_detailed_assessment_results(enhanced_data))
             
-            # self.logger.info("💡 Generating recommendations...")
-            # story.extend(await self._create_recommendations_section(enhanced_data))
+            self.logger.info("💡 Generating recommendations...")
+            story.extend(await self._create_recommendations_section(enhanced_data))
             
-            # self.logger.info("📋 Generating professional summary...")
-            # story.extend(await self._create_professional_summary(enhanced_data))
+            self.logger.info("📋 Generating professional summary...")
+            story.extend(await self._create_professional_summary(enhanced_data))
             
-            # self.logger.info("🎯 Generating OT goals...")
-            # story.extend(await self._create_ot_goals_section(enhanced_data))
+            self.logger.info("🎯 Generating OT goals...")
+            story.extend(await self._create_ot_goals_section(enhanced_data))
             
             self.logger.info("✍️ Adding signature block...")
             story.extend(self._create_signature_block())
