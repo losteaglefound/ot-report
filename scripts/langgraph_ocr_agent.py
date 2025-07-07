@@ -56,7 +56,7 @@ class LangGraphOCRAgent:
         #     api_key=openai_api_key or os.getenv("OPENAI_API_KEY")
         # )
         self.vision_llm = init_chat_model(
-            "openai:gpt-4-vision-preview",
+            "gpt-4-turbo-2024-04-09",
             temperature=0.2,
             max_tokens=2000,
             api_key=openai_api_key or os.getenv("OPENAI_API_KEY")

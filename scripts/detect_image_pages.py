@@ -1366,7 +1366,7 @@ async def main():
     processor = EnhancedPDFProcessor()
 
     # Check if PDF has images
-    input_path = os.path.join(PROJECT_DIR, "assets", 'inputs', "Bayley-image-4-Cognitive-Language-and-Motor-Scales-Score-Report_70360701_1751082282441.pdf")
+    input_path = os.path.join(PROJECT_DIR, "assets", 'inputs', "images", "Bayley-image-4-Cognitive-Language-and-Motor-Scales-Score-Report_70360701_1751082282441.pdf")
     if not os.path.exists(input_path):
         raise RuntimeError("File does not exists: {}".format(input_path))
     

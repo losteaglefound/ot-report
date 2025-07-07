@@ -5,6 +5,7 @@ import json
 import re
 
 from backend.prompts import remove_lang_tags
+from .ocr_agent import LangGraphOCRAgent
 
 # Shared state keys
 STATE_KEYS = ["prompt", "output", "valid", "json_required", "retry_count"]
@@ -157,4 +158,8 @@ def graph_invoke(prompt: str):
     except Exception as e:
         print(f"Error in graph_invoke: {e}")
         return f"Error generating response: {str(e)}"
+
+
+# Export all components
+__all__ = ["graph_invoke", "LangGraphOCRAgent", "graph"]
 
