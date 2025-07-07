@@ -9,19 +9,19 @@
     },
     "physiology_domain": {
         "type": "paragraph",
-        "content": "Physiology domain assessment revealed suboptimal oral motor coordination with mild hypersensitivity, impairing effective bolus formation and transit. Swallowing safety was compromised by occasional penetration, highlighting increased vigilance during mealtime for aspiration risk. These findings indicate a need for ongoing monitoring to enhance feeding safety."
+        "content": "Physiology domain assessment revealed adequate oral motor coordination with intermittent groping movements during mastication. Swallowing safety was compromised by mild coughing episodes during trials with thin liquids, indicating a potential risk for aspiration. These findings suggest the need for ongoing monitoring of swallowing safety and implementation of compensatory strategies to mitigate aspiration risk."
     },
     "processing_domain": {
         "type": "paragraph",
-        "content": "Processing domain evaluation demonstrated limited texture acceptance, with the child tolerating only smooth purees and some soft solids. Sensory processing of foods showed aversion to mixed textures, suggesting hypersensitivity. The child's adaptive feeding skills are underdeveloped, requiring support to advance texture acceptance and improve functional feeding capacity."
+        "content": "Processing domain evaluation demonstrated moderate acceptance of pureed textures, while more substantial difficulties were noted with mixed textures, indicating potential sensory processing challenges. The child's ability to process various food textures and consistencies is inconsistent, which might affect overall feeding efficiency and nutritional intake."
     },
     "behavior_domain": {
         "type": "paragraph",
-        "content": "Behavior domain analysis indicated food refusals, prolonged mealtime durations, and distractibility during feeding. These patterns suggest that behavioral interventions could facilitate improved focus and cooperation at mealtimes, impacting feeding session duration and efficiency positively."
+        "content": "Behavior domain analysis indicated frequent avoidant behaviors such as turning head away and refusing spoon-fed items, particularly during the introduction of novel textures. These patterns suggest that the child may have underlying sensory sensitivities or past negative feeding experiences impacting mealtime dynamics, which require targeted behavioral interventions."
     },
     "selectivity_domain": {
         "type": "paragraph",
-        "content": "Selectivity assessment revealed a strong preference for a limited range of flavors and brands, with scant acceptance of new or unfamiliar foods. The degree of food selectivity demonstrates a significant impact on nutritional adequacy, warranting focused intervention to broaden dietary variety and ensure comprehensive nutritional intake."
+        "content": "Selectivity assessment revealed a strong preference for crunchy and salty foods with limited acceptance of fruits and vegetables. The degree of food selectivity demonstrates a risk for nutritional deficiencies, affecting caloric intake and balanced diet maintenance, which necessitates nutritional counseling and strategic exposure techniques."
     },
     "feeding_recommendations": {
         "type": "bullet_points",
@@ -36,6 +36,6 @@
     },
     "safety_considerations": {
         "type": "paragraph",
-        "content": "Based on the PediEAT findings, feeding safety considerations include monitoring for signs of aspiration, particularly with thin liquids and mixed textures. Structured feeding protocols and caregiver training in safe feeding techniques are essential to mitigate risk. Regular reassessment of feeding skills and safety is recommended to ensure optimal nutrition and prevent feeding-related complications."
+        "content": "Based on the PediEAT findings, feeding safety considerations include monitoring for signs of aspiration, especially with thin liquids. Implementation of adaptive feeding positions and controlled pacing during meals is recommended. Regular reassessment of feeding skills and safety is advised to ensure optimal nutrition and prevent feeding-related complications."
     }
 }

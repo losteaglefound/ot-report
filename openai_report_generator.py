@@ -31,6 +31,8 @@ from reportlab.lib.pagesizes import letter
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 from reportlab.lib.units import inch
 from reportlab.lib.utils import ImageReader
+from reportlab.pdfbase import pdfmetrics
+from reportlab.pdfbase.ttfonts import TTFont
 from reportlab.platypus import (
     Image,
     Paragraph, 
@@ -45,10 +47,14 @@ from reportlab.platypus import (
 from reportlab.lib.enums import TA_LEFT, TA_CENTER, TA_JUSTIFY
 from reportlab.lib import colors
 
-
 from backend.prompts import save_response, remove_lang_tags, get_prompt
 from backend.utils.response import format_data_for_pdf
 from backend.langgraph import graph_invoke
+
+
+pdfmetrics.registerFont(TTFont('TimesNewRoman', '/home/lap-49/Downloads/times-new-roman/times.ttf'))
+pdfmetrics.registerFont(TTFont('TimesNewRoman-Bold', '/home/lap-49/Downloads/Times New Roman - Bold.ttf'))
+pdfmetrics.registerFont(TTFont("TimesNewRoman-Italic", "/home/lap-49/Downloads/Times New Roman Italic.ttf"))
 
 
 class OpenAIEnhancedReportGenerator:
@@ -166,6 +172,51 @@ class OpenAIEnhancedReportGenerator:
     def _setup_custom_styles(self):
         """Setup custom paragraph styles with enhanced professional formatting"""
         # Header style for main title - Enhanced with better typography
+
+        for style in [
+            'Normal',
+            'BodyText',
+            'Italic',
+            'Heading1',
+            'Title',
+            'Heading2',
+            'Heading3',
+            'Heading4',
+            'Heading5',
+            'Heading6',
+            'Bullet',
+            'Definition',
+            'Code',
+            "UnorderedList",
+            "OrderedList"
+        ]:
+            self.styles[style].fontName = 'TimesNewRoman'
+            self.styles[style].fontSize = 12
+            self.styles[style].leading = 14
+            self.styles[style].alignment = 0
+
+
+        # Sub-header Style
+        self.styles.add(ParagraphStyle(
+            name='SubHeader',
+            fontName='TimesNewRoman',
+            fontSize=12,
+            leading=14,
+            alignment=1,  # centered
+            spaceAfter=4
+        ))
+        
+        # Header style
+        self.styles.add(ParagraphStyle(
+            name='BasicReportHeader',
+            parent=self.styles['Heading1'],
+            fontSize=16,
+            textColor=colors.black,
+            spaceAfter=12,
+            alignment=TA_CENTER,
+            fontName='TimesNewRoman-Bold'
+        ))
+
         self.styles.add(ParagraphStyle(
             name='ReportTitle',
             parent=self.styles['Heading1'],
@@ -174,7 +225,7 @@ class OpenAIEnhancedReportGenerator:
             spaceAfter=12,
             spaceBefore=6,
             alignment=TA_CENTER,
-            fontName='Helvetica-Bold',
+            fontName='TimesNewRoman-Bold',
             borderWidth=2,
             borderColor=colors.HexColor('#1f4788'),
             borderPadding=8,
@@ -191,7 +242,7 @@ class OpenAIEnhancedReportGenerator:
             spaceAfter=6,
             spaceBefore=2,
             alignment=TA_CENTER,
-            fontName='Helvetica',
+            fontName='TimesNewRoman',
             leading=14
         ))
         
@@ -204,7 +255,7 @@ class OpenAIEnhancedReportGenerator:
             spaceAfter=12,
             spaceBefore=20,
             alignment=TA_LEFT,
-            fontName='Helvetica-Bold',
+            fontName='TimesNewRoman-Bold',
             borderWidth=1,
             borderColor=colors.HexColor('#1f4788'),
             borderPadding=6,
@@ -223,7 +274,7 @@ class OpenAIEnhancedReportGenerator:
             spaceAfter=8,
             spaceBefore=12,
             alignment=TA_LEFT,
-            fontName='Helvetica-Bold',
+            fontName='TimesNewRoman-Bold',
             leftIndent=4,
             underlineWidth=1,
             underlineColor=colors.HexColor('#2c5282')
@@ -233,15 +284,15 @@ class OpenAIEnhancedReportGenerator:
         self.styles.add(ParagraphStyle(
             name='ClinicalBody',
             parent=self.styles['Normal'],
-            fontSize=11,
+            fontSize=12,
             textColor=colors.HexColor('#333333'),
             spaceAfter=10,
-            spaceBefore=4,
+            spaceBefore=10,
             alignment=TA_JUSTIFY,
             leftIndent=0,
             rightIndent=0,
-            fontName='Helvetica',
-            leading=14,
+            fontName='TimesNewRoman',
+            leading=16,
             firstLineIndent=0
         ))
         
@@ -256,7 +307,7 @@ class OpenAIEnhancedReportGenerator:
             leftIndent=24,
             bulletIndent=12,
             alignment=TA_LEFT,
-            fontName='Helvetica',
+            fontName='TimesNewRoman',
             leading=14
         ))
         
@@ -269,7 +320,7 @@ class OpenAIEnhancedReportGenerator:
             spaceAfter=8,
             spaceBefore=4,
             alignment=TA_LEFT,
-            fontName='Helvetica',
+            fontName='TimesNewRoman',
             leading=12,
             leftIndent=12,
             rightIndent=12,
@@ -288,7 +339,7 @@ class OpenAIEnhancedReportGenerator:
             spaceAfter=8,
             spaceBefore=8,
             alignment=TA_LEFT,
-            fontName='Helvetica-Bold',
+            fontName='TimesNewRoman-Bold',
             leading=14,
             leftIndent=16,
             rightIndent=16,
@@ -307,7 +358,7 @@ class OpenAIEnhancedReportGenerator:
             spaceAfter=6,
             spaceBefore=3,
             alignment=TA_LEFT,
-            fontName='Helvetica',
+            fontName='TimesNewRoman',
             leading=14,
             leftIndent=20,
             rightIndent=8,
@@ -326,7 +377,7 @@ class OpenAIEnhancedReportGenerator:
             spaceAfter=4,
             spaceBefore=2,
             alignment=TA_CENTER,
-            fontName='Helvetica',
+            fontName='TimesNewRoman',
             leading=11
         ))
         
@@ -339,7 +390,7 @@ class OpenAIEnhancedReportGenerator:
             spaceAfter=4,
             spaceBefore=4,
             alignment=TA_CENTER,
-            fontName='Helvetica-Bold',
+            fontName='TimesNewRoman-Bold',
             leading=12
         ))
         
@@ -352,7 +403,7 @@ class OpenAIEnhancedReportGenerator:
             spaceAfter=3,
             spaceBefore=3,
             alignment=TA_CENTER,
-            fontName='Helvetica',
+            fontName='TimesNewRoman',
             leading=12
         ))
     
@@ -402,8 +453,8 @@ class OpenAIEnhancedReportGenerator:
             def add_logo(canvas, doc: SimpleDocTemplate):
                 # First Image at center
                 logo_path = self.config.get_header_image_path()
-                logo_width = 1.5 * inch
-                logo_height = 0.75 * inch
+                logo_width = 1.3 * inch
+                logo_height = 0.65 * inch
 
                 # Place logo at top-left corner inside the margin
                 # x = doc.rightMargin
@@ -428,7 +479,7 @@ class OpenAIEnhancedReportGenerator:
             img_path = self.config.get_header_image_path()
             image = ImageReader(img_path)
             img_width, img_height = image.getSize()
-            space_above = ((page_height_half) - img_height) / 2
+            space_above = ((page_height_half-190) - img_height) / 2
             # Create Platypus Image with scaled dimensions
             second_header_image = Image(img_path)
             scale = min(
@@ -444,7 +495,7 @@ class OpenAIEnhancedReportGenerator:
             story.extend([
                 Spacer(1, space_above),
                 second_header_image, 
-                Spacer(1, 15)
+                Spacer(1, 10)
             ])
             
             # Header section (clinic branding and patient info)
@@ -461,6 +512,7 @@ class OpenAIEnhancedReportGenerator:
             self.logger.info("👁️ Generating clinical observations...")
             story.extend(await self._create_clinical_observations(enhanced_data))
             
+            story.append(PageBreak())
             self.logger.info("🔧 Adding assessment tools description...")
             story.extend(self._create_assessment_tools_description())
             
@@ -1561,6 +1613,14 @@ class OpenAIEnhancedReportGenerator:
     async def _create_bayley4_detailed_section(self, report_data: Dict[str, Any]) -> List:
         """Create detailed Bayley-4 section with comprehensive interpretation and professional score table"""
         elements = []
+
+        # elements.append(Paragraph(
+        #     "<b>Cognitive tasks assess how your child thinks, reacts, and learns about the world.</b>",
+        #     ParagraphStyle(
+        #         fontName="TimesNewRoman-Bold",
+        #         fontSize=
+        #     )
+        # ))
         
         # # Bayley-4 header with enhanced styling
         # header = Paragraph("Bayley Scales of Infant and Toddler Development - Fourth Edition (Bayley-4)", 
@@ -1635,14 +1695,14 @@ class OpenAIEnhancedReportGenerator:
         #         # Header row styling
         #         ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor('#1f4788')),
         #         ('TEXTCOLOR', (0, 0), (-1, 0), colors.white),
-        #         ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+        #         ('FONTNAME', (0, 0), (-1, 0), 'TimesNewRoman-Bold'),
         #         ('FONTSIZE', (0, 0), (-1, 0), 10),
         #         ('ALIGN', (0, 0), (-1, 0), 'CENTER'),
                 
         #         # Data rows styling
         #         ('BACKGROUND', (0, 1), (-1, -1), colors.white),
         #         ('TEXTCOLOR', (0, 1), (-1, -1), colors.HexColor('#2d3748')),
-        #         ('FONTNAME', (0, 1), (-1, -1), 'Helvetica'),
+        #         ('FONTNAME', (0, 1), (-1, -1), 'TimesNewRoman'),
         #         ('FONTSIZE', (0, 1), (-1, -1), 9),
         #         ('ALIGN', (1, 1), (-1, -1), 'CENTER'),  # Center all except domain names
         #         ('ALIGN', (0, 1), (0, -1), 'LEFT'),     # Left align domain names
@@ -1848,7 +1908,7 @@ class OpenAIEnhancedReportGenerator:
         #                 leading=16,
         #                 spaceAfter=10,
         #                 spaceBefore=12,
-        #                 fontName='Helvetica-Bold'
+        #                 fontName='TimesNewRoman-Bold'
         #             ))
         #             s.append(style)
         #         else:
@@ -2070,14 +2130,43 @@ class OpenAIEnhancedReportGenerator:
             '<b>FMRC Health Group</b>',
             '<b>Occupational Therapy Developmental Evaluation</b>',
             '<b>Vendor #PW8583</b>',
+        ]
+        
+        clinic_lines_bold = [
             '1626 Centinela Ave, Suite 108, Inglewood CA 90302',
             'www.fmrchealth.com'
         ]
+
         for line in clinic_lines:
             elements.append(Paragraph(line, ParagraphStyle(
-                name='ClinicHeader', fontName='Helvetica-Bold', fontSize=12, alignment=TA_CENTER, spaceAfter=2, spaceBefore=2)))
-        elements.append(Spacer(1, 12))
+                name='ClinicHeader', fontName='TimesNewRoman-Bold', fontSize=12, alignment=TA_CENTER, spaceAfter=2, spaceBefore=2)))
+        
+        for line in clinic_lines_bold:
+            elements.append(Paragraph(line, ParagraphStyle(
+                name='ClinicHeader', fontName='TimesNewRoman', fontSize=12, alignment=TA_CENTER, spaceAfter=2, spaceBefore=2)))
+        
+        elements.append(Spacer(1, 8))
+        
         # Patient info table (bordered, bold labels)
+        date_data = [   
+            [
+                Paragraph(f'<b>Date of Report:</b> {patient_info.get("report_date", "")}', self.styles['Normal']),
+                Paragraph(f'<b>Date of Encounter:</b> {patient_info.get("encounter_date", "")}', self.styles['Normal'])
+            ]
+        ]
+        date_table = Table(date_data, colWidths=[1.6*inch, 1.6*inch])
+        date_table.setStyle(TableStyle([
+            # Remove all borders by default (no GRID)
+            ('FONTNAME', (0,0), (-1,-1), 'TimesNewRoman'),
+            ('FONTSIZE', (0,0), (-1,-1), 11),
+            ('VALIGN', (0,0), (-1,-1), 'MIDDLE'),
+            ('ALIGN', (0,0), (-1,-1), 'LEFT'),
+            ('BACKGROUND', (0,0), (-1,-1), colors.white),
+
+            # Add only the center vertical line (between column 0 and 1)
+            ('LINEAFTER', (0,0), (0,-1), 1, colors.black),
+        ]))
+
         patient_data = [
             [
                 Paragraph(f'<b>Name:</b> {patient_info.get("name", "")}', self.styles['Normal']),
@@ -2097,12 +2186,10 @@ class OpenAIEnhancedReportGenerator:
             ],
             [
                 Paragraph(f'<b>Examiner:</b> Fushia Crooms, MOT, OTR/L', self.styles['Normal']),
-                Paragraph(f'<b>Date of Report:</b> {patient_info.get("report_date", "")}', self.styles['Normal']),
+                date_table,
             ],
-            [   "",
-                Paragraph(f'<b>Date of Encounter:</b> {patient_info.get("encounter_date", "")}', self.styles['Normal']),
-            ]
         ]
+        
         patient_table = Table(patient_data, colWidths=[3.2*inch, 3.2*inch])
         patient_table.setStyle(TableStyle([
             ('GRID', (0,0), (-1,-1), 1, colors.black),
@@ -2120,14 +2207,21 @@ class OpenAIEnhancedReportGenerator:
         elements.append(Spacer(1, 18))
         return elements
 
-    def _section_header(self, text: str) -> Table:
+    def _section_header(
+            self, 
+            text: str,
+            padding_top: int = 6,
+            padding_bottom: int = 6,
+            padding_left: int = 6,
+            padding_right: int = 6,
+        ) -> Table:
         """Return a full-width orange section header with bold black text"""
         # Create paragraph with background color and centered text
         section_header = Paragraph(
             f"<b>{text}</b>",
             ParagraphStyle(
                 name='OrangeSectionHeader',
-                fontName='Helvetica-Bold',
+                fontName='TimesNewRoman-Bold',
                 fontSize=13,
                 alignment=TA_CENTER,
                 textColor=colors.black,
@@ -2145,10 +2239,10 @@ class OpenAIEnhancedReportGenerator:
             # ('BACKGROUND', (0, 0), (-1, -1), colors.HexColor("#ff8f42")),  # Orange background
             ('BACKGROUND', (0, 0), (-1, -1), colors.darkorange),  # Orange background
             ('BOX', (0, 0), (-1, -1), 1, colors.black),  # 3pt black border
-            ('LEFTPADDING', (0, 0), (-1, -1), 6),
-            ('RIGHTPADDING', (0, 0), (-1, -1), 6),
-            ('TOPPADDING', (0, 0), (-1, -1), 6),
-            ('BOTTOMPADDING', (0, 0), (-1, -1), 6),
+            ('LEFTPADDING', (0, 0), (-1, -1), padding_left),
+            ('RIGHTPADDING', (0, 0), (-1, -1), padding_right),
+            ('TOPPADDING', (0, 0), (-1, -1), padding_top),
+            ('BOTTOMPADDING', (0, 0), (-1, -1), padding_bottom),
         ]))
         return table
 
@@ -2162,11 +2256,11 @@ class OpenAIEnhancedReportGenerator:
         table.setStyle(TableStyle([
             ('BACKGROUND', (0,0), (-1,0), colors.HexColor('#1976D2')),
             ('TEXTCOLOR', (0,0), (-1,0), colors.white),
-            ('FONTNAME', (0,0), (-1,0), 'Helvetica-Bold'),
+            ('FONTNAME', (0,0), (-1,0), 'TimesNewRoman-Bold'),
             ('FONTSIZE', (0,0), (-1,0), 11),
             ('ALIGN', (0,0), (-1,0), 'CENTER'),
             ('GRID', (0,0), (-1,-1), 1, colors.black),
-            ('FONTNAME', (0,1), (-1,-1), 'Helvetica'),
+            ('FONTNAME', (0,1), (-1,-1), 'TimesNewRoman'),
             ('FONTSIZE', (0,1), (-1,-1), 10),
             ('ALIGN', (0,1), (-1,-1), 'CENTER'),
             ('VALIGN', (0,0), (-1,-1), 'MIDDLE'),
@@ -2186,7 +2280,7 @@ class OpenAIEnhancedReportGenerator:
             canvas.drawImage(logo_path, doc.pagesize[0] - 1.2*inch, doc.pagesize[1] - 1.1*inch, width=0.8*inch, height=0.8*inch, mask='auto')
         # Page number at bottom right
         page_num = canvas.getPageNumber()
-        canvas.setFont('Helvetica', 9)
+        canvas.setFont('TimesNewRoman', 9)
         canvas.setFillColor(colors.HexColor('#333333'))
         canvas.drawRightString(doc.pagesize[0] - 0.7*inch, 0.65*inch, f"{page_num}")
 
@@ -2206,6 +2300,7 @@ class OpenAIEnhancedReportGenerator:
         elements.append(Spacer(1, 12))
         return elements
 
+
     async def _create_clinical_observations(self, report_data: Dict[str, Any]) -> List:
         elements = []
         elements.append(self._section_header('Observation'))
@@ -2214,53 +2309,99 @@ class OpenAIEnhancedReportGenerator:
         elements.append(Spacer(1, 12))
         return elements
 
-    def _create_assessment_tools_description(self) -> List:
-        elements = []
-        elements.append(self._section_header('Assessment Tools'))
-        tools_text = ("Bayley Scales of Infant and Toddler Development - Fourth Edition (BSID-4), parent "
-                      "report and clinical observation were used as assessment tools for this report.")
-        tools_para = Paragraph(tools_text, self.styles['ClinicalBody'])
-        elements.append(tools_para)
-        elements.append(Spacer(1, 8))
-        bayley_header = Paragraph(
-            "<b>Bayley Scales of Infant and Toddler Development - Fourth Edition (BSID-4)</b>",
-            self.styles['DomainHeader']
-        )
-        elements.append(bayley_header)
-        intro = Paragraph(
-            "The Bayley-4 is a norm-referenced assessment for children from birth to 42 months, providing standardized scores in the following developmental domains:",
-            self.styles['ClinicalBody']
-        )
-        elements.append(intro)
-        elements.append(Spacer(1, 6))
 
-        # small_bullet_style = ParagraphStyle(
-        #     name='SmallBullet',
-        #     fontSize=12,                # Regular text size
-        #     bulletFontSize=6,           # Make bullet smaller
-        #     bulletFontName='Helvetica', 
-        #     bulletIndent=0,             # Where bullet appears
-        #     leftIndent=20,              # Where text starts
-        #     leading=14
-        # )
-        # bulletText="•"
-        bayley_domains = [
-            Paragraph("<b>1. Cognitive Scale:</b> Assesses problem-solving skills, memory, attention, and concept formation.", self.styles['ClinicalBody']),
-            Paragraph("<b>2. Language Scale:</b>", self.styles['ClinicalBody']),
-            ListFlowable([
-                ListItem(Paragraph("Receptive Language: Evaluates the child's understanding of words, gestures, and simple instructions.", self.styles['BulletPoint']), leftIndent=36),
-                ListItem(Paragraph("Expressive Language: Measures verbal communication, including babbling, single words, and early sentence formation.", self.styles['BulletPoint']), leftIndent=36),
-            ], bulletType='bullet', start='circle', leftIndent=18, bulletText="•"),
-            Paragraph("<b>3. Motor Scale:</b>", self.styles['ClinicalBody']),
-            ListFlowable([
-                ListItem(Paragraph("Fine Motor: Examines grasping, manipulation of objects, hand-eye coordination, and early writing skills.", self.styles['BulletPoint']), leftIndent=36),
-                ListItem(Paragraph("Gross Motor: Evaluates posture, crawling, standing, balance, and walking patterns.", self.styles['BulletPoint']), leftIndent=36),
-            ], bulletType='bullet', start='circle', leftIndent=18, bulletText="•"),
-            Paragraph("<b>4. Social-Emotional Scale:</b> Measures the child's ability to interact with others, regulate emotions, and respond to social cues.", self.styles['ClinicalBody']),
-            Paragraph("<b>5. Adaptive Behavior Scale:</b> Assesses daily functional tasks, including self-care skills such as feeding, dressing, and toileting.", self.styles['ClinicalBody'])
+    def _create_assessment_tools_description(self) -> List:
+
+        def bullet_table(paragraphs):
+            data = [[
+                '⊄',
+                Paragraph(text, self.styles['BulletPoint'])
+            ] for text in paragraphs]
+
+            t = Table(data, colWidths=[10, 6.333 * inch - 46])  # adjust width to account for padding
+            t.setStyle(TableStyle([
+                ('VALIGN', (0, 0), (-1, -1), 'TOP'),
+                ('LEFTPADDING', (0, 0), (-1, -1), 0),
+                ('RIGHTPADDING', (0, 0), (-1, -1), 0),
+                ('TOPPADDING', (0, 0), (-1, -1), 1),
+                ('BOTTOMPADDING', (0, 0), (-1, -1), 1),
+            ]))
+            return t
+
+        tools_text = ("Bayley Scales of Infant and Toddler Development - Fourth Edition (BSID-4), parent "
+                    "report and clinical observation were used as assessment tools for this report.")
+        elements = []
+
+        assessment_tools_points = [
+            [Paragraph("<b>1. Cognitive Scale:</b> Assesses problem-solving skills, memory, attention, and concept formation.", self.styles['ClinicalBody'])],
+            [Paragraph("<b>2. Language Scale:</b>", self.styles['ClinicalBody'])],
+            [bullet_table([
+                "Receptive Language: Evaluates the child's understanding of words, gestures, and simple instructions.",
+                "Expressive Language: Measures verbal communication, including babbling, single words, and early sentence formation."
+            ])],
+            [Paragraph("<b>3. Motor Scale:</b>", self.styles['ClinicalBody'])],
+            [bullet_table([
+                "Fine Motor: Examines grasping, manipulation of objects, hand-eye coordination, and early writing skills.",
+                "Gross Motor: Evaluates posture, crawling, standing, balance, and walking patterns."
+            ])],
+            [Paragraph("<b>4. Social-Emotional Scale:</b> Measures the child's ability to interact with others, regulate emotions, and respond to social cues.", self.styles['ClinicalBody'])],
+            [Paragraph("<b>5. Adaptive Behavior Scale:</b> Assesses daily functional tasks, including self-care skills such as feeding, dressing, and toileting.", self.styles['ClinicalBody'])],
+            [Spacer(1, 4)],
         ]
-        elements.extend(bayley_domains)
-        elements.append(Spacer(1, 15))
+
+        assessment_tools_points_table = Table(assessment_tools_points, colWidths=[6.333 * inch])
+        assessment_tools_points_table.setStyle(TableStyle([
+            ('BACKGROUND', (0, 0), (-1, -1), colors.white),
+            ('BOX', (0, 0), (-1, -1), 1, colors.white),
+            ('LEFTPADDING', (0, 0), (-1, -1), 36),
+            ('RIGHTPADDING', (0, 0), (-1, -1), 36),
+        ]))
+
+        assessment_tools = [
+            [
+                Paragraph(tools_text, ParagraphStyle(
+                    name='ClinicalBody',
+                    parent=self.styles['Normal'],
+                    fontSize=12,
+                    textColor=colors.HexColor('#333333'),
+                    spaceAfter=10,
+                    spaceBefore=10,
+                    alignment=TA_JUSTIFY,
+                    leftIndent=0,
+                    rightIndent=0,
+                    fontName='TimesNewRoman-Bold',
+                    leading=16,
+                    firstLineIndent=0
+                ))
+            ],
+            [[Spacer(1, 4)]],
+            [
+                Paragraph(
+                    "<u><b>Bayley Scales of Infant and Toddler Development - Fourth Edition (BSID-4)</b></u>",
+                    self.styles['DomainHeader']
+                )
+            ],
+            [
+                Paragraph(
+                    "The Bayley-4 is a norm-referenced assessment for children from birth to 42 months, providing standardized scores in the following developmental domains:",
+                    self.styles['ClinicalBody']
+                )
+            ],
+            [assessment_tools_points_table],
+            [Spacer(1, 4)],
+        ]
+
+        assessment_tools_table = Table(assessment_tools, colWidths=[6.5 * inch])
+        assessment_tools_table.setStyle(TableStyle([
+            ('BACKGROUND', (0, 0), (-1, -1), colors.white),
+            ('BOX', (0, 0), (-1, -1), 1, colors.black),
+            ('LEFTPADDING', (0, 0), (-1, -1), 6),
+            ('RIGHTPADDING', (0, 0), (-1, -1), 6),
+        ]))
+
+        elements.append(self._section_header('Assessment Tools'))
+        elements.append(assessment_tools_table)
+
         return elements
     
     async def _generate_background_narrative(self, report_data: Dict[str, Any]) -> str:
@@ -2566,111 +2707,57 @@ class OpenAIEnhancedReportGenerator:
     def _create_signature_block(self) -> List:
         """Create professional signature block with enhanced formatting"""
         elements = []
-        
-        # Add extra space before signature
-        elements.append(Spacer(1, 24))
-        
-        # Professional signature section with border
+
+
         elements.append(PageBreak())  # Start signature on new page if needed
         
         # Signature header
-        sig_header = self._section_header("Report Prepared By")
-        elements.append(sig_header)
-        elements.append(Spacer(1, 12))
+        # sig_header = self._section_header("Report Prepared By")
+        # elements.append(sig_header)
+        elements.append(Spacer(20, 20))
+
+        disclaimer = Paragraph(
+            """<i>The final determination and the need for services will be made by the Regional Center Eligibility Team after review and analysis of this report.</i>""",
+            ParagraphStyle(
+                name="FooterSection",
+                fontName="TimesNewRoman-Italic",
+                fontSize=12,
+                leading=16
+            )
+        )
+        elements.append(disclaimer)
+        elements.append(Spacer(20, 10))
         
         # Create signature table with professional layout
         sig_data = [
-            # Signature line
-            ["Signature: ___________________________________", "Date: _______________"],
-            ["", ""],
             # Professional credentials
-            ["Fushia Crooms, MOT, OTR/L", ""],
-            ["Occupational Therapist", ""],
-            ["License #: OTR/L12345", ""]
+            "<b>Fushia Crooms, MOT, OTR/L</b>",
+            "<b>Occupational Therapist</b>",
+            "<b>Pediatric Feeding Therapist</b>",
+            "<b>Email: <u>fushia@fmrchealth.com</u></b>",
+            "<b>Phone #: 323-229-6025 Ext. 1</b>"
         ]
-        
-        sig_table = Table(sig_data, colWidths=[4.5*inch, 2*inch])
-        sig_table.setStyle(TableStyle([
-            # General styling
-            ('FONTNAME', (0, 0), (-1, -1), 'Helvetica'),
-            ('FONTSIZE', (0, 0), (-1, -1), 11),
-            ('ALIGN', (0, 0), (-1, -1), 'LEFT'),
-            ('VALIGN', (0, 0), (-1, -1), 'TOP'),
-            
-            # Signature line styling
-            ('FONTNAME', (0, 0), (0, 0), 'Helvetica-Bold'),
-            ('FONTNAME', (1, 0), (1, 0), 'Helvetica-Bold'),
-            ('TEXTCOLOR', (0, 0), (-1, 0), colors.black),
-            
-            # Professional name and credentials
-            ('FONTNAME', (0, 2), (0, 2), 'Helvetica-Bold'),
-            ('FONTSIZE', (0, 2), (0, 2), 12),
-            ('TEXTCOLOR', (0, 2), (0, 2), colors.black),
-            
-            # Title and license
-            ('TEXTCOLOR', (0, 3), (0, 4), colors.black),
-            ('FONTSIZE', (0, 3), (0, 4), 10),
-            
-            # Padding
-            ('TOPPADDING', (0, 0), (-1, -1), 6),
-            ('BOTTOMPADDING', (0, 0), (-1, -1), 6),
-            ('LEFTPADDING', (0, 0), (-1, -1), 0),
-            ('RIGHTPADDING', (0, 0), (-1, -1), 0),
-        ]))
-        
-        elements.append(sig_table)
-        elements.append(Spacer(1, 20))
-        
-        # Contact information section
-        contact_header = Paragraph("Contact Information", self.styles['DomainHeader'])
-        elements.append(contact_header)
-        elements.append(Spacer(1, 8))
-        
-        # Professional contact information table
-        contact_data = [
-            ["Organization:", "FMRC Health Group"],
-            ["Address:", "1626 Centinela Ave, Suite 108"],
-            ["", "Inglewood, CA 90302"],
-            ["Phone:", "(555) 123-4567"],
-            ["Email:", "fcrooms@fmrchealth.com"],
-            ["Website:", "www.fmrchealth.com"]
-        ]
-        
-        contact_table = Table(contact_data, colWidths=[1.2*inch, 4*inch])
-        contact_table.setStyle(TableStyle([
-            # Background and borders
-            # ('BACKGROUND', (0, 0), (-1, -1), colors.HexColor('#f8f9fa')),
-            ('GRID', (0, 0), (-1, -1), 0.5, colors.HexColor('#cbd5e0')),
-            
-            # Text styling
-            ('FONTNAME', (0, 0), (0, -1), 'Helvetica-Bold'),
-            ('FONTNAME', (1, 0), (1, -1), 'Helvetica'),
-            ('FONTSIZE', (0, 0), (-1, -1), 10),
-            # ('TEXTCOLOR', (0, 0), (0, -1), colors.HexColor('#2d3748')),
-            ('TEXTCOLOR', (1, 0), (1, -1), colors.black),
-            
-            # Alignment
-            ('ALIGN', (0, 0), (-1, -1), 'LEFT'),
-            ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
-            
-            # Padding
-            ('TOPPADDING', (0, 0), (-1, -1), 6),
-            ('BOTTOMPADDING', (0, 0), (-1, -1), 6),
-            ('LEFTPADDING', (0, 0), (-1, -1), 8),
-            ('RIGHTPADDING', (0, 0), (-1, -1), 8),
-        ]))
-        
-        elements.append(contact_table)
-        elements.append(Spacer(1, 16))
+        for i in sig_data:
+            elements.append(
+                Paragraph(
+                    i, 
+                    ParagraphStyle(
+                        name="FooterSection",
+                        fontName="TimesNewRoman-Bold",
+                        fontSize=12,
+                        leading=16
+                    )
+                )
+            )
         
         # Footer disclaimer
-        disclaimer = Paragraph(
-            "<i>This report contains confidential medical information and is intended solely for the use of "
-            "the identified patient and authorized personnel. Distribution or reproduction without written "
-            "consent is prohibited.</i>",
-            self.styles['Footer']
-        )
-        elements.append(disclaimer)
+        # disclaimer = Paragraph(
+        #     "<i>This report contains confidential medical information and is intended solely for the use of "
+        #     "the identified patient and authorized personnel. Distribution or reproduction without written "
+        #     "consent is prohibited.</i>",
+        #     self.styles['Footer']
+        # )
+        # elements.append(disclaimer)
         
         return elements
     

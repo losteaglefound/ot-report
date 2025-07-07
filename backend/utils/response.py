@@ -17,11 +17,29 @@ async def format_data_for_pdf(data: dict) -> list:
     elements = []
 
     # Custom header style
+    # header_style = ParagraphStyle(
+    #     name='SectionHeader',
+    #     parent=styles['Heading2'],
+    #     fontSize=12,
+    #     fontName="TimesNewRoman-Bold",
+    #     leading=18,
+    #     spaceAfter=6,
+    #     spaceBefore=12,
+    #     underlineWidth=1,
+    # )
     header_style = ParagraphStyle(
-        name='SectionHeader',
-        parent=styles['Heading2'],
+        name="SectionHeader",
         fontSize=12,
-        leading=18,
+        leading=14,
+        fontName="TimesNewRoman-Bold",
+        underlineWidth=1
+    )
+    body_style = ParagraphStyle(
+        name='BodyText',
+        parent=styles['Normal'],
+        fontSize=12,
+        fontName="TimesNewRoman",
+        leading=16,
         spaceAfter=6,
         spaceBefore=12,
         underlineWidth=1,
@@ -32,16 +50,16 @@ async def format_data_for_pdf(data: dict) -> list:
         content = value.get("content", "")
 
         if content_type == "header":
-            elements.append(Paragraph(content, header_style))
-            elements.append(Spacer(1, 0.1 * inch))
+            elements.append(Paragraph(f"<u>{content}</u>", header_style))
+            elements.append(Spacer(1, 0.2 * inch))
 
         elif content_type == "paragraph":
-            elements.append(Paragraph(content, styles['BodyText']))
+            elements.append(Paragraph(content, body_style))
             elements.append(Spacer(1, 0.15 * inch))
 
         elif content_type == "bullet_points":
             if content:
-                bullet_items = [ListItem(Paragraph(point, styles['BodyText'])) for point in content]
+                bullet_items = [ListItem(Paragraph(point, styles['Normal'])) for point in content]
                 elements.append(ListFlowable(bullet_items, bulletType='bullet'))
                 elements.append(Spacer(1, 0.15 * inch))
 

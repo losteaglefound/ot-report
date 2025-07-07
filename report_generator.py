@@ -28,16 +28,35 @@ class OTReportGenerator:
     def _setup_custom_styles(self):
         """Setup custom paragraph styles"""
         self.logger.info("🎨 Setting up custom styles...")
+
+        self.styles.add(ParagraphStyle(
+            name='ReportHeader',
+            fontName='TimesNewRoman-Bold',
+            fontSize=16,
+            leading=19,
+            alignment=1,  # centered
+            spaceAfter=6
+        ))
+
+        # Sub-header Style
+        self.styles.add(ParagraphStyle(
+            name='SubHeader',
+            fontName='TimesNewRoman',
+            fontSize=12,
+            leading=14,
+            alignment=1,  # centered
+            spaceAfter=4
+        ))
         
         # Header style
         self.styles.add(ParagraphStyle(
             name='BasicReportHeader',
             parent=self.styles['Heading1'],
             fontSize=16,
-            textColor=colors.darkblue,
+            textColor=colors.black,
             spaceAfter=12,
             alignment=TA_CENTER,
-            fontName='Helvetica-Bold'
+            fontName='TimesNewRoman-Bold'
         ))
         
         # Section header style
@@ -45,10 +64,10 @@ class OTReportGenerator:
             name='BasicSectionHeader',
             parent=self.styles['Heading2'],
             fontSize=14,
-            textColor=colors.darkblue,
+            textColor=colors.black,
             spaceAfter=6,
             spaceBefore=12,
-            fontName='Helvetica-Bold'
+            fontName='TimesNewRoman-Bold'
         ))
         
         # Body text style
@@ -58,7 +77,7 @@ class OTReportGenerator:
             fontSize=11,
             spaceAfter=6,
             alignment=TA_JUSTIFY,
-            fontName='Helvetica'
+            fontName='TimesNewRoman'
         ))
         
         self.logger.info("✅ Custom styles configured")
@@ -139,8 +158,8 @@ class OTReportGenerator:
         patient_table = Table(patient_data, colWidths=[2*inch, 4*inch])
         patient_table.setStyle(TableStyle([
             ('ALIGN', (0, 0), (-1, -1), 'LEFT'),
-            ('FONTNAME', (0, 0), (0, -1), 'Helvetica-Bold'),
-            ('FONTNAME', (1, 0), (1, -1), 'Helvetica'),
+            ('FONTNAME', (0, 0), (0, -1), 'TimesNewRoman-Bold'),
+            ('FONTNAME', (1, 0), (1, -1), 'TimesNewRoman'),
             ('FONTSIZE', (0, 0), (-1, -1), 11),
             ('BOTTOMPADDING', (0, 0), (-1, -1), 8),
         ]))
@@ -221,9 +240,9 @@ class OTReportGenerator:
             ('BACKGROUND', (0, 0), (-1, 0), colors.grey),
             ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
             ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
-            ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+            ('FONTNAME', (0, 0), (-1, 0), 'TimesNewRoman-Bold'),
             ('FONTSIZE', (0, 0), (-1, 0), 10),
-            ('FONTNAME', (0, 1), (-1, -1), 'Helvetica'),
+            ('FONTNAME', (0, 1), (-1, -1), 'TimesNewRoman'),
             ('FONTSIZE', (0, 1), (-1, -1), 9),
             ('BOTTOMPADDING', (0, 0), (-1, -1), 6),
             ('GRID', (0, 0), (-1, -1), 1, colors.black),
@@ -249,9 +268,9 @@ class OTReportGenerator:
                 ('BACKGROUND', (0, 0), (-1, 0), colors.grey),
                 ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
                 ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
-                ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+                ('FONTNAME', (0, 0), (-1, 0), 'TimesNewRoman-Bold'),
                 ('FONTSIZE', (0, 0), (-1, 0), 10),
-                ('FONTNAME', (0, 1), (-1, -1), 'Helvetica'),
+                ('FONTNAME', (0, 1), (-1, -1), 'TimesNewRoman'),
                 ('FONTSIZE', (0, 1), (-1, -1), 9),
                 ('BOTTOMPADDING', (0, 0), (-1, -1), 6),
                 ('GRID', (0, 0), (-1, -1), 1, colors.black),
@@ -292,9 +311,9 @@ class OTReportGenerator:
                 ('BACKGROUND', (0, 0), (-1, 0), colors.grey),
                 ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
                 ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
-                ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+                ('FONTNAME', (0, 0), (-1, 0), 'TimesNewRoman-Bold'),
                 ('FONTSIZE', (0, 0), (-1, 0), 10),
-                ('FONTNAME', (0, 1), (-1, -1), 'Helvetica'),
+                ('FONTNAME', (0, 1), (-1, -1), 'TimesNewRoman'),
                 ('FONTSIZE', (0, 1), (-1, -1), 9),
                 ('BOTTOMPADDING', (0, 0), (-1, -1), 6),
                 ('GRID', (0, 0), (-1, -1), 1, colors.black),
