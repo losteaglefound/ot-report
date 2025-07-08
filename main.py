@@ -9,6 +9,10 @@ import sys
 import uuid
 import json
 
+
+import aiofiles
+
+
 # Load configuration first
 from config import config, is_openai_enabled, is_email_enabled, is_google_docs_enabled, get_app_host, get_app_port
 
@@ -282,6 +286,29 @@ async def upload_files(
             logger.error(f"❌ Failed to calculate chronological age: {e}")
             chronological_age = None
         
+        # Process Bayley-4 assessment if file is provided
+        bayley_results = {}
+        if 'bayley4_cognitive' in uploaded_files:
+            try:
+                from bayley_processor import process_bayley_assessment
+                logger.info("🧠 Processing Bayley-4 cognitive assessment...")
+                
+                bayley_results = process_bayley_assessment(
+                    uploaded_files['bayley4_cognitive'],
+                    "assets/inputs/bayley-4-record-form.json"
+                )
+                
+                if bayley_results:
+                    domains_found = list(bayley_results.keys())
+                    total_items = sum(len(items) for items in bayley_results.values())
+                    logger.info(f"✅ Bayley-4 processing complete: {total_items} valid items in domains: {domains_found}")
+                else:
+                    logger.warning("⚠️ No valid Bayley-4 answers found in the provided file")
+                    
+            except Exception as e:
+                logger.error(f"❌ Error processing Bayley-4 assessment: {e}")
+                bayley_results = {}
+
         # Compile report data
         report_data = {
             "patient_info": {
@@ -299,15 +326,15 @@ async def upload_files(
                 "output_format": output_format,
                 "report_type": report_type,
                 "notify_email": notify_email
-            }
+            },
+            "bayley": bayley_results
         }
-        
-        print("################# report data:",  json.dumps(report_data, indent=4))
 
         # Save report data for potential regeneration
         report_data_path = os.path.join("outputs", f"report_data_{session_id}.json")
-        with open(report_data_path, 'w') as f:
-            json.dump(report_data, f)
+        async with aiofiles.open(report_data_path, 'w') as f:
+            # json.dump(report_data, f, indent=4)
+            await f.write(json.dumps(report_data, indent=4))
         logger.info("✅ Report data compiled")
         
         # Initialize output links dictionary with error tracking
