@@ -6,18 +6,18 @@
         },
         "domain_summary": {
             "type": "paragraph",
-            "content": "Cognitive tasks assess how your child thinks, reacts, and learns about the world."
+            "content": "Assesses attention, memory, sensory-motor development, exploration and manipulation, object relatedness, concept formation, and problem-solving abilities."
         },
         "domain_details": {
             "type": "bullet_points",
             "content": [
-                "Infants are given tasks that measure their interest in new things, their attention to familiar and unfamiliar objects, and how they play with different types of toys.",
-                "Toddlers are given tasks that examine how they explore new toys and experiences, how they solve problems, how they learn, and their ability to complete puzzles."
+                "Infant tasks include: Visual tracking, habituation to stimuli, object permanence, cause-effect understanding, and early symbolic play.",
+                "Toddler tasks include: Shape sorting, puzzle completion, block stacking, spatial memory, and basic concept categorization."
             ]
         },
         "patient_assessment": {
             "type": "paragraph",
-            "content": "Sabrina received a scaled score of 8 in the cognitive domain, corresponding to an age equivalent of 8 months. This places her in the below average range, reflecting an estimated 20% delay relative to her chronological age of 10 months. During the assessment, Sabrina displayed limited engagement with new objects and required additional time to initiate exploratory play. These findings suggest a need for interventions focused on enhancing cognitive and exploratory skills."
+            "content": "Sabrina, aged 2 years and 10 months, shows well-established skills in several cognitive tasks, displaying proficiency particularly in tasks such as 'Reaction to Caregiver' and 'Shifts Attention', where she 'displays a reaction that is clearly anticipatory' and 'eyes move from one object to the other for 3 trials', respectively, meeting the expectations for her age. She demonstrates a high level of engagement and responsiveness in exploring her surroundings and objects such as the 'Rattle', where she 'attends to the sight, sound, or feel of rattle by touching, shaking, or engaging in playful activity'. However, Sabrina encounters challenges in tasks like 'Plays With Paper' and 'Pats Table', both of which she did not engage in meaningfully, indicating areas of potential delay in exploratory manipulation and imitation skills. This suggests a need to enhance her sensory exploration and imitation abilities, crucial for further cognitive development and everyday learning, thereby impacting her task-focused plays and learning experiences."
         }
     },
     "receptive_communication": {
@@ -27,18 +27,18 @@
         },
         "domain_summary": {
             "type": "paragraph",
-            "content": "Receptive Communication tasks assess how well your child recognizes sounds and how much she understands spoken words and directions."
+            "content": "Evaluates comprehension of verbal language and nonverbal cues, including gestures and contextual communication."
         },
         "domain_details": {
             "type": "bullet_points",
             "content": [
-                "Infants are presented with tasks that measure their recognition of sounds, objects, and people in the environment. Many tasks involve social interactions.",
-                "Toddlers are asked to identify pictures and objects, follow simple directions, and perform social routines, such as wave bye-bye or play peek-a-boo."
+                "Infant tasks include: Responding to name, recognizing voices, following gestures, and reacting to familiar people or words.",
+                "Toddler tasks include: Following one-step commands, identifying objects/body parts, and understanding common language constructs."
             ]
         },
         "patient_assessment": {
             "type": "paragraph",
-            "content": "Sabrina received a scaled score of 9 in the receptive communication domain, with an age equivalent of 9 months. This places her in the average range, indicating a 10% delay. Sabrina responded well to familiar sounds but exhibited less consistent responses to spoken requests. Continued focus on enhancing her receptive language through engaging activities is recommended."
+            "content": "In the domain of receptive communication, Sabrina consistently 'displays clear reaction to voice' and can 'discriminate sounds', showcasing her ability to process auditory stimuli and verbal cues effectively. Nonetheless, there are significant gaps evident in her difficulty to 'Responds to Name' and 'Recognizes Words', both scored as 'does not respond either time name is called' and 'Looks at 0 objects', respectively. This discrepancy highlights a challenge in associating verbal cues with familiar objects or commands, which could impede her ability to engage fully in social contexts and follow instructions. Intervention should focus on reinforcing her understanding and response to verbal stimuli as well as environmental cues to bolster her receptive communication skills."
         }
     },
     "expressive_communication": {
@@ -48,18 +48,18 @@
         },
         "domain_summary": {
             "type": "paragraph",
-            "content": "Expressive Communication tasks assess how well your child communicates using sounds, gestures, or words."
+            "content": "Assesses verbal and non-verbal expressive skills such as sounds, gestures, word production, and early sentence use."
         },
         "domain_details": {
             "type": "bullet_points",
             "content": [
-                "Infants are observed throughout the assessment for various forms of nonverbal expression, such as smiling, jabbering expressively, using gestures, and laughing (social interaction).",
-                "Toddlers are given opportunities to use words by naming objects or pictures, putting words together, and answering questions."
+                "Infant tasks include: Cooing, babbling, vocal imitation, and use of gestures like pointing or waving.",
+                "Toddler tasks include: Using words, combining words, forming short phrases or sentences, and expressing wants/needs."
             ]
         },
         "patient_assessment": {
             "type": "paragraph",
-            "content": "Sabrina received a scaled score of 7, with an age equivalent of 7 months. This places her in the below average range, reflecting a 30% delay. Sabrina primarily relied on gestures and vocalizations, exhibiting limited verbal expression. Participation in activities promoting language emergence would be beneficial."
+            "content": "Sabrina frequently uses 'undifferentiated vocalizations' and 'initiates play', demonstrating her engagement and social interaction through sounds and actions. While she produces 'frequent vocalizations and laughter in response to attention/interaction', as shown in the 'Social Vocalizing/Laughing' task, she faces challenges in her ability to form cohesive vocal patterns and gestures, evidenced by her 'occasional use of gestures to communicate' and an absence of 'uses appropriate words'. There's a noticeable gap in her ability to produce 'Consonant Sounds' or 'Jabbers Expressively', pointing to a delay in developing word production skills. Targeted intervention may be required to encourage more structured vocalization and word-use, thus fostering improved expressive communication capabilities."
         }
     },
     "fine_motor": {
@@ -69,18 +69,18 @@
         },
         "domain_summary": {
             "type": "paragraph",
-            "content": "Fine Motor tasks assess how well your child can use their hands and fingers to make things happen."
+            "content": "Evaluates manual dexterity, visual-motor coordination, and small muscle precision in the hands and fingers."
         },
         "domain_details": {
             "type": "bullet_points",
             "content": [
-                "Muscle control is assessed in infants, such as visual tracking with their eyes, bringing a hand to their mouth, transferring objects from hand to hand, and reaching for and grasping an object.",
-                "Toddlers are given the opportunity to demonstrate their ability to perform fine motor tasks, such as stacking blocks, drawing simple shapes, and placing small objects (e.g., coins) in a slot."
+                "Infant tasks include: Grasping objects, transferring items, visual tracking, and early object manipulation.",
+                "Toddler tasks include: Stacking, drawing, threading, pincer grasp development, and pre-writing skills."
             ]
         },
         "patient_assessment": {
             "type": "paragraph",
-            "content": "Sabrina received a scaled score of 8, with an age equivalent of 8 months. This places her in the below average range, reflecting a 20% delay. Observations noted difficulty with object manipulation and sustained grasp. Interventions targeting fine motor strength and coordination are advised."
+            "content": "Sabrina's fine motor skills are most notable in her ability to 'eyes track pencil through 1 complete trial', which suggests strong visual tracking capabilities, a fundamental skill for later tasks requiring visual-motor coordination. She 'grasps block using whole hand (palmar) grasp', which is typical of her developmental stage, yet she struggles with more advanced tasks like the 'Transitional Grip' necessary for precise manipulations such as 'scribbles spontaneously', where she doesn't yet demonstrate proficiency. Although Sabrina 'turns the pages of a book' consistently, her fine motor tasks that involve bilateral coordination and precision (e.g., 'Pencil Grasp Series') reflect a need for further development. Enhancing her dexterity and pre-writing skills by practicing tasks like stacking or threading could support her overall functional abilities in both play and self-care functions."
         }
     },
     "gross_motor": {
@@ -90,74 +90,18 @@
         },
         "domain_summary": {
             "type": "paragraph",
-            "content": "Gross Motor tasks assess how well your child can move their body."
+            "content": "Assesses large muscle development, postural control, balance, and body coordination in space."
         },
         "domain_details": {
             "type": "bullet_points",
             "content": [
-                "Infants are assessed for head control and their performance on activities, such as rolling over, sitting upright, and crawling motions.",
-                "Toddlers are given tasks that measure their ability to make stepping movements, support their own weight, stand, and walk without assistance."
+                "Infant tasks include: Head control, rolling, sitting, crawling, and early attempts at standing or walking.",
+                "Toddler tasks include: Running, jumping, climbing, throwing, stair use, and coordinated movement sequences."
             ]
         },
         "patient_assessment": {
             "type": "paragraph",
-            "content": "Sabrina received a scaled score of 6, with an age equivalent of 6 months. This places her in the below average range, reflecting a 40% delay. She demonstrated challenges with maintaining stability during sitting and transitioning to crawling. Emphasizing gross motor skill development at home and through therapy can support her progress in mobility."
-        }
-    },
-    "social_emotional": {
-        "header": {
-            "type": "header",
-            "content": "Social-Emotional"
-        },
-        "domain_summary": {
-            "type": "paragraph",
-            "content": "The Social-Emotional Scale asks caregivers to assess how their child interacts with others, expresses emotions, and responds to sensory input such as sounds, touch, and visual stimuli. This scale helps identify age-appropriate social-emotional milestones related to attachment, self-regulation, and engagement in early relationships."
-        },
-        "domain_details": {
-            "type": "bullet_points",
-            "content": []
-        },
-        "patient_assessment": {
-            "type": "paragraph",
-            "content": "Sabrina received a scaled score of 9 and a standard score of 90 on the Social-Emotional domain, placing her in the average range and reflecting approximately a 10% delay relative to her chronological age of 10 months. According to caregiver report, Sabrina engages with familiar caregivers but displays hesitation in novel social settings. These observations suggest potential support in fostering social engagement and adaptive interaction skills within various environments."
-        }
-    },
-    "adaptive_behavior": {
-        "header": {
-            "type": "header",
-            "content": "Adaptive Behavior"
-        },
-        "domain_summary": {
-            "type": "paragraph",
-            "content": "The Adaptive Behavior Scale asks caregivers to assess their child's ability to adapt to various demands of normal daily living and become more independent."
-        },
-        "domain_details": {
-            "type": "bullet_points",
-            "content": []
-        },
-        "patient_assessment": {
-            "type": "paragraph",
-            "content": "Sabrina's adaptive functioning was assessed through caregiver report using the Bayley-4 Adaptive Behavior Scales. Her Adaptive Behavior Composite (ADBE) score was 85, which places her performance in the below average range and reflects a 15% delay compared to her chronological age."
-        },
-        "receptive_communication": {
-            "type": "paragraph",
-            "content": "Sabrina earned a scaled score of 9, with an age equivalent of 9 months, reflecting a 10% delay. She consistently recognizes and responds to familiar voices and can follow simple instructions."
-        },
-        "expressive_communication": {
-            "type": "paragraph",
-            "content": "She received a scaled score of 7, with an age equivalent of 7 months, indicating a 30% delay. Sabrina primarily uses single sounds and gestures to communicate needs."
-        },
-        "personal_self_care": {
-            "type": "paragraph",
-            "content": "In this domain, Sabrina received a scaled score of 8, with an age equivalent of 8 months, reflecting a 20% delay. She shows emerging self-feeding skills but requires assistance with most self-care activities."
-        },
-        "interpersonal_relationships": {
-            "type": "paragraph",
-            "content": "Sabrina earned a scaled score of 8, with an age equivalent of 8 months, reflecting a 20% delay. She is able to express basic needs and emotions but may need support with more complex social interactions."
-        },
-        "play_and_leisure": {
-            "type": "paragraph",
-            "content": "In this domain, Sabrina received a scaled score of 7, with an age equivalent of 7 months, indicating a 30% delay. She engages in simple solitary play and shows limited interest in interactive games."
+            "content": "Sabrina demonstrates appropriate gross motor skills, including 'walks series: without support' and 'walks backward', underscoring her solid foundational abilities in maintaining balance and coordination. Moreover, her proficiency in the 'Coordinated Run' and 'Kicks Ball' tasks highlight her ability to integrate balance with dynamic movements, crucial for tasks like running and playing. However, she shows limitations on more advanced tasks such as 'balancing on each foot without support', scoring '0', indicating potential difficulties with stationary balance tasks. Intervention efforts should concentrate on enhancing her stability and control, potentially affecting her ability to engage in varied physical activities such as play or sports, thereby enhancing her functional independence and safety."
         }
     }
 }
