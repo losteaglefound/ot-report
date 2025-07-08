@@ -1,0 +1,35 @@
+{
+    "cognitive": [
+        {
+            "item_no": "1",
+            "item_description": "Calms When Picked Up",
+            "material": "Timer",
+            "scoring_criteria": {
+                "2": "Consistently calms within 30 seconds when picked up and remains calm. | Almost every time",
+                "1": "Inconsistently calms within 30 seconds or briefly calms when picked up but does not remain calm. | Some of the time",
+                "0": "Does not calm when picked up. | None of the time"
+            }
+        },
+        {
+            "item_no": "2",
+            "item_description": "Looks at Object",
+            "material": "Ring with string, small ball, spoon, other small object of interest, timer",
+            "scoring_criteria": {
+                "2": "Looks continuously at object for 7 to 10 seconds",
+                "1": "Looks continuously at object for 3 to 6 seconds or looks intermittently at object during the 3 to 6 seconds",
+                "0": "Looks continuously at object for 0 to 2 seconds or does not look at object"
+            }
+        },
+        {
+            "item_no": "3",
+            "item_description": "Habituates to Rattle",
+            "material": "Rattle",
+            "scoring_criteria": {
+                "2": "Habituates (i.e., displays a decrease in orienting response) within the first 3 trials on either side",
+                "1": "Habituates during the fourth or fifth trial on either side",
+                "0": "Does not display orienting response or does not habituate during the fifth trial on either side"
+            }
+        }
+    ],
+    "note": "This is a sample showing proper structure. Complete extraction requires manual review of OCR text."
+}
