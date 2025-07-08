@@ -1,562 +1,410 @@
-import logging
-import os
-from typing import Dict, Any, List, Optional
-from pathlib import Path
+"""
+Advanced PDF Detector
+
+This module provides advanced detection capabilities to determine whether a PDF
+is text-based or image-based with high accuracy.
+"""
+
+from dataclasses import dataclass
+from enum import Enum
 import io
+from pathlib import Path
+from typing import Dict, List, Optional, Tuple, Union
 
-# PDF processing imports
-try:
-    import fitz  # PyMuPDF
-    PYMUPDF_AVAILABLE = True
-except ImportError:
-    PYMUPDF_AVAILABLE = False
+import fitz  # PyMuPDF
 
-try:
-    import pdfplumber
-    PDFPLUMBER_AVAILABLE = True
-except ImportError:
-    PDFPLUMBER_AVAILABLE = False
-
-try:
-    import PyPDF2
-    PYPDF2_AVAILABLE = True
-except ImportError:
-    PYPDF2_AVAILABLE = False
-
-from PIL import Image
+from ..common.logging import logging
 
 
-class PDFDetector:
-    """Advanced PDF detection utility to determine if PDF is text-based or image-based"""
+class PDFType(Enum):
+    """PDF type enumeration"""
+    TEXT_BASED = "text_based"
+    IMAGE_BASED = "image_based"
+    MIXED = "mixed"
+    EMPTY = "empty"
+    UNKNOWN = "unknown"
+
+
+@dataclass
+class PDFAnalysisResult:
+    """Result of PDF analysis"""
+    pdf_type: PDFType
+    confidence: float
+    total_pages: int
+    text_pages: int
+    image_pages: int
+    mixed_pages: int
+    empty_pages: int
+    text_character_count: int
+    image_count: int
+    text_to_image_ratio: float
+    has_extractable_text: bool
+    has_embedded_images: bool
+    has_vector_graphics: bool
+    average_text_density: float
+    image_coverage_percentage: float
+    font_count: int
+    details: Dict[str, any]
+
+
+class AdvancedPDFDetector:
+    """Advanced PDF detector for determining PDF content type"""
     
     def __init__(self):
         self.logger = logging.getLogger(f"{__name__}.{self.__class__.__name__}")
-        self.logger.info("🔍 Initializing PDF Detector...")
         
-        # A4 dimensions in points (72 points per inch)
-        self.A4_WIDTH = 595.276  # 8.27 inches
-        self.A4_HEIGHT = 841.890  # 11.69 inches
-        self.TOLERANCE = 10  # tolerance for A4 detection
+        # Detection thresholds
+        self.TEXT_DENSITY_THRESHOLD = 0.1  # Characters per square unit
+        self.IMAGE_COVERAGE_THRESHOLD = 0.7  # 70% image coverage
+        self.TEXT_LENGTH_THRESHOLD = 50  # Minimum characters for text detection
+        self.CONFIDENCE_THRESHOLD = 0.8
         
-        # Thresholds for detection
-        self.TEXT_DENSITY_THRESHOLD = 50  # characters per page minimum for text-based
-        self.IMAGE_COVERAGE_THRESHOLD = 0.3  # 30% of page covered by images
-        self.MIN_IMAGE_SIZE = 1000  # minimum image size in bytes
-        
-        self.logger.info("✅ PDF Detector initialized successfully")
-    
-    async def detect_pdf_type(self, file_path: str) -> Dict[str, Any]:
+    def detect_pdf_type(self, pdf_path: Union[str, Path]) -> PDFAnalysisResult:
         """
-        Comprehensive PDF type detection
+        Detect whether a PDF is text-based or image-based
         
+        Args:
+            pdf_path: Path to PDF file
+            
         Returns:
-            Dict containing:
-            - pdf_type: 'text_based', 'image_based', or 'mixed'
-            - confidence: 0.0 to 1.0
-            - analysis: detailed analysis results
-            - recommendation: processing recommendation
+            PDFAnalysisResult with detection results
         """
-        self.logger.info(f"🔍 Detecting PDF type: {os.path.basename(file_path)}")
-        
-        if not os.path.exists(file_path):
-            raise FileNotFoundError(f"PDF file not found: {file_path}")
-        
-        # Get comprehensive analysis
-        analysis = await self._analyze_pdf_comprehensive(file_path)
-        
-        # Determine PDF type based on analysis
-        pdf_type, confidence = self._determine_pdf_type(analysis)
-        
-        result = {
-            "pdf_type": pdf_type,
-            "confidence": confidence,
-            "file_path": file_path,
-            "analysis": analysis,
-            "recommendation": self._get_processing_recommendation(pdf_type, analysis),
-            "detected_at": "now"
-        }
-        
-        self.logger.info(f"✅ Detection complete: {pdf_type} (confidence: {confidence:.2f})")
-        return result
-    
-    async def _analyze_pdf_comprehensive(self, file_path: str) -> Dict[str, Any]:
-        """Comprehensive PDF analysis using multiple detection methods"""
-        analysis = {
-            "total_pages": 0,
-            "text_analysis": {
-                "total_chars": 0,
-                "avg_chars_per_page": 0,
-                "extractable_text_ratio": 0,
-                "pages_with_text": 0
-            },
-            "image_analysis": {
-                "total_images": 0,
-                "significant_images": 0,
-                "image_coverage_ratio": 0,
-                "pages_with_images": 0,
-                "large_images": 0
-            },
-            "structure_analysis": {
-                "has_a4_pages": False,
-                "mixed_page_sizes": False,
-                "non_standard_layout": False
-            },
-            "quality_metrics": {
-                "text_extraction_success": 0,
-                "image_detection_success": 0,
-                "overall_quality": 0
-            }
-        }
+        self.logger.info(f"🔍 Analyzing PDF: {pdf_path}")
         
         try:
-            # Use PyMuPDF for most comprehensive analysis
-            if PYMUPDF_AVAILABLE:
-                analysis.update(await self._analyze_with_pymupdf(file_path))
-            # Fallback to pdfplumber
-            elif PDFPLUMBER_AVAILABLE:
-                analysis.update(await self._analyze_with_pdfplumber(file_path))
-            # Final fallback to PyPDF2
-            elif PYPDF2_AVAILABLE:
-                analysis.update(await self._analyze_with_pypdf2(file_path))
-            else:
-                raise RuntimeError("No PDF processing library available")
+            pdf_path = Path(pdf_path)
+            if not pdf_path.exists():
+                return self._create_error_result("PDF file not found")
             
-            # Calculate derived metrics
-            self._calculate_derived_metrics(analysis)
+            # Open PDF with PyMuPDF
+            doc = fitz.open(str(pdf_path))
             
-        except Exception as e:
-            self.logger.error(f"❌ Error in comprehensive analysis: {e}")
-            analysis["error"] = str(e)
-        
-        return analysis
-    
-    async def _analyze_with_pymupdf(self, file_path: str) -> Dict[str, Any]:
-        """Analyze PDF using PyMuPDF (most comprehensive)"""
-        analysis = {
-            "total_pages": 0,
-            "text_analysis": {"total_chars": 0, "pages_with_text": 0},
-            "image_analysis": {"total_images": 0, "significant_images": 0, "pages_with_images": 0, "large_images": 0},
-            "structure_analysis": {"has_a4_pages": False, "mixed_page_sizes": False},
-            "page_details": []
-        }
-        
-        try:
-            doc = fitz.open(file_path)
-            analysis["total_pages"] = len(doc)
+            if doc.page_count == 0:
+                return self._create_result(PDFType.EMPTY, 1.0, 0, {})
             
-            page_sizes = set()
-            pages_with_text = 0
-            pages_with_images = 0
-            total_chars = 0
+            # Analyze all pages
+            analysis_data = self._analyze_all_pages(doc)
             
-            for page_num in range(len(doc)):
-                page = doc.load_page(page_num)
-                page_detail = {
-                    "page_number": page_num + 1,
-                    "width": page.rect.width,
-                    "height": page.rect.height,
-                    "text_chars": 0,
-                    "image_count": 0,
-                    "large_image_count": 0
-                }
-                
-                # Analyze text
-                text_content = page.get_text()
-                if text_content and text_content.strip():
-                    char_count = len(text_content.strip())
-                    page_detail["text_chars"] = char_count
-                    total_chars += char_count
-                    if char_count > self.TEXT_DENSITY_THRESHOLD:
-                        pages_with_text += 1
-                
-                # Analyze images
-                image_list = page.get_images(full=True)
-                page_detail["image_count"] = len(image_list)
-                
-                if image_list:
-                    pages_with_images += 1
-                    for img in image_list:
-                        try:
-                            xref = img[0]
-                            base_image = doc.extract_image(xref)
-                            image_bytes = base_image["image"]
-                            
-                            # Check if image is significant
-                            if len(image_bytes) > self.MIN_IMAGE_SIZE:
-                                analysis["image_analysis"]["significant_images"] += 1
-                                
-                                # Check image dimensions
-                                img_pil = Image.open(io.BytesIO(image_bytes))
-                                img_width, img_height = img_pil.size
-                                
-                                # Consider large images (> 25% of page area)
-                                page_area = page.rect.width * page.rect.height
-                                img_area = img_width * img_height
-                                if img_area > (page_area * 0.25):
-                                    page_detail["large_image_count"] += 1
-                                    analysis["image_analysis"]["large_images"] += 1
-                        
-                        except Exception as e:
-                            self.logger.warning(f"⚠️ Error analyzing image on page {page_num + 1}: {e}")
-                
-                # Track page sizes
-                page_sizes.add((round(page.rect.width), round(page.rect.height)))
-                
-                # Check if A4
-                is_a4 = self._is_a4_page(page.rect.width, page.rect.height)
-                page_detail["is_a4"] = is_a4
-                
-                analysis["page_details"].append(page_detail)
+            # Determine PDF type based on analysis
+            pdf_type, confidence = self._determine_pdf_type(analysis_data)
             
-            # Update analysis
-            analysis["text_analysis"]["total_chars"] = total_chars
-            analysis["text_analysis"]["pages_with_text"] = pages_with_text
-            analysis["image_analysis"]["total_images"] = sum(p["image_count"] for p in analysis["page_details"])
-            analysis["image_analysis"]["pages_with_images"] = pages_with_images
-            analysis["structure_analysis"]["has_a4_pages"] = any(p["is_a4"] for p in analysis["page_details"])
-            analysis["structure_analysis"]["mixed_page_sizes"] = len(page_sizes) > 1
+            # Create detailed result
+            result = self._create_detailed_result(pdf_type, confidence, analysis_data)
             
             doc.close()
             
+            self.logger.info(f"✅ PDF analysis complete: {pdf_type.value} (confidence: {confidence:.2f})")
+            return result
+            
         except Exception as e:
-            self.logger.error(f"❌ PyMuPDF analysis failed: {e}")
-            raise
-        
-        return analysis
+            self.logger.error(f"❌ PDF analysis failed: {str(e)}")
+            return self._create_error_result(str(e))
     
-    async def _analyze_with_pdfplumber(self, file_path: str) -> Dict[str, Any]:
-        """Analyze PDF using pdfplumber (fallback)"""
-        analysis = {
-            "total_pages": 0,
-            "text_analysis": {"total_chars": 0, "pages_with_text": 0},
-            "image_analysis": {"total_images": 0, "significant_images": 0, "pages_with_images": 0, "large_images": 0},
-            "structure_analysis": {"has_a4_pages": False, "mixed_page_sizes": False},
-            "page_details": []
+    def _analyze_all_pages(self, doc: fitz.Document) -> Dict[str, any]:
+        """Analyze all pages in the PDF"""
+        
+        analysis_data = {
+            "total_pages": doc.page_count,
+            "pages": [],
+            "text_pages": 0,
+            "image_pages": 0,
+            "mixed_pages": 0,
+            "empty_pages": 0,
+            "total_text_chars": 0,
+            "total_images": 0,
+            "total_text_area": 0,
+            "total_image_area": 0,
+            "total_page_area": 0,
+            "fonts": set(),
+            "has_vector_graphics": False
         }
         
-        try:
-            with pdfplumber.open(file_path) as pdf:
-                analysis["total_pages"] = len(pdf.pages)
-                
-                page_sizes = set()
-                pages_with_text = 0
-                pages_with_images = 0
-                total_chars = 0
-                
-                for page_num, page in enumerate(pdf.pages):
-                    page_detail = {
-                        "page_number": page_num + 1,
-                        "width": page.width,
-                        "height": page.height,
-                        "text_chars": 0,
-                        "image_count": 0,
-                        "large_image_count": 0
-                    }
-                    
-                    # Analyze text
-                    text_content = page.extract_text()
-                    if text_content and text_content.strip():
-                        char_count = len(text_content.strip())
-                        page_detail["text_chars"] = char_count
-                        total_chars += char_count
-                        if char_count > self.TEXT_DENSITY_THRESHOLD:
-                            pages_with_text += 1
-                    
-                    # Analyze images (basic with pdfplumber)
-                    try:
-                        images = page.images
-                        if images:
-                            page_detail["image_count"] = len(images)
-                            pages_with_images += 1
-                            # Assume all detected images are significant (pdfplumber limitation)
-                            analysis["image_analysis"]["significant_images"] += len(images)
-                    except Exception as e:
-                        self.logger.warning(f"⚠️ Error detecting images on page {page_num + 1}: {e}")
-                    
-                    # Track page sizes
-                    page_sizes.add((round(page.width), round(page.height)))
-                    
-                    # Check if A4
-                    is_a4 = self._is_a4_page(page.width, page.height)
-                    page_detail["is_a4"] = is_a4
-                    
-                    analysis["page_details"].append(page_detail)
-                
-                # Update analysis
-                analysis["text_analysis"]["total_chars"] = total_chars
-                analysis["text_analysis"]["pages_with_text"] = pages_with_text
-                analysis["image_analysis"]["total_images"] = sum(p["image_count"] for p in analysis["page_details"])
-                analysis["image_analysis"]["pages_with_images"] = pages_with_images
-                analysis["structure_analysis"]["has_a4_pages"] = any(p["is_a4"] for p in analysis["page_details"])
-                analysis["structure_analysis"]["mixed_page_sizes"] = len(page_sizes) > 1
-                
-        except Exception as e:
-            self.logger.error(f"❌ pdfplumber analysis failed: {e}")
-            raise
-        
-        return analysis
-    
-    async def _analyze_with_pypdf2(self, file_path: str) -> Dict[str, Any]:
-        """Analyze PDF using PyPDF2 (basic fallback)"""
-        analysis = {
-            "total_pages": 0,
-            "text_analysis": {"total_chars": 0, "pages_with_text": 0},
-            "image_analysis": {"total_images": 0, "significant_images": 0, "pages_with_images": 0, "large_images": 0},
-            "structure_analysis": {"has_a4_pages": False, "mixed_page_sizes": False},
-            "page_details": []
-        }
-        
-        try:
-            with open(file_path, 'rb') as file:
-                pdf_reader = PyPDF2.PdfReader(file)
-                analysis["total_pages"] = len(pdf_reader.pages)
-                
-                pages_with_text = 0
-                total_chars = 0
-                
-                for page_num, page in enumerate(pdf_reader.pages):
-                    page_detail = {
-                        "page_number": page_num + 1,
-                        "width": 0,  # PyPDF2 doesn't easily provide dimensions
-                        "height": 0,
-                        "text_chars": 0,
-                        "image_count": 0,  # PyPDF2 has limited image detection
-                        "large_image_count": 0
-                    }
-                    
-                    # Analyze text
-                    text_content = page.extract_text()
-                    if text_content and text_content.strip():
-                        char_count = len(text_content.strip())
-                        page_detail["text_chars"] = char_count
-                        total_chars += char_count
-                        if char_count > self.TEXT_DENSITY_THRESHOLD:
-                            pages_with_text += 1
-                    
-                    analysis["page_details"].append(page_detail)
-                
-                # Update analysis
-                analysis["text_analysis"]["total_chars"] = total_chars
-                analysis["text_analysis"]["pages_with_text"] = pages_with_text
-                
-        except Exception as e:
-            self.logger.error(f"❌ PyPDF2 analysis failed: {e}")
-            raise
-        
-        return analysis
-    
-    def _is_a4_page(self, width: float, height: float) -> bool:
-        """Check if page dimensions match A4 (portrait or landscape)"""
-        is_a4_portrait = (
-            abs(width - self.A4_WIDTH) <= self.TOLERANCE and 
-            abs(height - self.A4_HEIGHT) <= self.TOLERANCE
-        )
-        is_a4_landscape = (
-            abs(width - self.A4_HEIGHT) <= self.TOLERANCE and 
-            abs(height - self.A4_WIDTH) <= self.TOLERANCE
-        )
-        return is_a4_portrait or is_a4_landscape
-    
-    def _calculate_derived_metrics(self, analysis: Dict[str, Any]) -> None:
-        """Calculate derived metrics from analysis"""
-        total_pages = analysis["total_pages"]
-        
-        if total_pages > 0:
-            # Text metrics
-            analysis["text_analysis"]["avg_chars_per_page"] = analysis["text_analysis"]["total_chars"] / total_pages
-            analysis["text_analysis"]["extractable_text_ratio"] = analysis["text_analysis"]["pages_with_text"] / total_pages
+        for page_num in range(doc.page_count):
+            page = doc[page_num]
+            page_analysis = self._analyze_page(page, page_num)
+            analysis_data["pages"].append(page_analysis)
             
-            # Image metrics
-            analysis["image_analysis"]["image_coverage_ratio"] = analysis["image_analysis"]["pages_with_images"] / total_pages
-            
-            # Quality metrics
-            analysis["quality_metrics"]["text_extraction_success"] = min(1.0, analysis["text_analysis"]["total_chars"] / (total_pages * 100))
-            analysis["quality_metrics"]["image_detection_success"] = 1.0 if analysis["image_analysis"]["total_images"] > 0 else 0.0
-            analysis["quality_metrics"]["overall_quality"] = (
-                analysis["quality_metrics"]["text_extraction_success"] + 
-                analysis["quality_metrics"]["image_detection_success"]
-            ) / 2
-    
-    def _determine_pdf_type(self, analysis: Dict[str, Any]) -> tuple[str, float]:
-        """Determine PDF type based on analysis with confidence score"""
-        
-        # Extract key metrics
-        avg_chars_per_page = analysis["text_analysis"]["avg_chars_per_page"]
-        extractable_text_ratio = analysis["text_analysis"]["extractable_text_ratio"]
-        image_coverage_ratio = analysis["image_analysis"]["image_coverage_ratio"]
-        significant_images = analysis["image_analysis"]["significant_images"]
-        large_images = analysis["image_analysis"]["large_images"]
-        total_pages = analysis["total_pages"]
-        
-        # Decision logic with confidence scoring
-        confidence_factors = []
-        
-        # Factor 1: Text density analysis
-        if avg_chars_per_page > 500:  # High text density
-            text_score = 1.0
-            confidence_factors.append(("high_text_density", 0.9))
-        elif avg_chars_per_page > 200:  # Medium text density
-            text_score = 0.7
-            confidence_factors.append(("medium_text_density", 0.7))
-        elif avg_chars_per_page > 50:  # Low text density
-            text_score = 0.3
-            confidence_factors.append(("low_text_density", 0.5))
-        else:  # Very low text density
-            text_score = 0.0
-            confidence_factors.append(("very_low_text_density", 0.8))
-        
-        # Factor 2: Image analysis
-        if significant_images > (total_pages * 0.5):  # Many significant images
-            image_score = 1.0
-            confidence_factors.append(("many_images", 0.9))
-        elif significant_images > 0:  # Some images
-            image_score = 0.5
-            confidence_factors.append(("some_images", 0.7))
-        else:  # No images
-            image_score = 0.0
-            confidence_factors.append(("no_images", 0.9))
-        
-        # Factor 3: Large image analysis
-        if large_images > (total_pages * 0.3):  # Many large images
-            large_image_score = 1.0
-            confidence_factors.append(("many_large_images", 0.9))
-        elif large_images > 0:  # Some large images
-            large_image_score = 0.5
-            confidence_factors.append(("some_large_images", 0.7))
-        else:  # No large images
-            large_image_score = 0.0
-            confidence_factors.append(("no_large_images", 0.8))
-        
-        # Factor 4: Text extraction success ratio
-        if extractable_text_ratio > 0.8:  # High text extraction success
-            extraction_score = 1.0
-            confidence_factors.append(("high_extraction_success", 0.9))
-        elif extractable_text_ratio > 0.5:  # Medium text extraction success
-            extraction_score = 0.7
-            confidence_factors.append(("medium_extraction_success", 0.7))
-        elif extractable_text_ratio > 0.2:  # Low text extraction success
-            extraction_score = 0.3
-            confidence_factors.append(("low_extraction_success", 0.6))
-        else:  # Very low text extraction success
-            extraction_score = 0.0
-            confidence_factors.append(("very_low_extraction_success", 0.8))
-        
-        # Decision matrix
-        text_weight = (text_score + extraction_score) / 2
-        image_weight = (image_score + large_image_score) / 2
-        
-        # Determine type
-        if text_weight > 0.7 and image_weight < 0.3:
-            pdf_type = "text_based"
-            base_confidence = 0.8
-        elif image_weight > 0.6 and text_weight < 0.4:
-            pdf_type = "image_based"
-            base_confidence = 0.8
-        elif text_weight > 0.4 and image_weight > 0.4:
-            pdf_type = "mixed"
-            base_confidence = 0.7
-        elif text_weight < 0.3 and image_weight < 0.3:
-            # Uncertain case - lean towards image_based for safety
-            pdf_type = "image_based"
-            base_confidence = 0.5
-        else:
-            # Default case
-            if text_weight > image_weight:
-                pdf_type = "text_based"
-                base_confidence = 0.6
+            # Aggregate data
+            if page_analysis["type"] == "text":
+                analysis_data["text_pages"] += 1
+            elif page_analysis["type"] == "image":
+                analysis_data["image_pages"] += 1
+            elif page_analysis["type"] == "mixed":
+                analysis_data["mixed_pages"] += 1
             else:
-                pdf_type = "image_based"
-                base_confidence = 0.6
+                analysis_data["empty_pages"] += 1
+            
+            analysis_data["total_text_chars"] += page_analysis["text_chars"]
+            analysis_data["total_images"] += page_analysis["image_count"]
+            analysis_data["total_text_area"] += page_analysis["text_area"]
+            analysis_data["total_image_area"] += page_analysis["image_area"]
+            analysis_data["total_page_area"] += page_analysis["page_area"]
+            analysis_data["fonts"].update(page_analysis["fonts"])
+            
+            if page_analysis["has_vector_graphics"]:
+                analysis_data["has_vector_graphics"] = True
         
-        # Adjust confidence based on factors
-        confidence_adjustment = sum(cf[1] for cf in confidence_factors) / len(confidence_factors)
-        final_confidence = (base_confidence + confidence_adjustment) / 2
-        
-        # Cap confidence at 1.0
-        final_confidence = min(1.0, final_confidence)
-        
-        return pdf_type, final_confidence
+        return analysis_data
     
-    def _get_processing_recommendation(self, pdf_type: str, analysis: Dict[str, Any]) -> Dict[str, Any]:
-        """Get processing recommendation based on PDF type and analysis"""
+    def _analyze_page(self, page: fitz.Page, page_num: int) -> Dict[str, any]:
+        """Analyze a single page"""
         
-        if pdf_type == "text_based":
-            return {
-                "primary_method": "text_extraction",
-                "fallback_method": "ocr_if_needed",
-                "expected_quality": "high",
-                "processing_time": "fast",
-                "notes": "Standard text extraction should work well"
-            }
+        page_rect = page.rect
+        page_area = page_rect.width * page_rect.height
         
-        elif pdf_type == "image_based":
-            return {
-                "primary_method": "ocr_vision",
-                "fallback_method": "text_extraction_attempt",
-                "expected_quality": "medium_to_high",
-                "processing_time": "slow",
-                "notes": "Use OCR with vision model for best results"
-            }
+        # Extract text
+        text = page.get_text()
+        text_chars = len(text.strip())
         
-        else:  # mixed
-            return {
-                "primary_method": "hybrid_approach",
-                "fallback_method": "ocr_vision",
-                "expected_quality": "medium",
-                "processing_time": "medium",
-                "notes": "Combine text extraction with OCR for images"
-            }
-    
-    async def quick_check(self, file_path: str) -> Dict[str, Any]:
-        """Quick check for PDF type (faster, less comprehensive)"""
-        self.logger.info(f"⚡ Quick PDF check: {os.path.basename(file_path)}")
+        # Get text blocks for area calculation
+        text_blocks = page.get_text("dict")
+        text_area = self._calculate_text_area(text_blocks)
         
-        result = {
-            "has_images": False,
-            "has_extractable_text": False,
-            "total_pages": 0,
-            "quick_type": "unknown"
+        # Get images
+        images = page.get_images(full=True)
+        image_count = len(images)
+        image_area = self._calculate_image_area(page, images)
+        
+        # Check for vector graphics
+        has_vector_graphics = self._has_vector_graphics(page)
+        
+        # Extract fonts
+        fonts = self._extract_fonts(text_blocks)
+        
+        # Calculate text density
+        text_density = text_chars / page_area if page_area > 0 else 0
+        
+        # Determine page type
+        page_type = self._determine_page_type(
+            text_chars, image_count, text_area, image_area, page_area
+        )
+        
+        return {
+            "page_num": page_num,
+            "type": page_type,
+            "text_chars": text_chars,
+            "image_count": image_count,
+            "text_area": text_area,
+            "image_area": image_area,
+            "page_area": page_area,
+            "text_density": text_density,
+            "image_coverage": image_area / page_area if page_area > 0 else 0,
+            "has_vector_graphics": has_vector_graphics,
+            "fonts": fonts,
+            "text_sample": text[:100] if text else ""
         }
+    
+    def _calculate_text_area(self, text_blocks: Dict) -> float:
+        """Calculate total area covered by text"""
+        total_area = 0
         
         try:
-            if PYMUPDF_AVAILABLE:
-                doc = fitz.open(file_path)
-                result["total_pages"] = len(doc)
-                
-                # Check first few pages for images and text
-                pages_to_check = min(3, len(doc))
-                has_images = False
-                has_text = False
-                
-                for page_num in range(pages_to_check):
-                    page = doc.load_page(page_num)
-                    
-                    # Quick image check
-                    if page.get_images():
-                        has_images = True
-                    
-                    # Quick text check
-                    text = page.get_text()
-                    if text and len(text.strip()) > 50:
-                        has_text = True
-                
-                result["has_images"] = has_images
-                result["has_extractable_text"] = has_text
-                
-                # Quick type determination
-                if has_text and not has_images:
-                    result["quick_type"] = "text_based"
-                elif has_images and not has_text:
-                    result["quick_type"] = "image_based"
-                elif has_text and has_images:
-                    result["quick_type"] = "mixed"
-                else:
-                    result["quick_type"] = "unknown"
-                
-                doc.close()
-                
+            for block in text_blocks.get("blocks", []):
+                if block.get("type") == 0:  # Text block
+                    bbox = block.get("bbox", [0, 0, 0, 0])
+                    width = bbox[2] - bbox[0]
+                    height = bbox[3] - bbox[1]
+                    total_area += width * height
         except Exception as e:
-            self.logger.error(f"❌ Quick check failed: {e}")
-            result["error"] = str(e)
+            self.logger.warning(f"Error calculating text area: {e}")
         
-        return result 
+        return total_area
+    
+    def _calculate_image_area(self, page: fitz.Page, images: List) -> float:
+        """Calculate total area covered by images"""
+        total_area = 0
+        
+        try:
+            for img_index, img in enumerate(images):
+                # Get image rectangle
+                img_rects = page.get_image_rects(img[0])
+                for rect in img_rects:
+                    total_area += rect.width * rect.height
+        except Exception as e:
+            self.logger.warning(f"Error calculating image area: {e}")
+        
+        return total_area
+    
+    def _has_vector_graphics(self, page: fitz.Page) -> bool:
+        """Check if page has vector graphics"""
+        try:
+            # Check for drawings/paths
+            drawings = page.get_drawings()
+            return len(drawings) > 0
+        except Exception:
+            return False
+    
+    def _extract_fonts(self, text_blocks: Dict) -> set:
+        """Extract font names from text blocks"""
+        fonts = set()
+        
+        try:
+            for block in text_blocks.get("blocks", []):
+                if block.get("type") == 0:  # Text block
+                    for line in block.get("lines", []):
+                        for span in line.get("spans", []):
+                            font_name = span.get("font", "")
+                            if font_name:
+                                fonts.add(font_name)
+        except Exception as e:
+            self.logger.warning(f"Error extracting fonts: {e}")
+        
+        return fonts
+    
+    def _determine_page_type(self, text_chars: int, image_count: int, 
+                           text_area: float, image_area: float, page_area: float) -> str:
+        """Determine the type of a single page"""
+        
+        # Empty page
+        if text_chars < 5 and image_count == 0:
+            return "empty"
+        
+        # Calculate coverage ratios
+        text_coverage = text_area / page_area if page_area > 0 else 0
+        image_coverage = image_area / page_area if page_area > 0 else 0
+        
+        # Text-based page
+        if (text_chars >= self.TEXT_LENGTH_THRESHOLD and 
+            text_coverage > 0.1 and 
+            image_coverage < 0.3):
+            return "text"
+        
+        # Image-based page
+        if (image_coverage > self.IMAGE_COVERAGE_THRESHOLD or 
+            (image_count > 0 and text_chars < self.TEXT_LENGTH_THRESHOLD)):
+            return "image"
+        
+        # Mixed page
+        if text_chars >= self.TEXT_LENGTH_THRESHOLD and image_count > 0:
+            return "mixed"
+        
+        # Default to image if has images, text if has text
+        if image_count > 0:
+            return "image"
+        elif text_chars > 0:
+            return "text"
+        
+        return "empty"
+    
+    def _determine_pdf_type(self, analysis_data: Dict) -> Tuple[PDFType, float]:
+        """Determine overall PDF type and confidence"""
+        
+        total_pages = analysis_data["total_pages"]
+        text_pages = analysis_data["text_pages"]
+        image_pages = analysis_data["image_pages"]
+        mixed_pages = analysis_data["mixed_pages"]
+        empty_pages = analysis_data["empty_pages"]
+        
+        # Calculate ratios
+        text_ratio = text_pages / total_pages if total_pages > 0 else 0
+        image_ratio = image_pages / total_pages if total_pages > 0 else 0
+        mixed_ratio = mixed_pages / total_pages if total_pages > 0 else 0
+        
+        # Calculate text/image content ratio
+        total_chars = analysis_data["total_text_chars"]
+        total_images = analysis_data["total_images"]
+        
+        # Determine type based on dominant content
+        if text_ratio >= 0.8:
+            return PDFType.TEXT_BASED, min(0.95, 0.5 + text_ratio * 0.5)
+        elif image_ratio >= 0.8:
+            return PDFType.IMAGE_BASED, min(0.95, 0.5 + image_ratio * 0.5)
+        elif mixed_ratio >= 0.6:
+            return PDFType.MIXED, min(0.9, 0.5 + mixed_ratio * 0.4)
+        elif total_chars >= 1000 and total_images == 0:
+            return PDFType.TEXT_BASED, 0.85
+        elif total_images > 0 and total_chars < 100:
+            return PDFType.IMAGE_BASED, 0.85
+        elif empty_pages == total_pages:
+            return PDFType.EMPTY, 0.95
+        else:
+            # Use additional heuristics
+            if total_chars > total_images * 100:
+                return PDFType.TEXT_BASED, 0.7
+            elif total_images > 0:
+                return PDFType.IMAGE_BASED, 0.7
+            else:
+                return PDFType.UNKNOWN, 0.5
+    
+    def _create_detailed_result(self, pdf_type: PDFType, confidence: float, 
+                              analysis_data: Dict) -> PDFAnalysisResult:
+        """Create detailed analysis result"""
+        
+        total_area = analysis_data["total_page_area"]
+        text_area = analysis_data["total_text_area"]
+        image_area = analysis_data["total_image_area"]
+        
+        return PDFAnalysisResult(
+            pdf_type=pdf_type,
+            confidence=confidence,
+            total_pages=analysis_data["total_pages"],
+            text_pages=analysis_data["text_pages"],
+            image_pages=analysis_data["image_pages"],
+            mixed_pages=analysis_data["mixed_pages"],
+            empty_pages=analysis_data["empty_pages"],
+            text_character_count=analysis_data["total_text_chars"],
+            image_count=analysis_data["total_images"],
+            text_to_image_ratio=analysis_data["total_text_chars"] / max(1, analysis_data["total_images"]),
+            has_extractable_text=analysis_data["total_text_chars"] > 0,
+            has_embedded_images=analysis_data["total_images"] > 0,
+            has_vector_graphics=analysis_data["has_vector_graphics"],
+            average_text_density=analysis_data["total_text_chars"] / max(1, total_area),
+            image_coverage_percentage=(image_area / max(1, total_area)) * 100,
+            font_count=len(analysis_data["fonts"]),
+            details={
+                "fonts": list(analysis_data["fonts"]),
+                "pages": analysis_data["pages"],
+                "text_area": text_area,
+                "image_area": image_area,
+                "total_area": total_area
+            }
+        )
+    
+    def _create_result(self, pdf_type: PDFType, confidence: float, 
+                      total_pages: int, details: Dict) -> PDFAnalysisResult:
+        """Create basic result"""
+        return PDFAnalysisResult(
+            pdf_type=pdf_type,
+            confidence=confidence,
+            total_pages=total_pages,
+            text_pages=0,
+            image_pages=0,
+            mixed_pages=0,
+            empty_pages=0,
+            text_character_count=0,
+            image_count=0,
+            text_to_image_ratio=0,
+            has_extractable_text=False,
+            has_embedded_images=False,
+            has_vector_graphics=False,
+            average_text_density=0,
+            image_coverage_percentage=0,
+            font_count=0,
+            details=details
+        )
+    
+    def _create_error_result(self, error_message: str) -> PDFAnalysisResult:
+        """Create error result"""
+        return PDFAnalysisResult(
+            pdf_type=PDFType.UNKNOWN,
+            confidence=0.0,
+            total_pages=0,
+            text_pages=0,
+            image_pages=0,
+            mixed_pages=0,
+            empty_pages=0,
+            text_character_count=0,
+            image_count=0,
+            text_to_image_ratio=0,
+            has_extractable_text=False,
+            has_embedded_images=False,
+            has_vector_graphics=False,
+            average_text_density=0,
+            image_coverage_percentage=0,
+            font_count=0,
+            details={"error": error_message}
+        )
+
+
+# Export main classes
+__all__ = ["AdvancedPDFDetector", "PDFType", "PDFAnalysisResult"] 

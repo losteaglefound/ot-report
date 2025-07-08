@@ -1,4 +1,9 @@
-from .pdf_detector import PDFDetector
-from .pdf_processor import UnifiedPDFProcessor
+"""
+Backend utilities package
 
-__all__ = ["PDFDetector", "UnifiedPDFProcessor"]
+This package contains utility modules for the backend services.
+"""
+
+from .pdf_detector import AdvancedPDFDetector, PDFType, PDFAnalysisResult
+
+__all__ = ["AdvancedPDFDetector", "PDFType", "PDFAnalysisResult"]

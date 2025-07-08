@@ -5,7 +5,7 @@ import json
 import re
 
 from backend.prompts import remove_lang_tags
-from .ocr_agent import LangGraphOCRAgent
+# from .ocr_agent import LangGraphOCRAgent
 
 # Shared state keys
 STATE_KEYS = ["prompt", "output", "valid", "json_required", "retry_count"]
