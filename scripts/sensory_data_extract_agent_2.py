@@ -155,7 +155,7 @@ class SensoryProfileExtractor:
 # Example Usage
 if __name__ == "__main__":
     pdf_text = ""
-    with pdfplumber.open("/home/lap-49/Documents/ot-report/assets/inputs/Sensory-Profile-2-Summary-Report_70247631_1751134355067.pdf") as p:
+    with pdfplumber.open("assets/inputs/Sensory-Profile-2-Summary-Report_70247631_1751134355067.pdf") as p:
         for page in p.pages:
             pdf_text += page.extract_text()
 

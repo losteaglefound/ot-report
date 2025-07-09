@@ -52,9 +52,9 @@ from backend.utils.response import format_data_for_pdf, format_bayley_data_for_p
 from backend.langgraph import graph_invoke
 
 
-pdfmetrics.registerFont(TTFont('TimesNewRoman', '/home/lap-49/Downloads/times-new-roman/times.ttf'))
-pdfmetrics.registerFont(TTFont('TimesNewRoman-Bold', '/home/lap-49/Downloads/Times New Roman - Bold.ttf'))
-pdfmetrics.registerFont(TTFont("TimesNewRoman-Italic", "/home/lap-49/Downloads/Times New Roman Italic.ttf"))
+pdfmetrics.registerFont(TTFont('TimesNewRoman', config.PROJECT_DIR / 'assets/fonts/Times New Roman.ttf'))
+pdfmetrics.registerFont(TTFont('TimesNewRoman-Bold', config.PROJECT_DIR / 'assets/fonts/Times New Roman - Bold.ttf'))
+pdfmetrics.registerFont(TTFont("TimesNewRoman-Italic", config.PROJECT_DIR / 'assets/fonts/Times New Roman - Italic.ttf'))
 
 
 class OpenAIEnhancedReportGenerator:

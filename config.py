@@ -23,6 +23,7 @@ BASE_DIR = Path(__file__).resolve().parent
 class Config:
     """Centralized configuration management"""
     BASE_DIR: Path = BASE_DIR
+    PROJECT_DIR: Path = BASE_DIR
     
     def __init__(self):
         self.logger = logging.getLogger(f"{__name__}.{self.__class__.__name__}")

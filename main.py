@@ -268,13 +268,13 @@ async def upload_files(
         # Save uploaded files
         uploaded_files = {}
         files_to_process = {
-            'facesheet': facesheet_file,
-            'bayley4_cognitive': bayley4_cognitive_file,
-            'bayley4_social': bayley4_social_file,
-            'sp2': sp2_file,
-            'chomps': chomps_file,
-            'pedieat': pedieat_file,
-            'clinical_notes': clinical_notes_file
+            'facesheet': facesheet_file if (facesheet_file.filename != "" and facesheet_file.size != 0) else None,
+            'bayley4_cognitive': bayley4_cognitive_file if (bayley4_cognitive_file.filename != ""  and bayley4_cognitive_file.size != 0) else None,
+            'bayley4_social': bayley4_social_file if (bayley4_social_file.filename!= "" or bayley4_social_file.size != 0) else None,
+            'sp2': sp2_file if (sp2_file.filename != "" and sp2_file.size != 0) else None,
+            'chomps': chomps_file if (chomps_file.filename != "" and chomps_file.size != 0) else None,
+            'pedieat': pedieat_file if (pedieat_file.filename != "" and pedieat_file.size != 0) else None,
+            'clinical_notes': clinical_notes_file if (clinical_notes_file.filename != "" and clinical_notes_file.size != 0) else None
         }
         
         for file_type, file in files_to_process.items():
@@ -284,6 +284,8 @@ async def upload_files(
                     f.write(await file.read())
                 uploaded_files[file_type] = file_path
                 logger.info(f"📄 Saved {file_type} file: {file_path}")
+                
+        print(uploaded_files)
         
         # Calculate chronological age
         try:
