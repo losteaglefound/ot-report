@@ -5,9 +5,6 @@ from pathlib import Path
 
 import pdfplumber
 
-from sconfig import config as sconfig
-from config import config as bconfig
-
 
 class BayleyDomainDetectorSocialAdaptive:
     def __init__(self, json_path: str):
@@ -386,91 +383,3 @@ def process_bayley_social_adaptive_assessment(pdf_path: str, json_path: str = "a
     logger.info(f"  - Total: {total_observations} valid observations")
     
     return valid_answers_dict
-
-def main():
-    """Example usage of the BayleyDomainDetectorSocialAdaptive."""
-    # Initialize the detector
-    detector = BayleyDomainDetectorSocialAdaptive("assets/inputs/baylay-4-social-and-adaptive-questioner.json")
-    file_path = sconfig.PROJECT_DIR / "assets/inputs/Bayley-4-Social-Emotional-and-Adaptive-Behavior-Scales-Score-Report_70360653_1751082312974.pdf"
-
-    # Process the PDF
-    valid_answers_dict = process_bayley_social_adaptive_assessment(str(file_path))
-    
-    # Save the valid answers dictionary to a JSON file
-    if valid_answers_dict:
-        output_file = sconfig.PROJECT_DIR / "assets/outputs/bayley-4-social-adaptive-valid-answers.json"
-        output_file.parent.mkdir(parents=True, exist_ok=True)
-        
-        with open(output_file, 'w', encoding='utf-8') as f:
-            json.dump(valid_answers_dict, f, indent=4, ensure_ascii=False)
-        
-        print(f"\n{'='*60}")
-        print("VALID ANSWERS SUMMARY")
-        print(f"{'='*60}")
-        
-        # Social-Emotional domain
-        social_observations = valid_answers_dict["social_emotional"]["observations"]
-        social_scoring = valid_answers_dict["social_emotional"]["scoring_criteria"]
-        print(f"\n🎯 Social-Emotional: {len(social_observations)} valid observations")
-        print(f"   Scoring Criteria: {social_scoring}")
-        
-        # Show first few observations as preview
-        for i, observation in enumerate(social_observations[:3]):
-            print(f"   {observation['observation_no']}: {observation['description'][:50]}... → {observation['valid_answer']}")
-        
-        if len(social_observations) > 3:
-            print(f"   ... and {len(social_observations) - 3} more observations")
-        
-        # Adaptive Behavior domain
-        adaptive_scoring = valid_answers_dict["adaptive_behavior"]["scoring_criteria"]
-        total_adaptive = 0
-        
-        print(f"\n🎯 Adaptive Behavior:")
-        print(f"   Scoring Criteria: {adaptive_scoring}")
-        
-        for subdomain_name, subdomain_data in valid_answers_dict["adaptive_behavior"]["subdomains"].items():
-            observations = subdomain_data["observations"]
-            total_adaptive += len(observations)
-            print(f"   📂 {subdomain_name.replace('_', ' ').title()}: {len(observations)} valid observations")
-            
-            # Show first few observations as preview
-            for i, observation in enumerate(observations[:2]):
-                print(f"     {observation['observation_no']}: {observation['description'][:40]}... → {observation['valid_answer']}")
-            
-            if len(observations) > 2:
-                print(f"     ... and {len(observations) - 2} more observations")
-        
-        print(f"\n   Total Adaptive Behavior: {total_adaptive} valid observations")
-        
-        total_valid_observations = len(social_observations) + total_adaptive
-        print(f"\nTotal valid observations across all domains: {total_valid_observations}")
-        print(f"📁 Valid answers saved to: {output_file}")
-        
-        # Show sample structure
-        print(f"\n{'='*60}")
-        print("SAMPLE JSON STRUCTURE")
-        print(f"{'='*60}")
-        
-        sample_structure = {
-            "social_emotional": {
-                "scoring_criteria": valid_answers_dict["social_emotional"]["scoring_criteria"],
-                "observations": valid_answers_dict["social_emotional"]["observations"][:1] if social_observations else []
-            },
-            "adaptive_behavior": {
-                "scoring_criteria": valid_answers_dict["adaptive_behavior"]["scoring_criteria"],
-                "subdomains": {}
-            }
-        }
-        
-        # Add sample from each subdomain
-        for subdomain_name, subdomain_data in valid_answers_dict["adaptive_behavior"]["subdomains"].items():
-            sample_structure["adaptive_behavior"]["subdomains"][subdomain_name] = {
-                "observations": subdomain_data["observations"][:1] if subdomain_data["observations"] else []
-            }
-        
-        print(json.dumps(sample_structure, indent=2))
-    else:
-        print("\nNo valid answers found!")
-
-if __name__ == "__main__":
-    main()

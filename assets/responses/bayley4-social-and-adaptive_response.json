@@ -1,0 +1,54 @@
+{
+    "social_emotional": {
+        "header": {
+            "type": "header",
+            "content": "Social-Emotional (SE)"
+        },
+        "domain_summary": {
+            "type": "paragraph",
+            "content": "The Social-Emotional Scale assesses your child's ability to engage with others, recognize emotions, express feelings, form relationships, and respond to social cues. This includes behaviors such as responding to a caregiver\u2019s smile, showing interest in others, and using appropriate emotional expressions. These skills are essential for building trust, developing empathy, and participating in reciprocal relationships."
+        },
+        "domain_details": {
+            "type": "paragraph",
+            "content": "This domain includes social referencing, affective expression, empathy, and emotional regulation skills. Items assess responses to familiar caregivers, attention to faces, and emotional reciprocity."
+        },
+        "patient_assessment": {
+            "type": "paragraph",
+            "content": "Sabrina demonstrates a pattern of variable performance across the social-emotional domain. The ability to 'like being swung around, danced with while in your arms, or quickly lifted up in the air' is consistently demonstrated, scored as 'All of the time'. This indicates a strong enjoyment in dynamic social play activities, showing secure attachment and confidence in caregivers during such interactions. Skills such as taking a 'calm and enjoyable interest in most sounds' and 'responding to touch without having to be touched firmly' are noted 'Some of the time,' suggesting emerging proficiency in sensory processing and social interactions requiring attention and physical contact. However, there are areas indicating developmental delay, such as difficulties in 'using words or pictures to tell you what he/she is interested in,' as demonstrated by 'None of the time.' These challenges suggest Sabrina may struggle with verbal communication and symbolic play, which can impact interactions with adults and peers alike. This pattern reflects the need for supportive interventions to enhance Sabrina's verbal communication and increase her engagement in varied social settings, fostering her ability to respond to social cues and participate in back-and-forth exchanges."
+        }
+    },
+    "adaptive_behavior": {
+        "header": {
+            "type": "header",
+            "content": "Adaptive Behavior (AB)"
+        },
+        "domain_summary": {
+            "type": "paragraph",
+            "content": "The Adaptive Behavior Scale evaluates daily functional skills such as communication, self-care, following routines, playing appropriately, and interacting with others in home and community settings. These behaviors include dressing, feeding, expressing needs, and following safety rules. The skills reflect your child\u2019s capacity to function independently and socially within their environment."
+        },
+        "domain_details": {
+            "type": "paragraph",
+            "content": "This domain includes skills like self-care routines, personal responsibility, communication, following safety rules, and basic daily living abilities across environments."
+        },
+        "patient_assessment_receptive_communication": {
+            "type": "paragraph",
+            "content": "In the receptive communication subdomain, Sabrina frequently exhibits the ability to 'follow directions to do one simple thing,' scored as 'Usually or often'. This indicates Sabrina's increasing capacity to comprehend and react to basic commands, enhancing her daily interactions and understanding of household routines. However, her difficulty in 'looking when someone calls his/her name' and 'understanding the meaning of at least three basic gestures' scored as 'Never,' highlighting significant challenges in basic receptive language processing, which may impact her ability to engage successfully in social conversations and follow instructions in novel environments."
+        },
+        "patient_assessment_expressive_communication": {
+            "type": "paragraph",
+            "content": "Sabrina's expressive communication shows inconsistency, as she 'makes sounds or gestures to get your attention' usually, reflecting a basic ability to interact non-verbally with caregivers. Nevertheless, her inability to 'say 'Dada' or 'Mama'' or the names of at least three objects registered as 'Never' highlights significant delays in expressive language skills. These findings suggest potential barriers in Sabrina's capacity to use and understand language efficiently, which could impede her social participation and learning in an educational setting."
+        },
+        "patient_assessment_personal": {
+            "type": "paragraph",
+            "content": "In the personal subdomain, Sabrina demonstrates competence in self-care activities such as 'eats solid foods' and 'drinks from a regular cup,' scored as 'Usually or often.' This reflects her emerging autonomy in feeding routines, contributing to her overall independence. Despite these strengths, Sabrina shows limited ability in comprehensive dressing tasks, such as 'pulls up clothing that has elastic around the waist,' recorded as 'Never,' indicating a potential area for supportive intervention to improve self-help skills crucial for daily independent functioning."
+        },
+        "patient_assessment_interpersonal_relation": {
+            "type": "paragraph",
+            "content": "Within the interpersonal relationships area, Sabrina's interactions are characterized by a limited response to social stimuli, as demonstrated by the ability to 'responds when you act playful,' rated as 'Usually or often,' suggesting some sensitivity to social engagement cues. However, substantial limitations are observed in more complex interactions, such as 'plays with one or more children for at least 5 minutes with someone older supervising,' noted as 'Never.' This indicates a need for increased facilitation to foster peer play and cooperative interaction, which are vital for Sabrina's social development and integration in both friend and caregiver relationships."
+        },
+        "patient_assessment_play_and_leisure": {
+            "type": "paragraph",
+            "content": "Sabrina's play and leisure skills reveal challenges in advanced play patterns, as 'plays baby games like peek-a-boo and patty-cake' scored as 'Sometimes,' suggesting a foundational level of sensory-social engagement commonly observed in earlier developmental stages. There is an absence of symbolic play, evidenced by 'uses things around the house to play make-believe,' showing 'Never.' This underscores a critical area for intervention, focusing on enriching play experiences to expand Sabrina's creative play repertoire, which is foundational for cognitive development and social interactions."
+        }
+    }
+}

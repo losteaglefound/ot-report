@@ -14,7 +14,15 @@ import aiofiles
 
 
 # Load configuration first
-from config import config, is_openai_enabled, is_email_enabled, is_google_docs_enabled, get_app_host, get_app_port
+from backend.domain_detector_bayley4_social_adaptive import process_bayley_social_adaptive_assessment
+from config import (
+    config, 
+    is_openai_enabled, 
+    is_email_enabled, 
+    is_google_docs_enabled, 
+    get_app_host, 
+    get_app_port
+)
 
 
 sys.stdout.reconfigure(encoding='utf-8')
@@ -293,21 +301,75 @@ async def upload_files(
                 from bayley_processor import process_bayley_assessment
                 logger.info("🧠 Processing Bayley-4 cognitive assessment...")
                 
-                bayley_results = process_bayley_assessment(
+                bayley_results["cognitive_and_motor"] = process_bayley_assessment(
                     uploaded_files['bayley4_cognitive'],
                     "assets/inputs/bayley-4-record-form.json"
                 )
                 
-                if bayley_results:
-                    domains_found = list(bayley_results.keys())
-                    total_items = sum(len(items) for items in bayley_results.values())
-                    logger.info(f"✅ Bayley-4 processing complete: {total_items} valid items in domains: {domains_found}")
+                if bayley_results["cognitive_and_motor"]:
+                    domains_found = list(bayley_results["cognitive_and_motor"].keys())
+                    total_items = sum(len(items) for items in bayley_results["cognitive_and_motor"].values())
+                    logger.info(f"✅ Bayley-4 cognitive processing complete: {total_items} valid items in domains: {domains_found}")
                 else:
-                    logger.warning("⚠️ No valid Bayley-4 answers found in the provided file")
+                    logger.warning("⚠️ No valid Bayley-4 cognitive answers found in the provided file")
                     
             except Exception as e:
-                logger.error(f"❌ Error processing Bayley-4 assessment: {e}")
-                bayley_results = {}
+                logger.error(f"❌ Error processing Bayley-4 cognitive assessment: {e}")
+                bayley_results["cognitive_and_motor"] = {}
+        
+        # Process Bayley-4 social and adaptive behavior assessment if file is provided
+        if 'bayley4_social' in uploaded_files:
+            try:
+                logger.info("🧠 Processing Bayley-4 social and adaptive behavior assessment...")
+                
+                bayley_results["social_and_adaptive"] = process_bayley_social_adaptive_assessment(
+                    uploaded_files['bayley4_social'],
+                    "assets/inputs/baylay-4-social-and-adaptive-questioner.json"
+                )
+                
+                if bayley_results["social_and_adaptive"]:
+                    # Calculate totals for the new hierarchical structure
+                    social_count = len(bayley_results["social_and_adaptive"]["social_emotional"]["observations"])
+                    adaptive_count = sum(len(subdomain["observations"]) for subdomain in bayley_results["social_and_adaptive"]["adaptive_behavior"]["subdomains"].values())
+                    total_observations = social_count + adaptive_count
+                    
+                    logger.info(f"✅ Bayley-4 social adaptive processing complete: {total_observations} valid observations")
+                    logger.info(f"   - Social-Emotional: {social_count} observations")
+                    logger.info(f"   - Adaptive Behavior: {adaptive_count} observations")
+                    
+                    # Log subdomain details
+                    for subdomain_name, subdomain_data in bayley_results["social_and_adaptive"]["adaptive_behavior"]["subdomains"].items():
+                        subdomain_count = len(subdomain_data["observations"])
+                        if subdomain_count > 0:
+                            logger.info(f"     - {subdomain_name.replace('_', ' ').title()}: {subdomain_count} observations")
+                else:
+                    logger.warning("⚠️ No valid Bayley-4 social adaptive answers found in the provided file")
+                    
+            except Exception as e:
+                logger.error(f"❌ Error processing Bayley-4 social adaptive assessment: {e}")
+                bayley_results["social_and_adaptive"] = {}
+
+        # Log overall Bayley results summary
+        if bayley_results:
+            total_cognitive_items = sum(len(items) for items in bayley_results.get("cognitive_and_motor", {}).values())
+            
+            # Handle the new hierarchical structure for social and adaptive
+            social_adaptive_data = bayley_results.get("social_and_adaptive", {})
+            total_social_adaptive_observations = 0
+            
+            if social_adaptive_data:
+                social_count = len(social_adaptive_data.get("social_emotional", {}).get("observations", []))
+                adaptive_behavior_data = social_adaptive_data.get("adaptive_behavior", {})
+                adaptive_count = sum(len(subdomain["observations"]) for subdomain in adaptive_behavior_data.get("subdomains", {}).values())
+                total_social_adaptive_observations = social_count + adaptive_count
+            
+            logger.info(f"✅ Overall Bayley-4 processing complete:")
+            if total_cognitive_items > 0:
+                logger.info(f"   - Cognitive & Motor: {total_cognitive_items} valid items")
+            if total_social_adaptive_observations > 0:
+                logger.info(f"   - Social & Adaptive: {total_social_adaptive_observations} valid observations")
+        else:
+            logger.warning("⚠️ No valid Bayley-4 answers found in any provided files")
 
         # Compile report data
         report_data = {
@@ -336,6 +398,8 @@ async def upload_files(
             # json.dump(report_data, f, indent=4)
             await f.write(json.dumps(report_data, indent=4))
         logger.info("✅ Report data compiled")
+
+        # raise RuntimeError("Intentional error.")
         
         # Initialize output links dictionary with error tracking
         output_links = {

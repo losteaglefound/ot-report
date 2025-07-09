@@ -1593,10 +1593,15 @@ class OpenAIEnhancedReportGenerator:
         # Get assessment analysis
         assessment_analysis = report_data.get("assessment_analysis", {})
         
-        # Bayley-4 detailed results
+        # Bayley-4 cognitive detailed results
         if assessment_analysis.get("bayley4"):
             elements.extend(await self._create_bayley4_detailed_section(report_data))
         
+        # Bayley-4 social and adaptive detailed results
+        if assessment_analysis.get("bayley4"):
+            elements.extend(await self._create_bayley4_social_and_adaptive_detailed_section(report_data))
+        
+
         # SP2 detailed results
         # if assessment_analysis.get("sp2"):
         #     elements.extend(await self._create_sp2_detailed_section(report_data))
@@ -1626,6 +1631,28 @@ class OpenAIEnhancedReportGenerator:
         except json.JSONDecodeError as e:
             print(format_exc())
             await save_response(response, file_name="bayley4", json_format=True)
+            self.logger.error(f"❌ SP2 response parsing failed: {e}")
+            raise
+        body = await format_bayley_data_for_pdf(response)
+        elements.extend(body)
+        
+        return elements
+    
+    async def _create_bayley4_social_and_adaptive_detailed_section(self, report_data: Dict[str, Any]) -> List:
+        """Create detailed Bayley-4 section with comprehensive interpretation and professional score table"""
+        elements = []
+
+        # Generate comprehensive Bayley interpretation
+        prompt = await get_prompt(prompt_type="bayley4-social-and-adaptive", report_data=report_data, json_format=True)
+
+        response = await self._generate_with_openai(prompt, max_tokens=1000)
+        response = remove_lang_tags(response)
+        try:
+            response = json.loads(response)
+            await save_response(response, file_name="bayley4-social-and-adaptive", json_format=True)
+        except json.JSONDecodeError as e:
+            print(format_exc())
+            await save_response(response, file_name="bayley4-social-and-adaptive", json_format=True)
             self.logger.error(f"❌ SP2 response parsing failed: {e}")
             raise
         body = await format_bayley_data_for_pdf(response)

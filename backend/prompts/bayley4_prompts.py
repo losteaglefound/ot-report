@@ -7,6 +7,7 @@ async def get_bayley4_prompt(report_data: dict, json_format: bool = False) -> st
     chronological_age = patient_info.get("chronological_age", {})
 
     bayley_data = report_data.get("bayley", {})
+    bayley_data = bayley_data.get("cogintive_and_motor", {})
 
     cognitive_data = bayley_data.get("cognitive", [])
     receptive_comm_data = bayley_data.get("receptive_communication", [])

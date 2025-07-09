@@ -169,39 +169,48 @@ async def format_bayley_data_for_pdf(data: dict) -> list:
                 elements.append(Spacer(1, 0.1 * inch))
         
         # Add patient assessment - special handling for adaptive behavior
-        if "patient_assessment" in domain_data:
-            assessment_content = domain_data["patient_assessment"].get("content", "")
-            if assessment_content:
-                if domain_key == "adaptive_behavior":
-                    # Handle adaptive behavior with separate sub-domain keys
-                    # Add the main assessment content
-                    assessment_content = assessment_content.replace('\\n', '\n')
-                    elements.append(Paragraph(assessment_content, patient_assessment_style))
-                    
-                    # Process individual sub-domains
-                    subdomain_keys = [
-                        ("receptive_communication", "Receptive Communication:"),
-                        ("expressive_communication", "Expressive Communication:"),
-                        ("personal_self_care", "Personal (Self-Care):"),
-                        ("interpersonal_relationships", "Interpersonal Relationships:"),
-                        ("play_and_leisure", "Play and Leisure:")
-                    ]
-                    
-                    for subdomain_key, header_text in subdomain_keys:
-                        if subdomain_key in domain_data:
-                            subdomain_content = domain_data[subdomain_key].get("content", "")
-                            if subdomain_content:
-                                # Add the sub-domain header
-                                elements.append(Paragraph(header_text, adaptive_subdomain_style))
-                                # elements.append(Paragraph(header, patient_assessment_style))
-                                # Add the content
-                                content = subdomain_content.replace('\\n', '\n')
-                                elements.append(Paragraph(content, patient_assessment_style))
-                else:
-                    # Regular patient assessment for other domains
-                    assessment_content = assessment_content.replace('\\n', '\n')
-                    elements.append(Paragraph(assessment_content, patient_assessment_style))
-        
+        patient_assessment = [
+            "patient_assessment",
+            "patient_assessment_receptive_communication",
+            "patient_assessment_expressive_communication",
+            "patient_assessment_personal",
+            "patient_assessment_interpersonal_relation",
+            "patient_assessment_play_and_leisure"
+        ]
+        for k in patient_assessment:
+            if k in domain_data:
+                assessment_content = domain_data[k].get("content", "")
+                if assessment_content:
+                    if domain_key == "adaptive_behavior":
+                        # Handle adaptive behavior with separate sub-domain keys
+                        # Add the main assessment content
+                        assessment_content = assessment_content.replace('\\n', '\n')
+                        elements.append(Paragraph(assessment_content, patient_assessment_style))
+                        
+                        # Process individual sub-domains
+                        subdomain_keys = [
+                            ("receptive_communication", "Receptive Communication:"),
+                            ("expressive_communication", "Expressive Communication:"),
+                            ("personal_self_care", "Personal (Self-Care):"),
+                            ("interpersonal_relationships", "Interpersonal Relationships:"),
+                            ("play_and_leisure", "Play and Leisure:")
+                        ]
+                        
+                        for subdomain_key, header_text in subdomain_keys:
+                            if subdomain_key in domain_data:
+                                subdomain_content = domain_data[subdomain_key].get("content", "")
+                                if subdomain_content:
+                                    # Add the sub-domain header
+                                    elements.append(Paragraph(header_text, adaptive_subdomain_style))
+                                    # elements.append(Paragraph(header, patient_assessment_style))
+                                    # Add the content
+                                    content = subdomain_content.replace('\\n', '\n')
+                                    elements.append(Paragraph(content, patient_assessment_style))
+                    else:
+                        # Regular patient assessment for other domains
+                        assessment_content = assessment_content.replace('\\n', '\n')
+                        elements.append(Paragraph(assessment_content, patient_assessment_style))
+            
         # Add space between domains
         elements.append(Spacer(1, 0.2 * inch))
 

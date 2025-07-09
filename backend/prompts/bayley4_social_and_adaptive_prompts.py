@@ -6,8 +6,9 @@ async def get_bayley4_social_adaptive_prompt(report_data: dict, json_format: boo
     chronological_age = patient_info.get("chronological_age", {}).get("formatted", "Unknown")
 
     bayley_data = report_data.get("bayley", {})
-    social_emotional_data = bayley_data.get("social_emotional", [])
-    adaptive_behavior_data = bayley_data.get("adaptive_behavior", [])
+    social_and_adaptive = bayley_data.get("social_and_adaptive", {})
+    social_emotional_data = social_and_adaptive.get("social_emotional", [])
+    adaptive_behavior_data = social_and_adaptive.get("adaptive_behavior", [])
 
     social_emotional_context = (
         "The Social-Emotional Scale assesses your child's ability to engage with others, recognize emotions, "
@@ -34,7 +35,7 @@ async def get_bayley4_social_adaptive_prompt(report_data: dict, json_format: boo
 
         CLINICAL INTERPRETATION INSTRUCTIONS:
 
-        1. Use "item_description" (not "item_no") when describing tasks.
+        1. Use "observation_description" (not "observation_no") when describing tasks.
         2. Interpret each score based on its associated "scoring_criteria".
         3. Provide clinical meaning, behavioral significance, and functional implications.
         4. Group tasks by performance level:
@@ -43,6 +44,12 @@ async def get_bayley4_social_adaptive_prompt(report_data: dict, json_format: boo
            - Score 0: Skills not yet observed
         5. Identify developmental patterns and compare to age expectations.
         6. Link observed behaviors to home and community functioning.
+        7. In adaptive behaviour response create patient_assessment paragraph for each subdomain
+            - Receptive Communication
+            - Expressive Communication
+            - Personal 
+            - Interpersonal Relationships
+            - Play and Leisure
 
         RESPONSE FORMAT (DO NOT CHANGE):
 
@@ -72,9 +79,25 @@ async def get_bayley4_social_adaptive_prompt(report_data: dict, json_format: boo
                     "type": "paragraph",
                     "content": "This domain includes skills like self-care routines, personal responsibility, communication, following safety rules, and basic daily living abilities across environments."
                 }},
-                "patient_assessment": {{
+                "patient_assessment_receptive_communication": {{
                     "type": "paragraph",
-                    "content": "**REPLACE WITH CLINICAL INTERPRETATION USING ACTUAL ADAPTIVE BEHAVIOR DATA. Use item_description, quote scoring_criteria, and explain functional independence, communication patterns, and adaptive developmental levels.**"
+                    "content": "**REPLACE WITH CLINICAL INTERPRETATION USING ACTUAL ADAPTIVE BEHAVIOR DATA FOR RECEPTIVE COMMUNICATION SUBDOMAIN. Use item_description, quote scoring_criteria, and explain functional independence, communication patterns, and adaptive developmental levels.**"
+                }},
+                "patient_assessment_expressive_communication": {{
+                    "type": "paragraph",
+                    "content": "**REPLACE WITH CLINICAL INTERPRETATION USING ACTUAL ADAPTIVE BEHAVIOR DATA FOR EXPRESSIVE COMMUNICATION SUBDOMAIN. Use item_description, quote scoring_criteria, and explain functional independence, communication patterns, and adaptive developmental levels.**"
+                }},
+                "patient_assessment_personal": {{
+                    "type": "paragraph",
+                    "content": "**REPLACE WITH CLINICAL INTERPRETATION USING ACTUAL ADAPTIVE BEHAVIOR DATA FOR PERSONAL SUBDOMAIN. Use item_description, quote scoring_criteria, and explain functional independence, communication patterns, and adaptive developmental levels.**"
+                }},
+                "patient_assessment_interpersonal_relation": {{
+                    "type": "paragraph",
+                    "content": "**REPLACE WITH CLINICAL INTERPRETATION USING ACTUAL ADAPTIVE BEHAVIOR DATA FOR INTERPERSONAL RELATIONSHIPS SUBDOMAIN. Use item_description, quote scoring_criteria, and explain functional independence, communication patterns, and adaptive developmental levels.**"
+                }},
+                "patient_assessment_play_and_leisure": {{
+                    "type": "paragraph",
+                    "content": "**REPLACE WITH CLINICAL INTERPRETATION USING ACTUAL ADAPTIVE BEHAVIOR DATA FOR PLAY AND LEISURE SUBDOMAIN. Use item_description, quote scoring_criteria, and explain functional independence, communication patterns, and adaptive developmental levels.**"
                 }}
             }}
         }}
