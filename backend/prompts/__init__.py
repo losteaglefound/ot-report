@@ -12,12 +12,13 @@ from backend.prompts.chomps_prompts import (
 from config import config
 
 from .background_prompts import get_background_prompt
+from .bayley4_prompts import get_bayley4_prompt
+from .bayley4_social_and_adaptive_prompts import get_bayley4_social_adaptive_prompt
 from .caregiver_concerns_prompts import get_caregiver_concerns_prompt
 from .clinical_observations_prompts import get_clinical_observations_prompt
+from .ot_goals_prompts import get_ot_goals_prompt
 from .professional_summary_prompts import get_professional_summary_prompt
 from .recommendations_prompts import get_recommendations_prompt
-from .ot_goals_prompts import get_ot_goals_prompt
-from .bayley4_prompts import get_bayley4_prompt
 from .sp2_prompts import get_sp2_prompt
 
 PromptType = Literal[
@@ -42,6 +43,7 @@ PromptDict = {
     "recommendations": get_recommendations_prompt,
     "ot_goals": get_ot_goals_prompt,
     "bayley4": get_bayley4_prompt,
+    "bayley4-social-and-adaptive": get_bayley4_social_adaptive_prompt,
     "sp2": get_sp2_prompt,
     
 }
@@ -87,6 +89,7 @@ async def get_prompt(prompt_type: str, report_data: Dict[str, Any], json_format:
         'recommendations': get_recommendations_prompt,
         'ot_goals': get_ot_goals_prompt,
         'bayley4': get_bayley4_prompt,
+        "bayley4-social-and-adaptive": get_bayley4_social_adaptive_prompt,
         'sp2': get_sp2_prompt,
         'chomps': get_chomps_prompt,
         'pedieat': get_pedieat_prompt,
@@ -140,6 +143,7 @@ __all__ = [
     'get_recommendations_prompt',
     'get_ot_goals_prompt',
     'get_bayley4_prompt',
+    "get_bayley4_social_adaptive_prompt",
     'get_sp2_prompt',
     'get_chomps_prompt',
     'get_pedieat_prompt',
