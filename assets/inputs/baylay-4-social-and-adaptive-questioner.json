@@ -1,0 +1,568 @@
+{
+    "social_emotional": {
+        "scoring_criteria": {
+            "5": "All of the time",
+            "4": "Most of the time",
+            "3": "Half of the time",
+            "2": "Some of the time",
+            "1": "None of the time",
+            "0": "Can't"
+        },
+        "social_emotional_observations": [
+            {
+                "observation_no": "1",
+                "description": "Takes a calm and enjoyable interest in most sounds."
+            },
+            {
+                "observation_no": "2",
+                "description": "You can easily get your child’s attention without having to be very dramatic."
+            },
+            {
+                "observation_no": "3",
+                "description": "Takes a calm and enjoyable interest in most sights, including colorful or bright things."
+            },
+            {
+                "observation_no": "4",
+                "description": "You can easily get your child to look at things without them being very bright or colorful."
+            },
+            {
+                "observation_no": "5",
+                "description": "Calmly enjoys touching or being touched by different things."
+            },
+            {
+                "observation_no": "6",
+                "description": "You can easily get your child to respond to your touch without having to touch your child firmly to get his/her attention."
+            },
+            {
+                "observation_no": "7",
+                "description": "Likes to be swung around, danced with while in your arms, or quickly lifted up in the air."
+            },
+            {
+                "observation_no": "8",
+                "description": "You can easily get your child’s attention by approaching him/her or moving him/her around slowly."
+            },
+            {
+                "observation_no": "9",
+                "description": "You can help your child to calm down."
+            },
+            {
+                "observation_no": "10",
+                "description": "Looks at interesting sights, such as your face or a toy."
+            },
+            {
+                "observation_no": "11",
+                "description": "Looks at or turns toward interesting sounds."
+            },
+            {
+                "observation_no": "12",
+                "description": "Seems happy or pleased when he/she sees a favorite person (e.g., looks or smiles, makes sounds, or moves arms in a way that expresses joy or delight)."
+            },
+            {
+                "observation_no": "13",
+                "description": "Responds to people talking or playing with him/her by making sounds or faces (e.g., happy sounds or a curious or annoyed look)."
+            },
+            {
+                "observation_no": "14",
+                "description": "Reaches for or points at things or makes distinct sounds to show you what he/she wants (e.g., reaches out to be picked up or points at a toy)."
+            },
+            {
+                "observation_no": "15",
+                "description": "Exchanges two or more smiles, other looks, sounds, or actions (e.g., reaching, giving, or taking) with a favorite person."
+            },
+            {
+                "observation_no": "16",
+                "description": "Shows you that he/she understands your actions or gestures by making an appropriate gesture in return (e.g., makes a funny face back at you, looks at something you point to, stops doing something when you shake your head and use a firm voice to say 'No!', or smiles and does more of something when you nod with a big smile and say 'Yes!')."
+            },
+            {
+                "observation_no": "17",
+                "description": "Uses many consecutive actions in a back-and-forth way to show you what he/she wants or to have fun with you (e.g., smiles, reaches out for a hug, and when you hug, takes your hat, puts it on his/her head, and smiles proudly OR takes your hand, leads you to the refrigerator, tugs on the handle, and after you open it, points to something he/she likes, such as food, a bottle of juice, or milk)."
+            },
+            {
+                "observation_no": "18",
+                "description": "Copies or imitates many of your sounds, words, or actions while playing with you (e.g., if you make funny faces and sounds, he/she copies them)."
+            },
+            {
+                "observation_no": "19",
+                "description": "Searches for something he/she wants by looking or getting you to look for it."
+            },
+            {
+                "observation_no": "20",
+                "description": "Shows you what he/she wants or needs by using a few actions in a row (e.g., leads you by the hand to open a door and then touches or bangs on the door)."
+            },
+            {
+                "observation_no": "21",
+                "description": "Uses words or tries to use words when people talk with or play with him/her."
+            },
+            {
+                "observation_no": "22",
+                "description": "Copies or imitates familiar make-believe play (e.g., feeds or hugs a doll)."
+            },
+            {
+                "observation_no": "23",
+                "description": "Tells you what he/she wants with one or a few words (e.g., 'Juice,' 'Open,' 'Kiss.')."
+            },
+            {
+                "observation_no": "24",
+                "description": "Shows you he/she understands your simple verbal wish (e.g., 'Please show me your toy.')."
+            },
+            {
+                "observation_no": "25",
+                "description": "Plays make-believe (e.g., feeds a doll, plays house, or pretends to be a TV or movie character) with you or others."
+            },
+            {
+                "observation_no": "26",
+                "description": "Uses words or pictures to tell you what he/she is interested in (e.g., 'See truck!')."
+            },
+            {
+                "observation_no": "27",
+                "description": "Uses words with one or more peers."
+            },
+            {
+                "observation_no": "28",
+                "description": "Uses words or pictures to show what he/she likes or dislikes (e.g., 'Want that.' 'No want.')."
+            },
+            {
+                "observation_no": "29",
+                "description": "Plays make-believe with one or more peers."
+            },
+            {
+                "observation_no": "30",
+                "description": "Plays make-believe with you or others where the story makes sense (e.g., has the bears go visit grandmother and then have a big lunch)."
+            },
+            {
+                "observation_no": "31",
+                "description": "Uses phrases or sentences with you to ask a question about something he/she wants to do (e.g., 'Mommy go out?' 'What you doing outside?' 'Play?')."
+            },
+            {
+                "observation_no": "32",
+                "description": "Can explain why he/she wants something or wants to do something (e.g., 'Why do you want the juice?' 'Because I'm thirsty.')."
+            },
+            {
+                "observation_no": "33",
+                "description": "Describes his/her feelings to explain why he/she is doing something or wants something (e.g., 'Because I'm happy/sad/excited.')."
+            },
+            {
+                "observation_no": "34",
+                "description": "Plays make-believe with peers as well as adults where the story makes sense and has many parts to it (e.g., the children go to school, do work, have lunch, and meet an elephant on the way home)."
+            },
+            {
+                "observation_no": "35",
+                "description": "Has conversations with adults and peers that make sense, with four or more back-and-forth exchanges about a variety of topics (e.g., feelings, foods, bedtimes, friends, or school)."
+            }
+        ]
+    },
+    "adaptive_behavior": {
+        "scoring_criteria": {
+            "2": "Usually or often",
+            "1": "Sometimes",
+            "0": "Never"
+        },
+        "receptive_observations": [
+            {
+                "observation_no": "1",
+                "description": "Looks at you when he/she hears your voice."
+            },
+            {
+                "observation_no": "2",
+                "description": "Looks at you when you wave to get his/her attention."
+            },
+            {
+                "observation_no": "3",
+                "description": "Looks when someone calls his/her name."
+            },
+            {
+                "observation_no": "4",
+                "description": "Understands the meaning of at least three basic gestures (e.g., head nod for yes, head shake for no, hand out for give me, reaching, waving, clapping)."
+            },
+            {
+                "observation_no": "5",
+                "description": "When you look or point at something, looks in that direction."
+            },
+            {
+                "observation_no": "6",
+                "description": "Follows directions to do one simple thing (e.g., 'Sit down.' 'Come here.')."
+            },
+            {
+                "observation_no": "7",
+                "description": "Understands yes."
+            },
+            {
+                "observation_no": "8",
+                "description": "Responds to the tone of your words (e.g., he/she responds differently when you say 'Come here' with a loving tone than when you say it with an angry tone)."
+            },
+            {
+                "observation_no": "9",
+                "description": "Understands no."
+            },
+            {
+                "observation_no": "10",
+                "description": "Points to at least three real objects when you ask (e.g., a dog)."
+            },
+            {
+                "observation_no": "11",
+                "description": "Follows directions to do something with one object (e.g., 'Bring me the book.' 'Close the door.')."
+            },
+            {
+                "observation_no": "12",
+                "description": "Knows at least three of his/her own body parts (e.g., shows you his/her arm when you ask)."
+            },
+            {
+                "observation_no": "13",
+                "description": "Points to at least three objects shown in pictures when you ask (e.g., a car)."
+            },
+            {
+                "observation_no": "14",
+                "description": "Points to at least three body parts shown in pictures when you ask (e.g., someone's nose)."
+            },
+            {
+                "observation_no": "15",
+                "description": "Answers questions that use what (e.g., You ask 'What is this?' He/she says 'A ball.')."
+            },
+            {
+                "observation_no": "16",
+                "description": "Points to at least three actions shown in pictures when you ask (e.g., someone eating)."
+            },
+            {
+                "observation_no": "17",
+                "description": "Answers questions that use who (e.g., You ask 'Who is that?' He/she says 'Auntie Kesha.')."
+            },
+            {
+                "observation_no": "18",
+                "description": "Pays attention to a story for at least 15 minutes. Scoring tip: Score 2 if he/she did this when younger, but has now outgrown listening to stories."
+            },
+            {
+                "observation_no": "19",
+                "description": "Answers questions that use why (e.g., You ask 'Why are you crying?' He/she says 'My toy broke.')."
+            },
+            {
+                "observation_no": "20",
+                "description": "Follows directions to do two things that do not go together (e.g., 'Turn off the TV and get my keys.').",
+                "scoring_criteria": "If he/she sometimes does it without reminders but sometimes needs reminders, score 1."
+            },
+            {
+                "observation_no": "21",
+                "description": "Answers questions that use when (e.g., You ask 'When do you eat breakfast?' He/she says 'In the morning.')."
+            },
+            {
+                "observation_no": "22",
+                "description": "Follows three-step directions (e.g., 'Get dressed, eat breakfast, and brush your teeth.').",
+                "scoring_criteria": "If he/she sometimes does it without reminders but sometimes needs reminders, score 1."
+            },
+            {
+                "observation_no": "23",
+                "description": "When told to do something a little later, remembers to do it (e.g., 'When your show is over, put your dishes in the sink.').",
+                "scoring_criteria": "If he/she sometimes does it without reminders but sometimes needs reminders, score 1."
+            }
+        ],
+        "expressive_observations": [
+            {
+                "observation_no": "1",
+                "description": "Makes sounds or gestures to get your attention."
+            },
+            {
+                "observation_no": "2",
+                "description": "Makes at least three short speech sounds (e.g., mah, bah, ee, oh).",
+                "scoring_tip": "Score 2 if he/she did this when younger, but now says words."
+            },
+            {
+                "observation_no": "3",
+                "description": "Babbles in strings of sounds (e.g., ba-ba-ba-ba, ma-ma-ma-ma, da-da-da-da).",
+                "scoring_tip": "Score 2 if he/she did this when younger, but now says words."
+            },
+            {
+                "observation_no": "4",
+                "description": "Makes at least three basic gestures (e.g., nodding head up and down for yes, shaking head for no, reaching for something wanted, waving at people, clapping hands)."
+            },
+            {
+                "observation_no": "5",
+                "description": "Says 'Dada' or 'Mama' or another name for parent."
+            },
+            {
+                "observation_no": "6",
+                "description": "Says the names of at least three objects (e.g., a ball).",
+                "scoring_criteria": "He/she does not have to say the words perfectly."
+            },
+            {
+                "observation_no": "7",
+                "description": "Repeats or tries to repeat words after hearing them (e.g., ball, car, more).",
+                "scoring_tip": "Score 2 if he/she did this when younger, but has now outgrown it.",
+                "scoring_criteria": "He/she does not have to say the words perfectly."
+            },
+            {
+                "observation_no": "8",
+                "description": "Says the names of at least 10 objects.",
+                "scoring_tip": "Score 2 for Yes or 0 for No.",
+                "scoring_criteria": "He/she does not have to say the words perfectly."
+            },
+            {
+                "observation_no": "9",
+                "description": "Says 'No.' Must actually mean no, not just repeat the word."
+            },
+            {
+                "observation_no": "10",
+                "description": "Says one-word requests (e.g., 'Want.' 'More.' 'Open.').",
+                "scoring_tip": "Score 2 if he/she did this when younger, but has now outgrown it."
+            },
+            {
+                "observation_no": "11",
+                "description": "Says the names of at least three actions (e.g., eat or eating).",
+                "scoring_criteria": "He/she does not have to say the words perfectly."
+            },
+            {
+                "observation_no": "12",
+                "description": "Says at least 50 words.",
+                "scoring_tip": "Score 2 for Yes or 0 for No.",
+                "scoring_criteria": "He/she does not have to say the words perfectly."
+            },
+            {
+                "observation_no": "13",
+                "description": "Says his/her own first name or nickname.",
+                "scoring_criteria": "He/she does not have to say the name perfectly."
+            },
+            {
+                "observation_no": "14",
+                "description": "Says things using both a noun [a naming word] and a verb [an action word] (e.g., 'Mommy stay.' 'Give ball.').",
+                "scoring_criteria": "He/she does not have to say the words perfectly."
+            },
+            {
+                "observation_no": "15",
+                "description": "Knows how to say more than one of something (e.g., 'Two cats.' 'More crackers.' 'Those flowers.')."
+            },
+            {
+                "observation_no": "16",
+                "description": "Uses the pronouns I, me, and mine to refer to himself/herself. May make mistakes like 'Me want' or 'Mine toy.'"
+            },
+            {
+                "observation_no": "17",
+                "description": "Uses words that show who something belongs to (e.g., 'This is mine.' 'Your book.' 'This is Carol's desk.')."
+            },
+            {
+                "observation_no": "18",
+                "description": "Uses adjectives to describe things (e.g., 'Pretty picture.' 'Big doggie.').",
+                "scoring_criteria": "He/she does not have to say the words perfectly."
+            },
+            {
+                "observation_no": "19",
+                "description": "Uses in, on, and under in sentences (e.g., 'It's in the box.' 'Ball go under table.').",
+                "scoring_criteria": "His/her sentences do not have to be perfect."
+            },
+            {
+                "observation_no": "20",
+                "description": "Asks questions that begin with who (e.g., 'Who's that?' 'Who went to the store?')."
+            },
+            {
+                "observation_no": "21",
+                "description": "Says how old he/she is when you ask. Holding up fingers counts."
+            },
+            {
+                "observation_no": "22",
+                "description": "Says both his/her first name and last name when you ask.",
+                "scoring_criteria": "He/she does not have to say the names perfectly."
+            },
+            {
+                "observation_no": "23",
+                "description": "Knows how to say that something happened in the past (e.g., 'I walked to the store.' 'Molly baked a cake.')."
+            },
+            {
+                "observation_no": "24",
+                "description": "Uses all pronouns (words that refer to himself/herself and others) correctly (e.g., I, she, us, them, your, our, their)."
+            },
+            {
+                "observation_no": "25",
+                "description": "Tells the basic parts of a well-known story: the characters, what happens, how it ends, etc.",
+                "scoring_criteria": "The story might be from a fairy tale, a book, or a movie."
+            },
+            {
+                "observation_no": "26",
+                "description": "Uses behind, in front of, and between in sentences (e.g., 'Terrell is behind you.' 'I walked in front of her.' 'The ball went between the cars.')."
+            },
+            {
+                "observation_no": "27",
+                "description": "Tells about one-time events in detail (e.g., when someone asks him/her about a trip)."
+            },
+            {
+                "observation_no": "28",
+                "description": "Uses two-part sentences joined by and or but (e.g., 'She asked me, and I told her no.' 'Jerome wanted to go, but I didn't.')."
+            }
+        ],
+        "personal_observations": [
+            {
+                "observation_no": "1",
+                "description": "Eats solid foods (e.g., cooked vegetables, chopped meats)."
+            },
+            {
+                "observation_no": "2",
+                "description": "Cooperates when you undress and dress him/her (e.g., raises his/her arms for taking off a top, holds out his/her feet for putting on pants or shoes).",
+                "scoring_tip": "Score 2 if he/she did this when younger, but has now outgrown it."
+            },
+            {
+                "observation_no": "3",
+                "description": "Sucks or chews on finger foods (e.g., crackers, cookies, toast)."
+            },
+            {
+                "observation_no": "4",
+                "description": "Cooperates when you wash his/her hands and face (e.g., holds out his/her hands, turns his/her face toward you).",
+                "scoring_tip": "Score 2 if he/she did this when younger, but has now outgrown it."
+            },
+            {
+                "observation_no": "5",
+                "description": "Feeds himself/herself with a spoon. May spill.",
+                "scoring_criteria": "If he/she sometimes does it without help but sometimes needs help, score 1."
+            },
+            {
+                "observation_no": "6",
+                "description": "Takes off his/her shoes and his/her socks.",
+                "scoring_criteria": "If he/she sometimes does it without help but sometimes needs help, score 1."
+            },
+            {
+                "observation_no": "7",
+                "description": "Drinks from a regular cup or glass. May spill.",
+                "scoring_criteria": "If he/she sometimes does it without help but sometimes needs help, score 1."
+            },
+            {
+                "observation_no": "8",
+                "description": "Lets someone know when he/she has a wet or dirty diaper or pants.",
+                "scoring_tip": "Score 2 if he/she did this when younger, but now uses the toilet."
+            },
+            {
+                "observation_no": "9",
+                "description": "Feeds himself/herself with a fork. May spill.",
+                "scoring_criteria": "If he/she sometimes does it without help but sometimes needs help, score 1."
+            },
+            {
+                "observation_no": "10",
+                "description": "Takes off clothing that opens in the front. Does not have to unbutton or unzip it (e.g., a jacket).",
+                "scoring_criteria": "If he/she sometimes does it without help but sometimes needs help, score 1."
+            },
+            {
+                "observation_no": "11",
+                "description": "Pulls up clothing that has elastic around the waist (e.g., underwear, sweatpants).",
+                "scoring_criteria": "If he/she sometimes does it without help but sometimes needs help, score 1."
+            },
+            {
+                "observation_no": "12",
+                "description": "Drinks from a regular cup or glass without spilling.",
+                "scoring_criteria": "If he/she sometimes does it without help but sometimes needs help, score 1."
+            },
+            {
+                "observation_no": "13",
+                "description": "Feeds himself/herself with a spoon without spilling.",
+                "scoring_criteria": "If he/she sometimes does it without help but sometimes needs help, score 1."
+            },
+            {
+                "observation_no": "14",
+                "description": "Washes his/her hands using soap and water and dries them. Does not have to turn the water on and off.",
+                "scoring_criteria": "If he/she sometimes washes and dries without help but sometimes needs help, score 1."
+            },
+            {
+                "observation_no": "15",
+                "description": "Takes off pullover clothing (e.g., T-shirt, sweatshirt, dress).",
+                "scoring_criteria": "If he/she sometimes does it without help but sometimes needs help, score 1."
+            },
+            {
+                "observation_no": "16",
+                "description": "Urinates (goes pee) in a toilet or potty chair."
+            },
+            {
+                "observation_no": "17",
+                "description": "Puts on his/her shoes. Shoes may be on the wrong feet, and he/she does not have to tie or fasten them.",
+                "scoring_criteria": "If he/she sometimes does it without help but sometimes needs help, score 1."
+            },
+            {
+                "observation_no": "18",
+                "description": "Wipes or blows his/her nose using tissue, napkin, etc.",
+                "scoring_criteria": "If he/she sometimes does it without help or reminders but sometimes needs help or reminders, score 1."
+            }
+        ],
+        "play_and_leisure_observations": [
+            {
+                "observation_no": "1",
+                "description": "Shows interest in the things around him/her (e.g., looks or moves around, touches objects or people)."
+            },
+            {
+                "observation_no": "2",
+                "description": "Responds when you act playful (e.g., smiles, laughs, claps his/her hands)."
+            },
+            {
+                "observation_no": "3",
+                "description": "Plays baby games like peek-a-boo and patty-cake.",
+                "scoring_tip": "Score 2 if he/she did this when younger, but has now outgrown it."
+            },
+            {
+                "observation_no": "4",
+                "description": "Plays with one or more children for at least 5 minutes with someone older supervising.",
+                "scoring_tip": "Score 2 if he/she did this when younger, but has now outgrown it.",
+                "scoring_criteria": "Playing near other children, but not playing _with_ them, does not count."
+            },
+            {
+                "observation_no": "5",
+                "description": "Copies a child playing nearby, even though they are not playing together (e.g., sees another child stacking blocks and then begins to stack blocks).",
+                "scoring_tip": "Score 2 if he/she did this when younger, but has now outgrown it."
+            },
+            {
+                "observation_no": "6",
+                "description": "Would rather play with other children than watch them or play alone."
+            },
+            {
+                "observation_no": "7",
+                "description": "Shares his/her toys or other things when he/she is told to."
+            },
+            {
+                "observation_no": "8",
+                "description": "Uses things around the house to play make-believe (e.g., pretends a block is a car, a big box is a house).",
+                "scoring_tip": "Score 2 if he/she did this when younger, but has now outgrown it."
+            },
+            {
+                "observation_no": "9",
+                "description": "Moves away from children who try to hurt others or destroy things (e.g., children who are biting, hitting, throwing things, smashing things).",
+                "scoring_criteria": "If he/she sometimes does it without being told but sometimes has to be told, score 1."
+            },
+            {
+                "observation_no": "10",
+                "description": "Plays simple make-believe games with other children (e.g., playing 'dress-up,' pretending to be superheroes).",
+                "scoring_tip": "Score 2 if he/she did this when younger, but has now outgrown it."
+            },
+            {
+                "observation_no": "11",
+                "description": "Plays with others at simple outdoor group games with no score (e.g., tag, jump rope, catch).",
+                "scoring_tip": "Score 2 if he/she did this when younger, but has now outgrown it."
+            },
+            {
+                "observation_no": "12",
+                "description": "Takes turns when asked while playing games or sports."
+            },
+            {
+                "observation_no": "13",
+                "description": "Plays make-believe where different children play different roles (e.g., playing 'school' or 'restaurant,' acting out a TV show or movie).",
+                "scoring_tip": "Score 2 if he/she did this when younger, but has now outgrown it."
+            },
+            {
+                "observation_no": "14",
+                "description": "Asks others to play or spend time together.",
+                "scoring_criteria": "If he/she sometimes does it without being told but sometimes has to be told, score 1."
+            },
+            {
+                "observation_no": "15",
+                "description": "Shares his/her toys or other things without having to be told to."
+            },
+            {
+                "observation_no": "16",
+                "description": "Takes turns without having to be asked while playing games or sports."
+            },
+            {
+                "observation_no": "17",
+                "description": "Asks if it is OK before taking something from someone. Does not just grab it.",
+                "scoring_criteria": "If he/she sometimes does it without being told but sometimes has to be told, score 1."
+            },
+            {
+                "observation_no": "18",
+                "description": "Stays out of a group when they let him/her know with words that he/she is not welcome (e.g., 'We're almost done.' 'Big kids only.')."
+            },
+            {
+                "observation_no": "19",
+                "description": "Gets together with two or more others his/her age at someone's home.",
+                "scoring_criteria": "Must play with the others to count."
+            }
+        ]
+    }
+}
