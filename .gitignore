@@ -214,3 +214,4 @@ report_data_*.json
 uploads/*
 scripts/outputs
 outputs/ocr_results
+outputs/*.json
