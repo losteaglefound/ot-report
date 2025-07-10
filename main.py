@@ -53,6 +53,7 @@ from fastapi.templating import Jinja2Templates
 
 # Import modules based on configuration
 from pdf_processor import EnhancedPDFProcessor
+from backend.langgraph.sensory_agent import extract_sp2_data
 
 # Conditional imports based on configuration
 if is_openai_enabled():
@@ -373,6 +374,24 @@ async def upload_files(
         else:
             logger.warning("⚠️ No valid Bayley-4 answers found in any provided files")
 
+        # Process SP2 assessment if file is provided
+        sp2_results = {}
+        if 'sp2' in uploaded_files:
+            try:
+                logger.info("🧠 Processing SP2 assessment with sensory agent...")
+                sp2_result = extract_sp2_data(uploaded_files['sp2'])
+                
+                if sp2_result.get("success"):
+                    sp2_results = sp2_result.get("sp2_data", {})
+                    logger.info("✅ SP2 processing complete with sensory agent")
+                else:
+                    logger.error(f"❌ SP2 processing failed: {sp2_result.get('error')}")
+                    sp2_results = {}
+                    
+            except Exception as e:
+                logger.error(f"❌ Error processing SP2 assessment: {e}")
+                sp2_results = {}
+
         # Compile report data
         report_data = {
             "patient_info": {
@@ -386,6 +405,9 @@ async def upload_files(
                 "chronological_age": chronological_age
             },
             "uploaded_files": uploaded_files,
+            "extracted_data": {
+                "sp2": sp2_results
+            },
             "report_preferences": {
                 "output_format": output_format,
                 "report_type": report_type,

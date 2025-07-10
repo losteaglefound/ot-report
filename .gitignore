@@ -215,4 +215,5 @@ uploads/*
 scripts/outputs
 outputs/ocr_results
 outputs/*.json
+outputs/.txt
 fmcr-report-generation-523e3901ea2f.json

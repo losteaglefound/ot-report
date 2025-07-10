@@ -1592,20 +1592,23 @@ class OpenAIEnhancedReportGenerator:
         
         # Get assessment analysis
         assessment_analysis = report_data.get("assessment_analysis", {})
+
+        # Get extracted data to check for file uploads
+        extracted_data = report_data.get("extracted_data", {})
         
-        # Bayley-4 cognitive detailed results
-        if assessment_analysis.get("bayley4"):
+        # Bayley-4 cognitive detailed results - only if cognitive file was uploaded
+        if extracted_data.get("bayley4_cognitive"):
             elements.extend(await self._create_bayley4_detailed_section(report_data))
         
-        # Bayley-4 social and adaptive detailed results
-        if assessment_analysis.get("bayley4"):
+        # Bayley-4 social and adaptive detailed results - only if social file was uploaded
+        if extracted_data.get("bayley4_social"):
             elements.extend(await self._create_bayley4_social_and_adaptive_detailed_section(report_data))
         
-
         # SP2 detailed results
-        # if assessment_analysis.get("sp2"):
-        #     elements.extend(await self._create_sp2_detailed_section(report_data))
+        if assessment_analysis.get("sp2"):
+            elements.extend(await self._create_sp2_detailed_section(report_data))
         
+
         # ChOMPS detailed results
         # if assessment_analysis.get("chomps"):
         #     elements.extend(await self._create_chomps_detailed_section(report_data))

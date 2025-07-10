@@ -1,13 +1,17 @@
 async def get_sp2_prompt(report_data: dict, json_format: bool = False) -> str:
     """Generate SP2 assessment interpretation prompt for pediatric OT reports."""
     
-    # SP2 analysis data
+    # Get extracted SP2 data from sensory agent
+    extracted_sp2_data = report_data.get("extracted_data", {}).get("sp2", {})
+    
+    # Also get SP2 analysis data if available for backwards compatibility
     sp2_analysis = report_data.get("assessment_analysis", {}).get("sp2", {})
     
     if json_format:
         prompt = f"""
         Write a detailed Sensory Profile 2 (SP2) interpretation for a pediatric OT report.
 
+        Extracted SP2 Data: {extracted_sp2_data}
         SP2 Analysis: {sp2_analysis}
 
         Output Requirements:
@@ -36,41 +40,37 @@ async def get_sp2_prompt(report_data: dict, json_format: bool = False) -> str:
                 "type": "paragraph",
                 "content": "The Sensory Profile 2 is a standardized assessment that evaluates sensory processing patterns and their impact on daily functioning. The assessment examines four sensory processing quadrants: Seeking, Avoiding, Sensitivity, and Registration."
             }},
-            "quadrant_analysis": {{
-                "type": "table",
-                "content": {{
-                    "columns": ["Sensory Quadrant", "Score Range", "Interpretation", "Functional Impact"],
-                    "rows": [
-                        ["Seeking", "Score range", "Interpretation", "Impact on daily activities"],
-                        ["Avoiding", "Score range", "Interpretation", "Impact on daily activities"],
-                        ["Sensitivity", "Score range", "Interpretation", "Impact on daily activities"],
-                        ["Registration", "Score range", "Interpretation", "Impact on daily activities"]
-                    ]
-                }}
-            }},
-            "real_world_implications": {{
-                "type": "bullet_points",
-                "content": [
-                    "Grooming: Impact on self-care activities and hygiene routines",
-                    "Play: Effects on toy selection, play preferences, and peer interaction",
-                    "Feeding: Influence on food acceptance, mealtime behavior, and nutrition",
-                    "Daily Routines: Impact on transitions, sleep, and activity participation"
-                ]
-            }},
-            "sensory_strategies": {{
-                "type": "bullet_points",
-                "content": [
-                    "Environmental modifications to support optimal sensory processing",
-                    "Sensory diet activities for regulation and organization",
-                    "Specific sensory tools and equipment recommendations",
-                    "Caregiver education for implementing sensory strategies"
-                ]
-            }},
-            "intervention_recommendations": {{
+            "sensory_overview": {{
                 "type": "paragraph",
-                "content": "Based on the SP2 findings, occupational therapy intervention should focus on sensory integration principles and environmental modifications to support optimal sensory processing and functional participation in daily activities."
+                "content": "**REPLACE WITH DETAILS INTERPRETATION OF WHOLE SENSORY ASSESSMENT.**"
+            }},
+            "touch_processing_domain": {{
+                "type": "paragraph",
+                "content": "**REPLACE WITH DETAILED INTERPRETATION OF TOUCH PROCESSING SCORES AND RESULTS. Include specific score values, percentile ranges, clinical significance, and functional implications for daily activities.**"
+            }},
+            "oral_sensory_domain": {{
+                "type": "paragraph",
+                "content": "**REPLACE WITH DETAILED INTERPRETATION OF ORAL SENSORY SCORES AND RESULTS. Include specific score values, percentile ranges, clinical significance, and impact on feeding and oral motor skills.**"
+            }},
+            "auditory_processing_domain": {{
+                "type": "paragraph",
+                "content": "**REPLACE WITH DETAILED INTERPRETATION OF AUDITORY PROCESSING SCORES AND RESULTS. Include specific score values, percentile ranges, clinical significance, and impact on attention and environmental response.**"
+            }},
+            "visual_and_movement_processing": {{
+                "type": "paragraph",
+                "content": "**REPLACE WITH DETAILED INTERPRETATION OF VISUAL AND MOVEMENT PROCESSING SCORES AND RESULTS. Include specific score values, percentile ranges, clinical significance, and impact on motor planning and spatial awareness.**"
+            }},
+            "behavioural_response_domain": {{
+                "type": "paragraph",
+                "content": "**REPLACE WITH DETAILED INTERPRETATION OF BEHAVIOURAL RESPONSE SCORES AND RESULTS. Include specific score values, percentile ranges, clinical significance, and impact on self-regulation and adaptive behavior.**"
+            }},
+            "summary": {{
+                "type": "paragraph",
+                "content": "**REPLACE WITH COMPREHENSIVE SUMMARY OF ALL SP2 FINDINGS. Include overall sensory processing patterns, key areas of concern, functional implications, and recommendations for intervention strategies.**"
             }}
         }}
+
+        IMPORTANT: Replace all content marked with **REPLACE WITH...** with actual clinical interpretations based on the provided SP2 data. Do not output the placeholder instructions literally.
 
         Ensure the response is valid JSON and follows this exact structure.
         """
@@ -80,6 +80,7 @@ async def get_sp2_prompt(report_data: dict, json_format: bool = False) -> str:
         prompt = f"""
         Write a detailed Sensory Profile 2 (SP2) interpretation for a pediatric OT report.
         
+        Extracted SP2 Data: {extracted_sp2_data}
         SP2 Analysis: {sp2_analysis}
         
         Requirements:

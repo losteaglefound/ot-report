@@ -7,63 +7,32 @@
         "type": "paragraph",
         "content": "The Sensory Profile 2 is a standardized assessment that evaluates sensory processing patterns and their impact on daily functioning. The assessment examines four sensory processing quadrants: Seeking, Avoiding, Sensitivity, and Registration."
     },
-    "quadrant_analysis": {
-        "type": "table",
-        "content": {
-            "columns": [
-                "Sensory Quadrant",
-                "Score Range",
-                "Interpretation",
-                "Functional Impact"
-            ],
-            "rows": [
-                [
-                    "Seeking",
-                    "Typical",
-                    "Engages in sensory-rich experiences actively, demonstrating appropriate exploration behaviors.",
-                    "Active participation in new and varied activities."
-                ],
-                [
-                    "Avoiding",
-                    "Elevated",
-                    "Shows a heightened response to sensory stimuli, likely leading to withdrawal from stimuli-rich environments.",
-                    "Difficulty with crowded, noisy, or chaotic situations."
-                ],
-                [
-                    "Sensitivity",
-                    "Elevated",
-                    "Exhibits an increased awareness and heightened response to sensory experiences, potentially resulting in distractibility.",
-                    "May struggle with maintaining attention and calmness in environments with high sensory inputs."
-                ],
-                [
-                    "Registration",
-                    "Typical",
-                    "Accurately perceives and responds to sensory information in their environment, adjusting responses accordingly.",
-                    "Able to efficiently adapt to sensory changes and maintain engagement in tasks."
-                ]
-            ]
-        }
-    },
-    "real_world_implications": {
-        "type": "bullet_points",
-        "content": [
-            "Grooming: The child may experience challenges during self-care tasks due to heightened sensory avoidance, necessitating modifications to routines.",
-            "Play: Sensory-seeking behaviors contribute positively to engagement, while sensitivity and avoidance may restrict play choices and social interactions.",
-            "Feeding: Heightened sensory sensitivity and avoidance can impact food preferences and acceptance, potentially leading to selective eating patterns.",
-            "Daily Routines: Elevated avoidance and sensitivity can make transitions and adaptation to routine changes challenging, affecting sleep and overall activity participation."
-        ]
-    },
-    "sensory_strategies": {
-        "type": "bullet_points",
-        "content": [
-            "Environmental modifications to support optimal sensory processing, such as reducing environmental noise or visual clutter.",
-            "Sensory diet activities for regulation and organization, like deep pressure input or proprioceptive activities, tailored to individual sensory needs.",
-            "Specific sensory tools and equipment recommendations, such as weighted vests or noise-canceling headphones to support regulation.",
-            "Caregiver education for implementing sensory strategies, focusing on identifying optimal environments and routines for calming and alerting activities."
-        ]
-    },
-    "intervention_recommendations": {
+    "sensory_overview": {
         "type": "paragraph",
-        "content": "Based on the SP2 findings, occupational therapy intervention should focus on sensory integration principles and environmental modifications to support optimal sensory processing and functional participation in daily activities."
+        "content": "The sensory processing assessment reveals significant variances in how the child interacts with and processes sensory input. With a Seeking/Seeker raw score of 26, classified as 'Just like the Majority of Others', the child demonstrates typical interest in exploring sensory experiences. However, scores in Avoiding/Avoider (raw score of 29) and Sensitivity/Sensor (raw score of 43) are classified as 'Much More Than Others', indicating heightened sensitivity and avoidance of sensory stimuli. The Registration/Bystander score (raw score of 17) aligns with expected norms, reflecting adequate noticing and responding to sensory cues."
+    },
+    "touch_processing_domain": {
+        "type": "paragraph",
+        "content": "Touch processing scores indicate significant over-responsiveness with a raw score of 18 and a percentile range of 96-99. This 'Much More Than Others' classification suggests an increased sensitivity to tactile experiences, possibly affecting daily activities like grooming, where the child may resist nail trimming or refuse certain textures. Such heightened tactile defensiveness could interfere with social interactions and play that involve bodily contact or messy play activities."
+    },
+    "oral_sensory_domain": {
+        "type": "paragraph",
+        "content": "The oral sensory profile shows notable aversions, with a high raw score of 27, placing the child in the 98-99 percentile range under 'Much More Than Others'. This suggests significant selective eating behaviors, as well as potential concerns around oral-motor skills affecting feeding routines. The child might display a limited food repertoire and aversions to certain food textures, impacting nutritional intake and mealtime dynamics."
+    },
+    "auditory_processing_domain": {
+        "type": "paragraph",
+        "content": "Auditory processing scores reveal moderate difficulty, with a raw score of 15 and a percentile range of 88-95, suggesting that the child is 'More Than Others' likely to become distracted or overwhelmed in noisy environments. Such auditory sensitivities might impact the child\u2019s ability to focus in classroom or social settings, potentially affecting developments in language and communication skills."
+    },
+    "visual_and_movement_processing": {
+        "type": "paragraph",
+        "content": "The child's visual and movement processing are within typical ranges, showing scores of 15 and 18 respectively. Classified as 'Just like the Majority of Others', these results suggest that there are no significant impediments in these areas. However, combined with the high avoidance and sensitivity in other sensory areas, there could be implications on motor planning and spatial awareness that affect how the child interacts with their environment, highlighting an evident need for structured routines to mitigate anxiety in new or unpredictable settings."
+    },
+    "behavioural_response_domain": {
+        "type": "paragraph",
+        "content": "Behavioral responses associated with sensory processing are elevated, with a raw score of 22 and a percentile range of 96-99. This 'Much More Than Others' classification reflects the child\u2019s challenges in self-regulation and adapting behaviors across contexts, notably when exposed to unforeseen sensory stimuli. Such reactions could lead to difficulties in maintaining attention and performing daily tasks consistently."
+    },
+    "summary": {
+        "type": "paragraph",
+        "content": "Overall, this SP2 assessment highlights key sensory processing concerns predominantly in the avoidance, sensitivity, and oral sensory domains. Heightened sensory sensitivity impacts daily living skills, particularly in grooming, feeding, and social play. Intervention strategies should focus on developing customized sensory diets and personalized environmental modifications to enhance the child's adaptive behaviors in daily functioning. Providing consistent routines and introducing sensory input in a controlled manner may improve functional performance and participation in varied activities."
     }
 }
