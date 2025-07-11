@@ -1,73 +1,181 @@
 async def get_pedieat_prompt(pedieat_analysis: str, json_format=False) -> str:
     if json_format:
         pedieat_prompt = f"""
-        Write a detailed PediEAT assessment interpretation for a pediatric OT report.
-
+        You are a highly experienced occupational therapist with specialized training in pediatric feeding and oral-motor development. Based on the pedieat data provided below, generate a comprehensive, clinical report using professional terminology and a structured format. The tone should be clinical, objective, and precise, appropriate for inclusion in a multidisciplinary medical or therapy report. Provide interpretations and implications where relevant.
         PediEAT Analysis: {pedieat_analysis}
 
-        Output Requirements:
-        - Return the output as a valid JSON object with multiple sections.
-        - Use appropriate "type" for each section: "header", "paragraph", "table", or "bullet_points".
-        - Create a comprehensive feeding assessment interpretation.
+        
+        --------- Guides for Intraoral Inspection --------
+        Generate a clinically detailed and anatomically accurate intraoral inspection report for a pediatric patient. The report should be based on the context provided (including patient age, presenting concerns, and findings). Use formal medical language appropriate for clinical documentation. Address relevant anatomical, functional, and diagnostic components, adapting the content based on the specific oral structure examined (e.g., labial frenulum, lingual frenulum, buccal tie).
 
-        Content Requirements:
-        - Report domain-specific PediEAT scores and percentile rankings
-        - Describe feeding physiology findings (oral motor, swallowing safety)
-        - Address feeding processing abilities (texture acceptance, utensil use)
-        - Include feeding behavior analysis (mealtime behaviors, food selectivity)
-        - Provide selectivity assessment (food preferences, acceptance patterns)
-        - Include safety considerations and aspiration risk
-        - Provide specific clinical recommendations based on findings
-        - Address texture modification needs and feeding progression
-        - Include caregiver education and mealtime strategies
-        - Use professional terminology related to pediatric feeding and dysphagia
+        The report should include the following sections and considerations:
+        Anatomical Findings:
+            Identify the specific oral structure examined (e.g., upper labial frenulum, lingual frenulum, buccal mucosa).
+            Describe the insertion point (e.g., alveolar ridge, gingival margin, floor of mouth).
+            Detail tissue tension/tethering, visibility, elasticity, and presence of blanching on retraction.
+            Note any limitations in elevation or lateral movement of the lips or tongue.
 
-        Connect assessment findings to the child's functional feeding abilities and nutritional adequacy.
+        Functional Implications:
+            Explain how anatomical findings may impact oral motor function.
+            Include effects on feeding (e.g., latch, suction, milk transfer, spillage), speech development, or oral rest posture.
+            Mention compensatory behaviors (e.g., jaw thrusting, increased effort during sucking, tongue cupping).
 
+        Diagnostic Impression:
+            If applicable, include suspected classification (e.g., Kotlow Class II lingual restriction) based on visual screening.
+            If insufficient for full classification, indicate need for further functional assessment.
+
+        Recommendations:
+            Suggest referral to relevant specialists (e.g., pediatric dentist, ENT, IBCLC, speech-language pathologist).
+            Recommend further evaluation if oral tethering is suspected to impact feeding, speech, or oral development.
+
+        Style Guidelines:
+            Use past tense and objective clinical tone.
+            Avoid caregiver or patient-reported data unless prompted.
+
+        ---------------------------------------------------------------
+
+        ----------------- Guide for Pediate Score Summary --------------
+        Generate a clinically concise and professional summary paragraph describing a child's global feeding concerns, grounded in the results of the Pediatric Eating Assessment Tool (PediEAT). Use formal clinical language suitable for inclusion in a multidisciplinary report or evaluation summary. Tailor the paragraph based on specific input, such as the total PediEAT score, concern level, and any relevant subscale domains (e.g., physiological, behavioral, sensory, oral-motor).
+
+        The paragraph should include the following components:
+            Identification of the child by first name only (if provided).
+            Overall concern level based on the total PediEAT score and how it compares to normative thresholds (e.g., “High Concern”).
+            Mention of elevated subscale domains, reflecting whether concerns span multiple areas (physiological, behavioral, sensory, oral-motor).
+            Clinical framing, indicating that the data reflects global feeding difficulty and supports need for further assessment/intervention.
+
+        Style Guidelines:
+            Use professional, objective tone.
+            Write in past tense.
+            Avoid speculation or caregiver quotes unless prompted.
+
+        Summarize multiple areas of concern clearly in one paragraph.
+
+        
+        -------------------- Guide for generating Feeding observation --------------------
+        Generate a detailed clinical paragraph summarizing feeding observations in a pediatric patient, particularly focused on oropharyngeal coordination, respiratory control, and labial function. Use a professional tone suitable for medical records or developmental feeding evaluations. Base the paragraph on observational data, and adapt the language depending on the child’s feeding method (e.g., bottle, breast), behaviors, and age.
+
+        The paragraph should include:
+            Breathing-feeding coordination issues, such as:
+            Frequent pauses during feeding to catch breath
+            Signs of respiratory fatigue (e.g., gulping, labored breathing, poor endurance)
+            Immature oropharyngeal coordination or suck-swallow-breathe patterns
+
+        Labial function/mobility, including:
+            Lip seal issues (e.g., poor anterior lip seal, lip flaring vs. inversion)
+            Upper/lower lip tucking or instability
+            Impact on ability to maintain negative intraoral pressure
+
+        Functional consequences of these issues, such as:
+            Reduced efficiency
+            Inconsistent latch
+            Fatigue during oral feeding
+
+        Style Guidelines:
+            Use objective, clinical language
+            Write in past tense
+            Refer to the child by first name if provided
+            Avoid caregiver impressions unless requested
+
+        No need to reference interventions or treatment plans unless prompted
+
+        
+        ------------ Guide for  generating behavioural observations ------------------
+        Generate a detailed clinical paragraph describing a pediatric patient’s behavioral responses during feeding, with a focus on distress behaviors, oral fatigue, and feeding endurance. The paragraph should reflect objective observations and provide clinical insight into how these behaviors may relate to broader feeding difficulties.
+
+        Include the following elements:
+            Behavioral indicators of distress, such as:
+                Food refusal, reduced intake
+                Irritability, crying, pulling away
+                Inconsistent acceptance of feeding routines
+                Escalating stress during the meal
+
+        Duration and tolerance:
+            Note if the child stops feeding after a short period or few bites/sips
+            Signs of poor feeding endurance or oral fatigue
+
+        Potential contributing factors, such as:
+            Oral discomfort
+            Inefficient oral-motor skills
+            Negative past feeding experiences
+
+        Functional impact:
+            How behaviors may be reinforcing a negative association with feeding
+            Effects on intake, nutrition, and feeding progress
+
+        Style Guidelines:
+            Use formal, clinical language
+            Write in past tense
+            Refer to the child by first name if provided
+            Do not quote caregivers unless instructed
+            Compose a single paragraph
+
+        ------------------------------------------------------------
+
+        If no significant findings are noted, include that in professional terms.
+        
         JSON response format:
         {{
             "pedieat_overview": {{
                 "type": "header",
-                "content": "PediEAT Assessment (Feeding Assessment)"
+                "content": "PediEAT Assessment (Feeding Evaluation Report)"
             }},
-            "assessment_description": {{
+            "physical_examination_header": {{
+                "type": "physical_examination_header",
+                "content": "Physical Examination"
+            }},
+            "physical_examination": {{
                 "type": "paragraph",
-                "content": "The PediEAT assessment evaluates feeding and swallowing abilities across four key domains: Physiology, Processing, Behavior, and Selectivity. This comprehensive assessment provides insight into feeding safety, efficiency, and participation."
+                "content": {{
+                "body": "replace the content with detailed interpretation from the given data",
+                "head_and_neck": "replace the content with detailed interpretation from the given data",
+                "face": "replace the content with detailed interpretation from the given data",
+                "jaw": "replace the content with detailed interpretation from the given data",
+                "lips": "replace the content with detailed interpretation from the given data",
+                "tongue": "replace the content with detailed interpretation from the given data",
+                "cheeks": "replace the content with detailed interpretation from the given data",
+                "palate": "replace the content with detailed interpretation from the given data"
+                }}
             }},
-            "physiology_domain": {{
+            "cranial_nerve_screening_header": {{
+                "type": "cranial_nerve_screening_header",
+                "content": "Cranial Nerve Screening"
+            }},
+            "cranial_nerve_screening": {{
                 "type": "paragraph",
-                "content": "Physiology domain assessment revealed [specific findings regarding oral motor skills, swallowing safety, and physiological feeding functions]. These findings indicate [interpretation of feeding safety and risk factors]."
+                "content": {{
+                "CN I (Olfactory)": "replace the content with detailed interpretation from the given data",
+                "CN V (Trigeminal)": "replace the content with detailed interpretation from the given data",
+                "CN VII (Facial)": "replace the content with detailed interpretation from the given data",
+                "CN IX (Glossopharyngeal)": "replace the content with detailed interpretation from the given data",
+                "CN X (Vagus):": "replace the content with detailed interpretation from the given data",
+                "CN XI (Accessory)": "replace the content with detailed interpretation from the given data",
+                "CN XII (Hypoglossal)": "replace the content with detailed interpretation from the given data"
+                }}
             }},
-            "processing_domain": {{
+            "intraoral_inspection": {{
                 "type": "paragraph",
-                "content": "Processing domain evaluation demonstrated [texture acceptance, sensory processing of foods, and adaptive feeding skills]. The child's ability to process various food textures and consistencies shows [specific findings and implications]."
+                "content": "replace the content with detailed interpretation from the given data"
             }},
-            "behavior_domain": {{
+            "pedieat_score_summary": {{
                 "type": "paragraph",
-                "content": "Behavior domain analysis indicated [mealtime behaviors, attention during feeding, and behavioral responses to food]. These patterns suggest [behavioral implications for feeding intervention]."
+                "content": "replace the content with detailed interpretation from the given data"
             }},
-            "selectivity_domain": {{
+            "feeding_and_swallowing_observations": {{
                 "type": "paragraph",
-                "content": "Selectivity assessment revealed [food preferences, acceptance patterns, and variety in diet]. The degree of food selectivity demonstrates [impact on nutritional adequacy and feeding development]."
+                "content": "replace the content with detailed interpretation from the given data"
             }},
-            "feeding_recommendations": {{
+            "clinical_recommendations": {{
                 "type": "bullet_points",
                 "content": [
-                    "Feeding therapy services to address identified areas of need",
-                    "Texture modifications and feeding progression strategies",
-                    "Oral motor exercises and feeding skill development",
-                    "Mealtime behavioral strategies and environmental modifications",
-                    "Caregiver education on safe feeding practices",
-                    "Nutritional monitoring and consultation as needed"
+                "replace the content with detailed interpretation from the given data"
                 ]
             }},
             "safety_considerations": {{
                 "type": "paragraph",
-                "content": "Based on the PediEAT findings, feeding safety considerations include [specific safety recommendations and monitoring needs]. Regular reassessment of feeding skills and safety is recommended to ensure optimal nutrition and prevent feeding-related complications."
+                "content": "replace the content with detailed interpretation from the given data"
             }}
-        }}
-
-        Ensure the response is valid JSON and follows this exact structure.
+            }}
+        Ensure the response is valid JSON and all required sections are populated with clinical-level detail.
         """
         return pedieat_prompt
     

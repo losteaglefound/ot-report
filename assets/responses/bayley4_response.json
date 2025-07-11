@@ -11,13 +11,13 @@
         "domain_details": {
             "type": "bullet_points",
             "content": [
-                "Infant tasks include: Visual tracking, habituation to stimuli, object permanence, cause-effect understanding, and early symbolic play.",
-                "Toddler tasks include: Shape sorting, puzzle completion, block stacking, spatial memory, and basic concept categorization."
+                "Infant tasks include: Visual tracking, habituation to stimuli, object permanence, cause-effect understanding, and early symbolic play..",
+                "Toddler tasks include: Shape sorting, puzzle completion, block stacking, spatial memory, and basic concept categorization.."
             ]
         },
         "patient_assessment": {
             "type": "paragraph",
-            "content": "No data was available on Sabrina's performance in the Cognitive domain. Consequently, her abilities related to attention, memory, and problem-solving cannot be evaluated. Further assessment in this domain is recommended to identify potential strengths or areas for intervention."
+            "content": "No evaluation data available for the cognitive domain. As a result, an analysis of Sabrina\u2019s attention, memory, sensory-motor development, and problem-solving abilities cannot be accurately ascertained. Further assessment is warranted to better inform intervention strategies."
         }
     },
     "receptive_communication": {
@@ -32,13 +32,13 @@
         "domain_details": {
             "type": "bullet_points",
             "content": [
-                "Infant tasks include: Responding to name, recognizing voices, following gestures, and reacting to familiar people or words.",
-                "Toddler tasks include: Following one-step commands, identifying objects/body parts, and understanding common language constructs."
+                "Infant tasks include: Responding to name, recognizing voices, following gestures, and reacting to familiar people or words..",
+                "Toddler tasks include: Following one-step commands, identifying objects/body parts, and understanding common language constructs.."
             ]
         },
         "patient_assessment": {
             "type": "paragraph",
-            "content": "Sabrina\u2019s assessment data was not available for the Receptive Communication domain. It is important to evaluate her ability to comprehend language and nonverbal cues, as these skills are foundational for social interaction and learning. Further examination through structured observation and standardized assessment is recommended."
+            "content": "No evaluation data available for the receptive communication domain. Further observation and assessment would be necessary to determine Sabrina's ability to comprehend verbal language and nonverbal cues, such as gestures and situational context."
         }
     },
     "expressive_communication": {
@@ -53,13 +53,13 @@
         "domain_details": {
             "type": "bullet_points",
             "content": [
-                "Infant tasks include: Cooing, babbling, vocal imitation, and use of gestures like pointing or waving.",
-                "Toddler tasks include: Using words, combining words, forming short phrases or sentences, and expressing wants/needs."
+                "Infant tasks include: Cooing, babbling, vocal imitation, and use of gestures like pointing or waving..",
+                "Toddler tasks include: Using words, combining words, forming short phrases or sentences, and expressing wants/needs.."
             ]
         },
         "patient_assessment": {
             "type": "paragraph",
-            "content": "No data was submitted for the Expressive Communication domain for Sabrina. Understanding her abilities in this area is critical for assessing her expressive language development, which is crucial for effective communication and social integration. An assessment using appropriate tools is advised to determine her current expressive language skills."
+            "content": "No evaluation data available for the expressive communication domain. Unable to provide insights into Sabrina's verbal and nonverbal expressive communication skills. Additional assessment will be necessary to guide therapeutic practices."
         }
     },
     "fine_motor": {
@@ -74,13 +74,13 @@
         "domain_details": {
             "type": "bullet_points",
             "content": [
-                "Infant tasks include: Grasping objects, transferring items, visual tracking, and early object manipulation.",
-                "Toddler tasks include: Stacking, drawing, threading, pincer grasp development, and pre-writing skills."
+                "Infant tasks include: Grasping objects, transferring items, visual tracking, and early object manipulation..",
+                "Toddler tasks include: Stacking, drawing, threading, pincer grasp development, and pre-writing skills.."
             ]
         },
         "patient_assessment": {
             "type": "paragraph",
-            "content": "Sabrina\u2019s fine motor skills were not evaluated in this assessment. It is essential to assess manual dexterity and visual-motor integration to identify areas that may impact her ability to engage in age-appropriate activities, such as drawing, stacking, and basic self-care tasks. Evaluation of her grasp patterns, like digital pronate or pincer grasp, and coordination abilities should be a focus in future assessments to guide targeted interventions."
+            "content": "No evaluation data available for the fine motor domain. Thus, Sabrina\u2019s capabilities in manual dexterity and visual-motor integration remain undetermined. Conducting a directed assessment will be pivotal in forming a comprehensive understanding of her fine motor development and needs for interventional planning."
         }
     },
     "gross_motor": {
@@ -95,13 +95,13 @@
         "domain_details": {
             "type": "bullet_points",
             "content": [
-                "Infant tasks include: Head control, rolling, sitting, crawling, and early attempts at standing or walking.",
-                "Toddler tasks include: Running, jumping, climbing, throwing, stair use, and coordinated movement sequences."
+                "Infant tasks include: Head control, rolling, sitting, crawling, and early attempts at standing or walking..",
+                "Toddler tasks include: Running, jumping, climbing, throwing, stair use, and coordinated movement sequences.."
             ]
         },
         "patient_assessment": {
             "type": "paragraph",
-            "content": "There is no available data for Sabrina in the Gross Motor domain. Evaluations in this area typically measure abilities like running, jumping, and coordination, which are vital for daily functioning and physical play. An assessment to determine her strengths and areas requiring intervention would benefit her development of gross motor skills and independence."
+            "content": "No evaluation data available for the gross motor domain. Consequently, Sabrina\u2019s gross motor skills, including her balance, coordination, and postural control capabilities, remain unassessed. A focused evaluation will be vital to outline her gross motor development and guide necessary interventions."
         }
     }
 }

@@ -1,4 +1,5 @@
 from reportlab.platypus import Paragraph, Spacer, ListFlowable, ListItem
+from reportlab.lib.enums import TA_LEFT
 from reportlab.lib.styles import ParagraphStyle, getSampleStyleSheet
 from reportlab.lib.units import cm ,inch
 
@@ -294,3 +295,100 @@ async def format_bayley_data_for_html(data: dict) -> str:
         html_parts.append('<div style="margin-bottom: 20px;"></div>')
     
     return '\n'.join(html_parts)
+
+
+async def format_pedieat_data_for_pdf(data: dict) -> list:
+    """
+    Converts PediEAT structured JSON data into a list of ReportLab flowables.
+    Handles nested content structure with examination details and clinical interpretations.
+    
+    Args:
+        data (dict): Parsed PediEAT JSON with specific structure for feeding evaluation.
+
+    Returns:
+        list: A list of flowables (Paragraphs, Spacers, ListFlowable) ready for PDF generation.
+    """
+    styles = getSampleStyleSheet()
+    elements = []
+
+    # Custom styles for PediEAT formatting
+    header_style = ParagraphStyle(
+        name="PediEATHeader",
+        fontSize=12,
+        leading=14,
+        fontName="TimesNewRoman-Bold",
+        underlineWidth=1,
+        spaceAfter=8,
+        spaceBefore=16,
+    )
+    
+    subsection_header_style = ParagraphStyle(
+        name="PediEATSubsectionHeader",
+        parent=styles['Normal'],
+        fontSize=11,
+        leading=14,
+        fontName="TimesNewRoman",
+        spaceAfter=4,
+        spaceBefore=8,
+    )
+    
+    body_style = ParagraphStyle(
+        name="PediEATBodyText",
+        fontSize=11,
+        leading=14,
+        fontName="TimesNewRoman",
+        spaceAfter=8,
+        spaceBefore=4,
+        firstLineIndent=0,
+    )
+    
+    bullet_style = ParagraphStyle(
+        name="PediEATBulletStyle",
+        fontSize=11,
+        leading=14,
+        fontName="TimesNewRoman",
+        leftIndent=20,
+        spaceAfter=3,
+    )
+
+    for key, value in data.items():
+        if not isinstance(value, dict):
+            continue
+            
+        content_type = value.get("type")
+        content = value.get("content", "")
+
+        if content_type == "header":
+            # Main section headers
+            elements.append(Paragraph(f"<u>{content}</u>", header_style))
+            
+        if content_type == "physical_examination_header" or content_type == "cranial_nerve_screening_header":
+            elements.append(Paragraph(f"{content}", header_style))
+
+        elif content_type == "paragraph":
+            if isinstance(content, dict):
+                # Handle nested content structure for examination sections
+                for subkey, subcontent in content.items():
+                    if isinstance(subcontent, str) and subcontent.strip():
+                        # Format subkey as a readable header
+                        formatted_subkey = subkey.replace('_', ' ').title()
+                        if formatted_subkey.lower() != 'body':  # Skip generic 'body' header
+                            elements.append(Paragraph(f"<b>{formatted_subkey}:</b> {subcontent}", subsection_header_style))
+                        # elements.append(Paragraph(subcontent, body_style))
+            else:
+                # Handle simple string content
+                if isinstance(content, str) and content.strip():
+                    elements.append(Paragraph(content, body_style))
+                    
+        elif content_type == "bullet_points":
+            # Handle bullet point lists
+            if content and isinstance(content, list):
+                for bullet_point in content:
+                    if bullet_point.strip():  # Only add non-empty bullet points
+                        elements.append(Paragraph(f"• {bullet_point}", bullet_style))
+                elements.append(Spacer(1, 0.1 * inch))
+        
+        # Add space after each major section
+        elements.append(Spacer(1, 0.15 * inch))
+
+    return elements

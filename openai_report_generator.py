@@ -27,6 +27,8 @@ else:
     logger.warning("⚠️ OpenAI library not available - install with: pip install openai")
 
 from PIL import Image as PILImage
+from reportlab.lib.fonts import addMapping
+from reportlab.lib.enums import TA_LEFT
 from reportlab.lib.pagesizes import letter
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 from reportlab.lib.units import inch
@@ -48,13 +50,16 @@ from reportlab.lib.enums import TA_LEFT, TA_CENTER, TA_JUSTIFY
 from reportlab.lib import colors
 
 from backend.prompts import save_response, remove_lang_tags, get_prompt
-from backend.utils.response import format_data_for_pdf, format_bayley_data_for_pdf
+from backend.utils.response import format_data_for_pdf, format_bayley_data_for_pdf, format_pedieat_data_for_pdf
 from backend.langgraph import graph_invoke
 
 
 pdfmetrics.registerFont(TTFont('TimesNewRoman', config.PROJECT_DIR / 'assets/fonts/Times New Roman.ttf'))
 pdfmetrics.registerFont(TTFont('TimesNewRoman-Bold', config.PROJECT_DIR / 'assets/fonts/Times New Roman - Bold.ttf'))
 pdfmetrics.registerFont(TTFont("TimesNewRoman-Italic", config.PROJECT_DIR / 'assets/fonts/Times New Roman - Italic.ttf'))
+
+# addMapping('TimesNewRoman', 0, 0, 'TimesNewRoman')
+# addMapping('TimesNewRoman', 0, 1, 'TimesNewRoman-Bold')
 
 
 class OpenAIEnhancedReportGenerator:
@@ -1585,27 +1590,30 @@ class OpenAIEnhancedReportGenerator:
         elements = []
         
         # Main title
-        elements.append(Spacer(10, 20))
-        header = self._section_header("Bayley Scales of Infant and Toddler Development - Fourth Edition (BSID-4)")
-        elements.append(header)
-        elements.append(Spacer(1, 8))
-        
         # Get assessment analysis
         assessment_analysis = report_data.get("assessment_analysis", {})
 
         # Get extracted data to check for file uploads
+        bayley = report_data.get('bayley')
         extracted_data = report_data.get("extracted_data", {})
         
+        if bayley.get('cognitive_and_motor') or bayley.get("social_and_adaptive"):
+            elements.append(Spacer(10, 20))
+            header = self._section_header("Bayley Scales of Infant and Toddler Development - Fourth Edition (BSID-4)")
+            elements.append(header)
+            elements.append(Spacer(1, 8))
+            
+
         # Bayley-4 cognitive detailed results - only if cognitive file was uploaded
-        if extracted_data.get("bayley4_cognitive"):
+        if bayley.get("cognitive_and_motor"):
             elements.extend(await self._create_bayley4_detailed_section(report_data))
         
         # Bayley-4 social and adaptive detailed results - only if social file was uploaded
-        if extracted_data.get("bayley4_social"):
+        if bayley.get("social_and_adaptive"):
             elements.extend(await self._create_bayley4_social_and_adaptive_detailed_section(report_data))
         
-        # SP2 detailed results
-        if assessment_analysis.get("sp2"):
+        # SP2 detailed results - only if sp2 file was uploaded
+        if extracted_data.get("sp2"):
             elements.extend(await self._create_sp2_detailed_section(report_data))
         
 
@@ -1613,9 +1621,9 @@ class OpenAIEnhancedReportGenerator:
         # if assessment_analysis.get("chomps"):
         #     elements.extend(await self._create_chomps_detailed_section(report_data))
         
-        # # PediEAT detailed results  
-        # if assessment_analysis.get("pedieat"):
-        #     elements.extend(await self._create_pedieat_detailed_section(report_data))
+        # PediEAT detailed results - only if pedieat file was uploaded
+        if extracted_data.get("pedieat"):
+            elements.extend(await self._create_pedieat_detailed_section(report_data))
         
         return elements
     
@@ -1744,7 +1752,7 @@ class OpenAIEnhancedReportGenerator:
         elements = []
         
         # PediEAT analysis data
-        pedieat_analysis = report_data.get("assessment_analysis", {}).get("pedieat", {})
+        pedieat_analysis = report_data.get("extracted_data", {}).get("pedieat", {})
         
         pedieat_prompt = await get_prompt(prompt_type="pedieat", report_data=pedieat_analysis, json_format=True)
 
@@ -1758,7 +1766,7 @@ class OpenAIEnhancedReportGenerator:
             await save_response(pedieat_response, file_name="pedieat", json_format=True)
             self.logger.error(f"❌ PediEAT response parsing failed: {e}")
             raise
-        body = await format_data_for_pdf(pedieat_response)
+        body = await format_pedieat_data_for_pdf(pedieat_response)
         elements.extend(body)
         
         return elements

@@ -1,41 +1,64 @@
 {
     "pedieat_overview": {
         "type": "header",
-        "content": "PediEAT Assessment (Feeding Assessment)"
+        "content": "PediEAT Assessment (Feeding Evaluation Report)"
     },
-    "assessment_description": {
+    "physical_examination_header": {
+        "type": "physical_examination_header",
+        "content": "Physical Examination"
+    },
+    "physical_examination": {
         "type": "paragraph",
-        "content": "The PediEAT assessment evaluates feeding and swallowing abilities across four key domains: Physiology, Processing, Behavior, and Selectivity. This comprehensive assessment provides insight into feeding safety, efficiency, and participation."
+        "content": {
+            "body": "Body posture appeared stable with adequate control of trunk muscles during feeding trials.",
+            "head_and_neck": "The patient demonstrated appropriate head and neck control, with no noticeable head bobbing or instability during eating.",
+            "face": "Facial symmetry observed, with no significant midline deviations or concerns noted.",
+            "jaw": "Jaw movement was coordinated with no signs of jaw thrusting or instability during chewing.",
+            "lips": "Lip closure was adequate; however, some occasional lip flaring was noted, potentially impacting anterior seal.",
+            "tongue": "Tongue movement was observed to have slight limitations in lateralization, but overall function was adequate for bolus manipulation.",
+            "cheeks": "Buccal tone noted to be adequate; no significant evidence of cheek retraction or tension.",
+            "palate": "Palate appeared intact with no anomalies observed, contributing to effective palatal pressure during oral intake."
+        }
     },
-    "physiology_domain": {
+    "cranial_nerve_screening_header": {
+        "type": "cranial_nerve_screening_header",
+        "content": "Cranial Nerve Screening"
+    },
+    "cranial_nerve_screening": {
         "type": "paragraph",
-        "content": "Physiology domain assessment revealed adequate oral motor skills with slight delays in coordinated swallowing reflex, and a moderate risk for aspiration due to infrequent coughing during fluid intake. These findings indicate the need for ongoing monitoring of swallowing safety and potential intervention to mitigate risk factors associated with aspiration."
+        "content": {
+            "CN I (Olfactory)": "Not formally tested; no concerns noted anecdotally.",
+            "CN V (Trigeminal)": "Masticatory functions intact, indicating successful activation.",
+            "CN VII (Facial)": "Symmetrical facial movements preserved, indicating bilateral facial nerve integrity.",
+            "CN IX (Glossopharyngeal)": "Adequate gag reflex observed, suggesting normal innervation.",
+            "CN X (Vagus)": "Swallowing abilities intact with no aspiration signs, indicating sufficient vagus function.",
+            "CN XI (Accessory)": "No restrictions noted in neck muscle function; head turn and shoulder elevating motions observed.",
+            "CN XII (Hypoglossal)": "Tongue protrusion and lateralization within normal limits, indicative of hypoglossal nerve function."
+        }
     },
-    "processing_domain": {
+    "intraoral_inspection": {
         "type": "paragraph",
-        "content": "Processing domain evaluation demonstrated a moderate acceptance of pureed and soft textures, but difficulty with chewy or crunchy textures indicating hyposensitivity to certain sensory inputs. The child's ability to process various food textures and consistencies shows a need for gradual exposure to a wider range of textures to support sensory integration and adaptive feeding skills."
+        "content": "Upon intraoral examination, the upper labial frenulum was noted to have a low insertion point on the alveolar ridge with minor visibility on retraction. The lingual frenulum exhibited slight tethering, restricting tongue elevation minimally but not impacting lateral tongue movement significantly. There was no noticeable blanching upon tongue retraction, and elasticity appeared within normal limits."
     },
-    "behavior_domain": {
+    "pedieat_score_summary": {
         "type": "paragraph",
-        "content": "Behavior domain analysis indicated consistent mealtime distraction and refusal behaviors, with a notable decrease in engagement during prolonged feeding sessions. These patterns suggest a necessity for structured mealtime routines to enhance feeding focus and reduce avoidance behaviors, which are critical for developing effective feeding participation."
+        "content": "The PediEAT results indicated a 'Moderate Concern' based on the total score, falling into a range suggestive of potential feeding difficulties. Elevated scores were noted particularly within the oral-motor and sensory domains, highlighting challenges in coordination and sensory processing. These findings reflect persistent global feeding challenges, warranting further interdisciplinary assessment and potential intervention."
     },
-    "selectivity_domain": {
+    "feeding_and_swallowing_observations": {
         "type": "paragraph",
-        "content": "Selectivity assessment revealed strong preference for carbohydrate-rich foods, with limited acceptance of protein and vegetable options. The degree of food selectivity demonstrates a potential impact on nutritional adequacy and an increase in the risk for dietary insufficiencies, necessitating targeted interventions to expand the variety in the child's diet."
+        "content": "During the feeding observation, the child demonstrated adequate suck-swallow-breathe patterns; however, frequent pauses were observed, likely to coordinate breathing and prevent fatigue. Labial function was observed with occasional instability, hinting at inconsistent intraoral pressure maintenance. Despite these challenges, the child completed feeding sessions with signs of mild fatigue but maintained nutritional intake."
     },
-    "feeding_recommendations": {
+    "clinical_recommendations": {
         "type": "bullet_points",
         "content": [
-            "Feeding therapy services to address identified areas of need",
-            "Texture modifications and feeding progression strategies",
-            "Oral motor exercises and feeding skill development",
-            "Mealtime behavioral strategies and environmental modifications",
-            "Caregiver education on safe feeding practices",
-            "Nutritional monitoring and consultation as needed"
+            "Referral to a speech-language pathologist for comprehensive evaluation of feeding and swallowing function.",
+            "Consideration of consultation with a pediatric dentist to assess potential need for frenotomy if lingual tethering impacts feeding.",
+            "Monitor feeding progress closely with repeat evaluations scheduled to assess development over time.",
+            "Provision of oral-motor exercises aimed at strengthening lingual and labial function."
         ]
     },
     "safety_considerations": {
         "type": "paragraph",
-        "content": "Based on the PediEAT findings, feeding safety considerations include maintaining upright positioning during meals and close monitoring for signs of aspiration, such as coughing or choking. Regular reassessment of feeding skills and safety is recommended to ensure optimal nutrition and prevent feeding-related complications."
+        "content": "Ensure close supervision during all feeding sessions to promptly address any symptoms of aspiration. Recommend ongoing observation for signs of inadequate nutrition or dehydration, as well as maintaining open referral options for additional interventions if feeding difficulties persist or escalate."
     }
 }

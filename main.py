@@ -54,6 +54,7 @@ from fastapi.templating import Jinja2Templates
 # Import modules based on configuration
 from pdf_processor import EnhancedPDFProcessor
 from backend.langgraph.sensory_agent import extract_sp2_data
+from backend.langgraph.pedieat_agent import extract_pedieat_data
 
 # Conditional imports based on configuration
 if is_openai_enabled():
@@ -392,6 +393,24 @@ async def upload_files(
                 logger.error(f"❌ Error processing SP2 assessment: {e}")
                 sp2_results = {}
 
+        # Process PediEAT assessment if file is provided
+        pedieat_results = {}
+        if 'pedieat' in uploaded_files:
+            try:
+                logger.info("🧠 Processing PediEAT assessment with pedieat agent...")
+                pedieat_result = extract_pedieat_data(uploaded_files['pedieat'])
+                
+                if pedieat_result.get("success"):
+                    pedieat_results = pedieat_result.get("pedieat_data", {})
+                    logger.info("✅ PediEAT processing complete with pedieat agent")
+                else:
+                    logger.error(f"❌ PediEAT processing failed: {pedieat_result.get('error')}")
+                    pedieat_results = {}
+                    
+            except Exception as e:
+                logger.error(f"❌ Error processing PediEAT assessment: {e}")
+                pedieat_results = {}
+
         # Compile report data
         report_data = {
             "patient_info": {
@@ -406,7 +425,8 @@ async def upload_files(
             },
             "uploaded_files": uploaded_files,
             "extracted_data": {
-                "sp2": sp2_results
+                "sp2": sp2_results,
+                "pedieat": pedieat_results
             },
             "report_preferences": {
                 "output_format": output_format,
