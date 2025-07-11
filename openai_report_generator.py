@@ -1429,14 +1429,16 @@ class OpenAIEnhancedReportGenerator:
         }
         
         if chomps_data:
-            # Analyze each domain
-            domains = ["oral_motor", "oral_sensory", "behavioral", "pharyngeal", "esophageal"]
+            # Analyze each domain - Updated to work with our CHOMPS agent structure
+            domains = ["oral_motor_skills", "oral_sensory_skills", "feeding_behaviors", "medical_history", "nutritional_status", "feeding_history"]
             
             for domain in domains:
-                if domain in chomps_data:
-                    score = chomps_data[domain]
+                if domain in chomps_data and isinstance(chomps_data[domain], dict):
+                    domain_data = chomps_data[domain]
+                    score = domain_data.get("total_score", 0)
                     analysis["domain_scores"][domain] = score
                     analysis["concern_levels"][domain] = self._get_chomps_concern_level(score)
+            
             
             # Assess feeding risks
             analysis["feeding_risks"] = self._assess_chomps_feeding_risks(chomps_data)
@@ -1461,20 +1463,26 @@ class OpenAIEnhancedReportGenerator:
         """Assess specific feeding risks from ChOMPS data"""
         risks = []
         
+        # Extract scores from our CHOMPS agent structure
+        oral_motor_score = chomps_data.get("oral_motor_skills", {}).get("total_score", 0)
+        oral_sensory_score = chomps_data.get("oral_sensory_skills", {}).get("total_score", 0)
+        feeding_behaviors_score = chomps_data.get("feeding_behaviors", {}).get("total_score", 0)
+        medical_history_score = chomps_data.get("medical_history", {}).get("total_score", 0)
+        
         # Bolus control risks
-        if chomps_data.get("oral_motor", 0) >= 4:
+        if oral_motor_score >= 4:
             risks.append("Bolus control: Difficulty managing food bolus, risk of pocketing or spillage")
         
         # Gagging risks
-        if chomps_data.get("oral_sensory", 0) >= 4:
+        if oral_sensory_score >= 4:
             risks.append("Gagging: Heightened gag response to textures, limiting food variety and intake")
         
         # Food hoarding risks
-        if chomps_data.get("behavioral", 0) >= 4:
+        if feeding_behaviors_score >= 4:
             risks.append("Food hoarding: Behavioral feeding patterns including food refusal or hoarding behaviors")
         
         # Swallowing safety
-        if chomps_data.get("pharyngeal", 0) >= 4:
+        if medical_history_score >= 4:
             risks.append("Swallowing safety: Potential aspiration risk requiring modified textures and positioning")
         
         return risks
@@ -1483,12 +1491,24 @@ class OpenAIEnhancedReportGenerator:
         """Get clinical recommendations based on ChOMPS findings"""
         recommendations = []
         
-        if any(score >= 4 for score in chomps_data.values()):
+        # Extract scores from our CHOMPS agent structure
+        domain_scores = []
+        domains = ["oral_motor_skills", "oral_sensory_skills", "feeding_behaviors", "medical_history", "nutritional_status", "feeding_history"]
+        
+        for domain in domains:
+            if domain in chomps_data and isinstance(chomps_data[domain], dict):
+                score = chomps_data[domain].get("total_score", 0)
+                domain_scores.append(score)
+        
+        # Check if any domain has significant concerns
+        if any(score >= 4 for score in domain_scores):
             recommendations.append("Feeding therapy with licensed speech-language pathologist")
             recommendations.append("Modified food textures and positioning strategies")
             recommendations.append("Caregiver education on safe feeding practices")
         
-        if chomps_data.get("pharyngeal", 0) >= 6:
+        # Check for severe concerns requiring medical evaluation
+        medical_score = chomps_data.get("medical_history", {}).get("total_score", 0)
+        if medical_score >= 6:
             recommendations.append("Video fluoroscopic swallow study (VFSS) evaluation")
         
         return recommendations
@@ -1616,14 +1636,13 @@ class OpenAIEnhancedReportGenerator:
         if extracted_data.get("sp2"):
             elements.extend(await self._create_sp2_detailed_section(report_data))
         
-
-        # ChOMPS detailed results
-        # if assessment_analysis.get("chomps"):
+        # ChOMPS detailed results - only if chomps file was uploaded
+        # if extracted_data.get("chomps"):
         #     elements.extend(await self._create_chomps_detailed_section(report_data))
         
         # PediEAT detailed results - only if pedieat file was uploaded
-        if extracted_data.get("pedieat"):
-            elements.extend(await self._create_pedieat_detailed_section(report_data))
+        if extracted_data.get("pedieat") or extracted_data.get('chomps'):
+            elements.extend(await self._create_pedieat_detailed_section(extracted_data))
         
         return elements
     
@@ -1725,12 +1744,16 @@ class OpenAIEnhancedReportGenerator:
         print("Extracting chomps details")
         elements = []
         
+        # Add section header
+        header = self._section_header("Chicago Oral Motor and Feeding Scale (ChOMPS)")
+        elements.append(header)
+        elements.append(Spacer(1, 8))
         
         # ChOMPS analysis data
-        chomps_analysis = report_data.get("assessment_analysis", {}).get("chomps", {})
+        chomps_analysis = report_data.get("extracted_data", {}).get("chomps", {})
         
         # Generate ChOMPS interpretation
-        chomps_prompt = await get_prompt(prompt_type="chomps", report_data=chomps_analysis, json_format=True)
+        chomps_prompt = await get_prompt(prompt_type="chomps", report_data=chomps_analysis, json_format=True, analysis_data=chomps_analysis)
         print("########### PROMPT ##########", chomps_prompt)
         chomps_narrative = await self._generate_with_openai(chomps_prompt, max_tokens=2000)
         chomps_narrative = remove_lang_tags(chomps_narrative)
@@ -1747,14 +1770,11 @@ class OpenAIEnhancedReportGenerator:
         
         return elements
     
-    async def _create_pedieat_detailed_section(self, report_data: Dict[str, Any]) -> List:
+    async def _create_pedieat_detailed_section(self, extracted_data: Dict[str, Any]) -> List:
         """Create detailed PediEAT section with symptom interpretation"""
         elements = []
         
-        # PediEAT analysis data
-        pedieat_analysis = report_data.get("extracted_data", {}).get("pedieat", {})
-        
-        pedieat_prompt = await get_prompt(prompt_type="pedieat", report_data=pedieat_analysis, json_format=True)
+        pedieat_prompt = await get_prompt(prompt_type="pedieat", report_data=extracted_data, json_format=True)
 
         pedieat_response = await self._generate_with_openai(pedieat_prompt, max_tokens=1000)
         pedieat_response = remove_lang_tags(pedieat_response)

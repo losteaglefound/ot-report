@@ -55,6 +55,7 @@ from fastapi.templating import Jinja2Templates
 from pdf_processor import EnhancedPDFProcessor
 from backend.langgraph.sensory_agent import extract_sp2_data
 from backend.langgraph.pedieat_agent import extract_pedieat_data
+from backend.langgraph.chomps_agent import extract_chomps_data_wrapper
 
 # Conditional imports based on configuration
 if is_openai_enabled():
@@ -411,6 +412,24 @@ async def upload_files(
                 logger.error(f"❌ Error processing PediEAT assessment: {e}")
                 pedieat_results = {}
 
+        # Process CHOMPS assessment if file is provided
+        chomps_results = {}
+        if 'chomps' in uploaded_files:
+            try:
+                logger.info("🧠 Processing CHOMPS assessment with chomps agent...")
+                chomps_result = extract_chomps_data_wrapper(uploaded_files['chomps'])
+                
+                if chomps_result.get("success"):
+                    chomps_results = chomps_result.get("chomps_data", {})
+                    logger.info("✅ CHOMPS processing complete with chomps agent")
+                else:
+                    logger.error(f"❌ CHOMPS processing failed: {chomps_result.get('error')}")
+                    chomps_results = {}
+                    
+            except Exception as e:
+                logger.error(f"❌ Error processing CHOMPS assessment: {e}")
+                chomps_results = {}
+
         # Compile report data
         report_data = {
             "patient_info": {
@@ -426,7 +445,8 @@ async def upload_files(
             "uploaded_files": uploaded_files,
             "extracted_data": {
                 "sp2": sp2_results,
-                "pedieat": pedieat_results
+                "pedieat": pedieat_results,
+                "chomps": chomps_results
             },
             "report_preferences": {
                 "output_format": output_format,
@@ -483,6 +503,7 @@ async def upload_files(
                         logger.warning(f"⚠️ Failed to upload PDF to Google Drive: {drive_error}")
                 
             except Exception as e:
+                print(format_exc())
                 error_msg = f"Failed to generate PDF report: {str(e)}"
                 logger.error(f"❌ {error_msg}")
                 output_links["error"] = error_msg

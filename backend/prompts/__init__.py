@@ -103,8 +103,8 @@ async def get_prompt(prompt_type: str, report_data: Dict[str, Any], json_format:
     # Handle special cases for prompts that need different parameters
     if prompt_type in ['chomps', 'pedieat']:
         # These prompts need analysis data passed as first parameter
-        analysis_data = kwargs.get('analysis_data', '')
-        return await prompt_function(analysis_data, json_format=json_format)
+        # analysis_data = kwargs.get('analysis_data', '')
+        return await prompt_function(report_data, json_format=json_format)
     else:
         # Standard prompts that take report_data
         return await prompt_function(report_data, json_format=json_format)

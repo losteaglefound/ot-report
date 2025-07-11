@@ -1,9 +1,28 @@
-async def get_pedieat_prompt(pedieat_analysis: str, json_format=False) -> str:
+async def get_pedieat_prompt(extracted_data: dict, json_format=False) -> str:
+
+    pedieat_dict = extracted_data.get('pedieat', {})
+    chomps_dict = extracted_data.get('chomps', {})
+
+    pedieat = False
+    if pedieat_dict:
+        pedieat = True
+
+    chomps = False
+    if chomps_dict:
+        chomps_dict = True
+
     if json_format:
         pedieat_prompt = f"""
         You are a highly experienced occupational therapist with specialized training in pediatric feeding and oral-motor development. Based on the pedieat data provided below, generate a comprehensive, clinical report using professional terminology and a structured format. The tone should be clinical, objective, and precise, appropriate for inclusion in a multidisciplinary medical or therapy report. Provide interpretations and implications where relevant.
-        PediEAT Analysis: {pedieat_analysis}
+        """
+        
+        if pedieat:
+            pedieat_prompt += f"Pedieat data: {pedieat_dict}\n"
 
+        if chomps:
+            pedieat_prompt += f"Chomps data: {chomps_dict}\n"
+        
+        pedieat_prompt += """
         
         --------- Guides for Intraoral Inspection --------
         Generate a clinically detailed and anatomically accurate intraoral inspection report for a pediatric patient. The report should be based on the context provided (including patient age, presenting concerns, and findings). Use formal medical language appropriate for clinical documentation. Address relevant anatomical, functional, and diagnostic components, adapting the content based on the specific oral structure examined (e.g., labial frenulum, lingual frenulum, buccal tie).
@@ -182,7 +201,7 @@ async def get_pedieat_prompt(pedieat_analysis: str, json_format=False) -> str:
     pedieat_prompt = f"""
     Write a detailed PediEAT assessment interpretation for a pediatric OT report.
 
-    PediEAT Analysis: {pedieat_analysis}
+    PediEAT Analysis: {pedieat_dict}
 
     Requirements:
     - Report domain-specific scores and levels of concern

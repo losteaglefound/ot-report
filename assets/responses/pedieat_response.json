@@ -10,14 +10,14 @@
     "physical_examination": {
         "type": "paragraph",
         "content": {
-            "body": "Body posture appeared stable with adequate control of trunk muscles during feeding trials.",
-            "head_and_neck": "The patient demonstrated appropriate head and neck control, with no noticeable head bobbing or instability during eating.",
-            "face": "Facial symmetry observed, with no significant midline deviations or concerns noted.",
-            "jaw": "Jaw movement was coordinated with no signs of jaw thrusting or instability during chewing.",
-            "lips": "Lip closure was adequate; however, some occasional lip flaring was noted, potentially impacting anterior seal.",
-            "tongue": "Tongue movement was observed to have slight limitations in lateralization, but overall function was adequate for bolus manipulation.",
-            "cheeks": "Buccal tone noted to be adequate; no significant evidence of cheek retraction or tension.",
-            "palate": "Palate appeared intact with no anomalies observed, contributing to effective palatal pressure during oral intake."
+            "body": "The physical examination focused primarily on structural observations relevant to feeding and oral-motor function.",
+            "head_and_neck": "General tone and posture within normal limits.",
+            "face": "Symmetrical facial features with no noted abnormalities affecting feeding.",
+            "jaw": "Observation of jaw stability while feeding noted occasional jaw thrusting, which suggests compensatory behavior possibly due to oral-motor control challenges.",
+            "lips": "Lips exhibited variable seal integrity during feeding tasks, indicating possible weakness or increased oral-motor demands.",
+            "tongue": "Tongue movement appeared restricted with reduced lateral mobility, which could contribute to inefficient food clearance.",
+            "cheeks": "Cheek tension was occasionally observed, impacting food manipulation during mastication.",
+            "palate": "Intact hard and soft palate without visible structural anomalies."
         }
     },
     "cranial_nerve_screening_header": {
@@ -27,38 +27,37 @@
     "cranial_nerve_screening": {
         "type": "paragraph",
         "content": {
-            "CN I (Olfactory)": "Not formally tested; no concerns noted anecdotally.",
-            "CN V (Trigeminal)": "Masticatory functions intact, indicating successful activation.",
-            "CN VII (Facial)": "Symmetrical facial movements preserved, indicating bilateral facial nerve integrity.",
-            "CN IX (Glossopharyngeal)": "Adequate gag reflex observed, suggesting normal innervation.",
-            "CN X (Vagus)": "Swallowing abilities intact with no aspiration signs, indicating sufficient vagus function.",
-            "CN XI (Accessory)": "No restrictions noted in neck muscle function; head turn and shoulder elevating motions observed.",
-            "CN XII (Hypoglossal)": "Tongue protrusion and lateralization within normal limits, indicative of hypoglossal nerve function."
+            "CN I (Olfactory)": "Not assessed during this session.",
+            "CN V (Trigeminal)": "General muscle tone normal; however, further assessment of bite force is recommended to rule out weakness.",
+            "CN VII (Facial)": "Symmetrical facial expressions were observed; no noted deviations suggestive of dysfunction.",
+            "CN IX (Glossopharyngeal)": "Limited assessment data; further examination is recommended.",
+            "CN X (Vagus:)": "Functional assessment of vocalization during cry suggests typical function.",
+            "CN XI (Accessory)": "Not directly assessed; general neck control within typical limits suggests no abnormalities.",
+            "CN XII (Hypoglossal)": "Observed anterior tongue mobility restrictions; further functional assessment needed."
         }
     },
     "intraoral_inspection": {
         "type": "paragraph",
-        "content": "Upon intraoral examination, the upper labial frenulum was noted to have a low insertion point on the alveolar ridge with minor visibility on retraction. The lingual frenulum exhibited slight tethering, restricting tongue elevation minimally but not impacting lateral tongue movement significantly. There was no noticeable blanching upon tongue retraction, and elasticity appeared within normal limits."
+        "content": "The intraoral examination primarily focused on the lingual frenulum, which exhibited moderate restriction with a high lingual insertion point. Visible blanching upon tongue retraction suggests tethering, potentially impacting tongue elevation and lateral movement. This anatomical constraint may directly hinder effective tongue function, impacting feeding efficiency and speech development."
     },
     "pedieat_score_summary": {
         "type": "paragraph",
-        "content": "The PediEAT results indicated a 'Moderate Concern' based on the total score, falling into a range suggestive of potential feeding difficulties. Elevated scores were noted particularly within the oral-motor and sensory domains, highlighting challenges in coordination and sensory processing. These findings reflect persistent global feeding challenges, warranting further interdisciplinary assessment and potential intervention."
+        "content": "The Pediatric Eating Assessment Tool (PediEAT) indicates high concern with a total score reflective of elevated difficulties across physiological and oral-motor domains. Subscale scores suggest challenges spanning physiological symptoms (36) and oral processing (15), underscoring global feeding difficulties necessitating further assessment and intervention."
     },
     "feeding_and_swallowing_observations": {
         "type": "paragraph",
-        "content": "During the feeding observation, the child demonstrated adequate suck-swallow-breathe patterns; however, frequent pauses were observed, likely to coordinate breathing and prevent fatigue. Labial function was observed with occasional instability, hinting at inconsistent intraoral pressure maintenance. Despite these challenges, the child completed feeding sessions with signs of mild fatigue but maintained nutritional intake."
+        "content": "During feeding observation, the child displayed frequent pauses to catch breath, indicative of compromised breathing-feeding coordination. Labial seal was inconsistent, with lip flaring noted periodically. These factors collectively contribute to reduced feeding efficiency, incomplete latch, and potentially increased fatigue, particularly during extended oral feeding sessions."
     },
     "clinical_recommendations": {
         "type": "bullet_points",
         "content": [
-            "Referral to a speech-language pathologist for comprehensive evaluation of feeding and swallowing function.",
-            "Consideration of consultation with a pediatric dentist to assess potential need for frenotomy if lingual tethering impacts feeding.",
-            "Monitor feeding progress closely with repeat evaluations scheduled to assess development over time.",
-            "Provision of oral-motor exercises aimed at strengthening lingual and labial function."
+            "Referral to a pediatric dentist or ENT specialist to assess for possible surgical intervention due to suspected tethered oral tissues.",
+            "Speech-language pathologist consultation for detailed oral-motor function evaluation and feeding therapy.",
+            "Consider a feeding plan to enhance endurance and efficiency."
         ]
     },
     "safety_considerations": {
         "type": "paragraph",
-        "content": "Ensure close supervision during all feeding sessions to promptly address any symptoms of aspiration. Recommend ongoing observation for signs of inadequate nutrition or dehydration, as well as maintaining open referral options for additional interventions if feeding difficulties persist or escalate."
+        "content": "Based on current observations, safety precautions should include monitoring for signs of aspiration during feeding due to noted physiological symptoms such as coughing and increased respiratory effort."
     }
 }
