@@ -34,6 +34,7 @@ from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 from reportlab.lib.units import inch
 from reportlab.lib.utils import ImageReader
 from reportlab.pdfbase import pdfmetrics
+from reportlab.pdfbase.pdfmetrics import registerFontFamily
 from reportlab.pdfbase.ttfonts import TTFont
 from reportlab.platypus import (
     Image,
@@ -54,13 +55,21 @@ from backend.utils.response import format_data_for_pdf, format_bayley_data_for_p
 from backend.langgraph import graph_invoke
 
 
-pdfmetrics.registerFont(TTFont('TimesNewRoman', config.PROJECT_DIR / 'assets/fonts/Times New Roman.ttf'))
+pdfmetrics.registerFont(TTFont('TimesNewRoman-Regular', config.PROJECT_DIR / 'assets/fonts/Times New Roman.ttf'))
 pdfmetrics.registerFont(TTFont('TimesNewRoman-Bold', config.PROJECT_DIR / 'assets/fonts/Times New Roman - Bold.ttf'))
 pdfmetrics.registerFont(TTFont("TimesNewRoman-Italic", config.PROJECT_DIR / 'assets/fonts/Times New Roman - Italic.ttf'))
-
-# addMapping('TimesNewRoman', 0, 0, 'TimesNewRoman')
-# addMapping('TimesNewRoman', 0, 1, 'TimesNewRoman-Bold')
-
+pdfmetrics.registerFont(TTFont("TimesNewRoman-Bold-Italic", config.PROJECT_DIR / "assets/fonts/Times New Roman - Bold Italic.ttf"))
+registerFontFamily(
+    "TimesNewRoman",
+    normal="TimesNewRoman-Regular",
+    bold="TimesNewRoman-Bold",
+    italic="TimesNewRoman-Italic",
+    boldItalic="TimesNewRoman-Bold-Italic"
+)
+# addMapping('TimesNewRoman-Regular', 0, 0, 'TimesNewRoman-Regular')
+# addMapping('TimesNewRoman-Bold', 0, 1, 'TimesNewRoman-Bold')
+# addMapping('TimesNewRoman-Italic', 1, 0, 'TimesNewRoman-Italic')
+# addMapping('TimesNewRoman-Bold-Italic', 1, 1, 'TimesNewRoman-Bold-Italic')
 
 class OpenAIEnhancedReportGenerator:
     """Professional OT Report Generator using OpenAI for clinical narratives"""
@@ -195,7 +204,7 @@ class OpenAIEnhancedReportGenerator:
             "UnorderedList",
             "OrderedList"
         ]:
-            self.styles[style].fontName = 'TimesNewRoman'
+            self.styles[style].fontName = 'TimesNewRoman-Regular'
             self.styles[style].fontSize = 12
             self.styles[style].leading = 14
             self.styles[style].alignment = 0
@@ -204,7 +213,7 @@ class OpenAIEnhancedReportGenerator:
         # Sub-header Style
         self.styles.add(ParagraphStyle(
             name='SubHeader',
-            fontName='TimesNewRoman',
+            fontName='TimesNewRoman-Regular',
             fontSize=12,
             leading=14,
             alignment=1,  # centered
@@ -247,7 +256,7 @@ class OpenAIEnhancedReportGenerator:
             spaceAfter=6,
             spaceBefore=2,
             alignment=TA_CENTER,
-            fontName='TimesNewRoman',
+            fontName='TimesNewRoman-Regular',
             leading=14
         ))
         
@@ -296,7 +305,7 @@ class OpenAIEnhancedReportGenerator:
             alignment=TA_JUSTIFY,
             leftIndent=0,
             rightIndent=0,
-            fontName='TimesNewRoman',
+            fontName='TimesNewRoman-Regular',
             leading=16,
             firstLineIndent=0
         ))
@@ -312,7 +321,7 @@ class OpenAIEnhancedReportGenerator:
             leftIndent=24,
             bulletIndent=12,
             alignment=TA_LEFT,
-            fontName='TimesNewRoman',
+            fontName='TimesNewRoman-Regular',
             leading=14
         ))
         
@@ -325,7 +334,7 @@ class OpenAIEnhancedReportGenerator:
             spaceAfter=8,
             spaceBefore=4,
             alignment=TA_LEFT,
-            fontName='TimesNewRoman',
+            fontName='TimesNewRoman-Regular',
             leading=12,
             leftIndent=12,
             rightIndent=12,
@@ -363,7 +372,7 @@ class OpenAIEnhancedReportGenerator:
             spaceAfter=6,
             spaceBefore=3,
             alignment=TA_LEFT,
-            fontName='TimesNewRoman',
+            fontName='TimesNewRoman-Regular',
             leading=14,
             leftIndent=20,
             rightIndent=8,
@@ -382,7 +391,7 @@ class OpenAIEnhancedReportGenerator:
             spaceAfter=4,
             spaceBefore=2,
             alignment=TA_CENTER,
-            fontName='TimesNewRoman',
+            fontName='TimesNewRoman-Regular',
             leading=11
         ))
         
@@ -408,7 +417,7 @@ class OpenAIEnhancedReportGenerator:
             spaceAfter=3,
             spaceBefore=3,
             alignment=TA_CENTER,
-            fontName='TimesNewRoman',
+            fontName='TimesNewRoman-Regular',
             leading=12
         ))
     
@@ -519,7 +528,7 @@ class OpenAIEnhancedReportGenerator:
             
             story.append(PageBreak())
             self.logger.info("🔧 Adding assessment tools description...")
-            story.extend(self._create_assessment_tools_description())
+            story.extend(self._create_assessment_tools_description(enhanced_data))
             
             self.logger.info("📊 Generating detailed assessment results...")
             story.extend(await self._create_detailed_assessment_results(enhanced_data))
@@ -1718,6 +1727,25 @@ class OpenAIEnhancedReportGenerator:
     async def _create_sp2_detailed_section(self, report_data: Dict[str, Any]) -> List:
         """Create detailed SP2 section with real-world implications"""
         elements = []
+
+        sp2_paragraph_text = f"""
+        <b><i>Sensory Processing:</i></b> Sensory processing is the foundation upon which all developmental skills
+        are built. It encompasses the nervous system's capacity to receive, interpret, and respond to
+        sensory input from various sources, including touch, sight, sound, taste, smell, and movement.
+        This process enables children to engage with their environment effectively and adaptively.
+        Occupational therapists working in early intervention focus on understanding how a child’s
+        sensory processing abilities influence their overall development, including fine motor, visual-
+        motor integration, and feeding skills.
+        """
+
+        sp2_paragraph = Paragraph(sp2_paragraph_text, ParagraphStyle(
+            name="sp2-paragraph",
+            fontName="TimesNewRoman-Regular",
+            fontSize=11,
+            leading=14
+        ))
+        elements.append(Spacer(0, 20))
+        elements.append(sp2_paragraph)
         
         # SP2 analysis data
         sp2_analysis = report_data.get("assessment_analysis", {}).get("sp2", {})
@@ -1743,18 +1771,18 @@ class OpenAIEnhancedReportGenerator:
         """Create detailed ChOMPS section with feeding risk assessment"""
         print("Extracting chomps details")
         elements = []
-        
-        # Add section header
-        header = self._section_header("Chicago Oral Motor and Feeding Scale (ChOMPS)")
-        elements.append(header)
-        elements.append(Spacer(1, 8))
+
+        # # Add section header
+        # header = self._section_header("Chicago Oral Motor and Feeding Scale (ChOMPS)")
+        # elements.append(header)
+        # elements.append(Spacer(1, 8))
         
         # ChOMPS analysis data
         chomps_analysis = report_data.get("extracted_data", {}).get("chomps", {})
         
         # Generate ChOMPS interpretation
         chomps_prompt = await get_prompt(prompt_type="chomps", report_data=chomps_analysis, json_format=True, analysis_data=chomps_analysis)
-        print("########### PROMPT ##########", chomps_prompt)
+        # print("########### PROMPT ##########", chomps_prompt)
         chomps_narrative = await self._generate_with_openai(chomps_prompt, max_tokens=2000)
         chomps_narrative = remove_lang_tags(chomps_narrative)
         try:
@@ -1773,6 +1801,23 @@ class OpenAIEnhancedReportGenerator:
     async def _create_pedieat_detailed_section(self, extracted_data: Dict[str, Any]) -> List:
         """Create detailed PediEAT section with symptom interpretation"""
         elements = []
+
+
+        feeding_paragraph_text = f"""
+            <b><i>Feeding Skills:</i><b> Early intervention in feeding encompasses the objective of fostering proficient
+            oral motor control and enhancing texture tolerance to facilitate the consumption of a diverse
+            range of foods. This comprehensive approach also encompasses the refinement of fine motor
+            skills essential for self-feeding and the mastery of drinking from a cup.
+        """
+        feeding_paragraph = Paragraph(feeding_paragraph_text, ParagraphStyle(
+            name="sp2-paragraph",
+            fontName="TimesNewRoman-Regular",
+            fontSize=11,
+            leading=14
+        ))
+        elements.append(Spacer(0, 20))
+        elements.append(feeding_paragraph)
+        
         
         pedieat_prompt = await get_prompt(prompt_type="pedieat", report_data=extracted_data, json_format=True)
 
@@ -1830,7 +1875,7 @@ class OpenAIEnhancedReportGenerator:
                     "recommendation_points",
                     fontSize=11,
                     leading=14,
-                    fontName="TimesNewRoman"
+                    fontName="TimesNewRoman-Regular"
                 )
             )
             elements.append(intro_para)
@@ -1854,7 +1899,7 @@ class OpenAIEnhancedReportGenerator:
                             "recommendation_points",
                             fontSize=11,
                             leading=14,
-                            fontName="TimesNewRoman"
+                            fontName="TimesNewRoman-Regular"
                         )
                     )
                     elements.append(rec_para)
@@ -2013,7 +2058,7 @@ class OpenAIEnhancedReportGenerator:
         
         for line in clinic_lines_bold:
             elements.append(Paragraph(line, ParagraphStyle(
-                name='ClinicHeader', fontName='TimesNewRoman', fontSize=12, alignment=TA_CENTER, spaceAfter=2, spaceBefore=2)))
+                name='ClinicHeader', fontName='TimesNewRoman-Regular', fontSize=12, alignment=TA_CENTER, spaceAfter=2, spaceBefore=2)))
         
         elements.append(Spacer(1, 8))
         
@@ -2027,7 +2072,7 @@ class OpenAIEnhancedReportGenerator:
         date_table = Table(date_data, colWidths=[1.6*inch, 1.6*inch])
         date_table.setStyle(TableStyle([
             # Remove all borders by default (no GRID)
-            ('FONTNAME', (0,0), (-1,-1), 'TimesNewRoman'),
+            ('FONTNAME', (0,0), (-1,-1), 'TimesNewRoman-Regular'),
             ('FONTSIZE', (0,0), (-1,-1), 11),
             ('VALIGN', (0,0), (-1,-1), 'MIDDLE'),
             ('ALIGN', (0,0), (-1,-1), 'LEFT'),
@@ -2130,7 +2175,7 @@ class OpenAIEnhancedReportGenerator:
             ('FONTSIZE', (0,0), (-1,0), 11),
             ('ALIGN', (0,0), (-1,0), 'CENTER'),
             ('GRID', (0,0), (-1,-1), 1, colors.black),
-            ('FONTNAME', (0,1), (-1,-1), 'TimesNewRoman'),
+            ('FONTNAME', (0,1), (-1,-1), 'TimesNewRoman-Regular'),
             ('FONTSIZE', (0,1), (-1,-1), 10),
             ('ALIGN', (0,1), (-1,-1), 'CENTER'),
             ('VALIGN', (0,0), (-1,-1), 'MIDDLE'),
@@ -2150,7 +2195,7 @@ class OpenAIEnhancedReportGenerator:
             canvas.drawImage(logo_path, doc.pagesize[0] - 1.2*inch, doc.pagesize[1] - 1.1*inch, width=0.8*inch, height=0.8*inch, mask='auto')
         # Page number at bottom right
         page_num = canvas.getPageNumber()
-        canvas.setFont('TimesNewRoman', 9)
+        canvas.setFont('TimesNewRoman-Regular', 9)
         canvas.setFillColor(colors.HexColor('#333333'))
         canvas.drawRightString(doc.pagesize[0] - 0.7*inch, 0.65*inch, f"{page_num}")
 
@@ -2180,7 +2225,15 @@ class OpenAIEnhancedReportGenerator:
         return elements
 
 
-    def _create_assessment_tools_description(self) -> List:
+    def _create_assessment_tools_description(self, report_data: Dict[str, Any]) -> List:
+        elements = []
+
+        # Get assessment analysis
+        assessment_analysis = report_data.get("assessment_analysis", {})
+
+        # Get extracted data to check for file uploads
+        bayley = report_data.get('bayley')
+        extracted_data = report_data.get("extracted_data", {})
 
         def bullet_table(paragraphs):
             data = [[
@@ -2200,66 +2253,150 @@ class OpenAIEnhancedReportGenerator:
 
         tools_text = ("Bayley Scales of Infant and Toddler Development - Fourth Edition (BSID-4), parent "
                     "report and clinical observation were used as assessment tools for this report.")
-        elements = []
+        
 
-        assessment_tools_points = [
-            [Paragraph("<b>1. Cognitive Scale:</b> Assesses problem-solving skills, memory, attention, and concept formation.", self.styles['ClinicalBody'])],
-            [Paragraph("<b>2. Language Scale:</b>", self.styles['ClinicalBody'])],
-            [bullet_table([
-                "Receptive Language: Evaluates the child's understanding of words, gestures, and simple instructions.",
-                "Expressive Language: Measures verbal communication, including babbling, single words, and early sentence formation."
-            ])],
-            [Paragraph("<b>3. Motor Scale:</b>", self.styles['ClinicalBody'])],
-            [bullet_table([
-                "Fine Motor: Examines grasping, manipulation of objects, hand-eye coordination, and early writing skills.",
-                "Gross Motor: Evaluates posture, crawling, standing, balance, and walking patterns."
-            ])],
-            [Paragraph("<b>4. Social-Emotional Scale:</b> Measures the child's ability to interact with others, regulate emotions, and respond to social cues.", self.styles['ClinicalBody'])],
-            [Paragraph("<b>5. Adaptive Behavior Scale:</b> Assesses daily functional tasks, including self-care skills such as feeding, dressing, and toileting.", self.styles['ClinicalBody'])],
-            [Spacer(1, 4)],
-        ]
+        elements.append(self._section_header('Assessment Tools'))
+        assessment_tools: list = []
 
-        assessment_tools_points_table = Table(assessment_tools_points, colWidths=[6.333 * inch])
-        assessment_tools_points_table.setStyle(TableStyle([
-            ('BACKGROUND', (0, 0), (-1, -1), colors.white),
-            ('BOX', (0, 0), (-1, -1), 1, colors.white),
-            ('LEFTPADDING', (0, 0), (-1, -1), 36),
-            ('RIGHTPADDING', (0, 0), (-1, -1), 36),
-        ]))
+        if bayley.get("cognitive_and_motor", {}) or bayley.get("social_and_adaptive", {}):        
 
-        assessment_tools = [
-            [
-                Paragraph(tools_text, ParagraphStyle(
-                    name='ClinicalBody',
-                    parent=self.styles['Normal'],
-                    fontSize=12,
-                    textColor=colors.HexColor('#333333'),
-                    spaceAfter=10,
-                    spaceBefore=10,
-                    alignment=TA_JUSTIFY,
-                    leftIndent=0,
-                    rightIndent=0,
-                    fontName='TimesNewRoman-Bold',
-                    leading=16,
-                    firstLineIndent=0
-                ))
-            ],
-            [[Spacer(1, 4)]],
-            [
-                Paragraph(
-                    "<u><b>Bayley Scales of Infant and Toddler Development - Fourth Edition (BSID-4)</b></u>",
-                    self.styles['DomainHeader']
-                )
-            ],
-            [
-                Paragraph(
-                    "The Bayley-4 is a norm-referenced assessment for children from birth to 42 months, providing standardized scores in the following developmental domains:",
-                    self.styles['ClinicalBody']
-                )
-            ],
-            [assessment_tools_points_table],
-            [Spacer(1, 4)],
-        ]
+            bayley4_assessment_tools_points = [
+                [Paragraph("<b>1. Cognitive Scale:</b> Assesses problem-solving skills, memory, attention, and concept formation.", self.styles['ClinicalBody'])],
+                [Paragraph("<b>2. Language Scale:</b>", self.styles['ClinicalBody'])],
+                [bullet_table([
+                    "Receptive Language: Evaluates the child's understanding of words, gestures, and simple instructions.",
+                    "Expressive Language: Measures verbal communication, including babbling, single words, and early sentence formation."
+                ])],
+                [Paragraph("<b>3. Motor Scale:</b>", self.styles['ClinicalBody'])],
+                [bullet_table([
+                    "Fine Motor: Examines grasping, manipulation of objects, hand-eye coordination, and early writing skills.",
+                    "Gross Motor: Evaluates posture, crawling, standing, balance, and walking patterns."
+                ])],
+                [Paragraph("<b>4. Social-Emotional Scale:</b> Measures the child's ability to interact with others, regulate emotions, and respond to social cues.", self.styles['ClinicalBody'])],
+                [Paragraph("<b>5. Adaptive Behavior Scale:</b> Assesses daily functional tasks, including self-care skills such as feeding, dressing, and toileting.", self.styles['ClinicalBody'])],
+                [Spacer(1, 4)],
+            ]
+
+            bayley4_assessment_tools_points_table = Table(bayley4_assessment_tools_points, colWidths=[6.333 * inch])
+            bayley4_assessment_tools_points_table.setStyle(TableStyle([
+                ('BACKGROUND', (0, 0), (-1, -1), colors.white),
+                ('BOX', (0, 0), (-1, -1), 1, colors.white),
+                ('LEFTPADDING', (0, 0), (-1, -1), 36),
+                ('RIGHTPADDING', (0, 0), (-1, -1), 36),
+            ]))
+
+            bayley4_assessment_tools = [
+                [
+                    Paragraph(tools_text, ParagraphStyle(
+                        name='ClinicalBody',
+                        parent=self.styles['Normal'],
+                        fontSize=12,
+                        textColor=colors.HexColor('#333333'),
+                        spaceAfter=10,
+                        spaceBefore=10,
+                        alignment=TA_JUSTIFY,
+                        leftIndent=0,
+                        rightIndent=0,
+                        fontName='TimesNewRoman-Bold',
+                        leading=16,
+                        firstLineIndent=0
+                    ))
+                ],
+                [[Spacer(1, 4)]],
+                [
+                    Paragraph(
+                        "<u><b>Bayley Scales of Infant and Toddler Development - Fourth Edition (BSID-4)</b></u>",
+                        self.styles['DomainHeader']
+                    )
+                ],
+                [
+                    Paragraph(
+                        "The Bayley-4 is a norm-referenced assessment for children from birth to 42 months, providing standardized scores in the following developmental domains:",
+                        self.styles['ClinicalBody']
+                    )
+                ],
+                [bayley4_assessment_tools_points_table],
+                [Spacer(1, 4)],
+            ]
+
+            assessment_tools += bayley4_assessment_tools
+
+        if extracted_data.get("sp2", {}):
+            sp2_header = Paragraph("<u><b>Toddler Sensory Profile 2 (SP2)</b></u>", ParagraphStyle(
+                "assessments_tool_sp2",
+                fontName="TimesNewRoman-Bold",
+                fontSize=11,
+                leading=14
+            ))
+            assessment_tools.append([sp2_header])
+
+            sp2_paragraph_text = f"""
+                The SP2 was designed to determine how a child responds to sensory input, grouping them into
+                sensory processing patterns that support or may be affecting their ability to function,
+                participate, and perform with the school, home, and/or community environment. Sensory
+                processing patterns are determined in order to assist with identification of the child’s strengths
+                and challenges. These can then be used for RtI, eligibility of services, and intervention
+                planning. The data collected is not designed to monitor progress. It is important to note that
+                results of this form can be helpful in identifying patterns of function and behavior that indicate
+                a child has unmet sensory needs impacting their daily activities. Reported scores should not be
+                interpreted in isolation, however, as several factors can impact an observed behavior, and
+                rating scales can be subjective.
+            """
+            sp2_paragraph = Paragraph(sp2_paragraph_text, ParagraphStyle(
+                "assessments_tool_sp2_text",
+                fontName="TimesNewRoman-Regular",
+                fontSize=11,
+                leading=14
+            ))
+            assessment_tools.append([sp2_paragraph])
+
+        if extracted_data.get("pedieat", {}) or extracted_data.get("chomps", {}):
+            chomps_header = Paragraph("<u><b>The Child Oral and Motor Proficiency Scale (ChOMPS)</b></u>", ParagraphStyle(
+                "assessments_tool_sp2",
+                fontName="TimesNewRoman-Bold",
+                fontSize=11,
+                leading=14
+            ))
+            assessment_tools.append([chomps_header])
+
+            chomps_paragraph_text = f"""
+                The ChOMPS is intended to assess eating and related skills in children between
+                the ages of 6 months and 7 years old who are being offered solid foods. The ChOMPS is
+                intended to be completed by a caregiver that is familiar with the child’s typical eating and
+                movement abilities. This is most often a parent but may be another primary caregiver. The
+                descriptive terms are no concern, concern, and high concern.
+            """
+            chomps_paragraph = Paragraph(chomps_paragraph_text, ParagraphStyle(
+                "assessments_tool_sp2_text",
+                fontName="TimesNewRoman-Regular",
+                fontSize=11,
+                leading=14
+            ))
+            assessment_tools.append([chomps_paragraph])
+
+            pedieat_header = Paragraph("<u><b>Pediatric Eating Assessment Tool (PediEAT)</b></u>", ParagraphStyle(
+                "assessments_tool_sp2",
+                fontName="TimesNewRoman-Bold",
+                fontSize=11,
+                leading=14
+            ))
+            assessment_tools.append([pedieat_header])
+
+            pedieat_paragraph_text = f"""
+                The PediEAT is intended to assess observable symptoms of problematic feeding in children
+                between the ages of 6 months and 7 years old who are being offered some solid foods. The
+                Pedi EAT is intended to be completed by a caregiver that is familiar with the child’s typical
+                eating habits. This is most often a parent but may be another primary caregiver. The
+                descriptive terms are no concern, concern, and high concern.
+            """
+            pedieat_paragraph = Paragraph(pedieat_paragraph_text, ParagraphStyle(
+                "assessments_tool_sp2_text",
+                fontName="TimesNewRoman-Regular",
+                fontSize=11,
+                leading=14
+            ))
+            assessment_tools.append([pedieat_paragraph])
+
 
         assessment_tools_table = Table(assessment_tools, colWidths=[6.5 * inch])
         assessment_tools_table.setStyle(TableStyle([
@@ -2269,8 +2406,8 @@ class OpenAIEnhancedReportGenerator:
             ('RIGHTPADDING', (0, 0), (-1, -1), 6),
         ]))
 
-        elements.append(self._section_header('Assessment Tools'))
         elements.append(assessment_tools_table)
+
 
         return elements
     

@@ -39,7 +39,7 @@ async def format_data_for_pdf(data: dict) -> list:
         name='BodyText',
         parent=styles['Normal'],
         fontSize=11,
-        fontName="TimesNewRoman",
+        fontName="TimesNewRoman-Regular",
         leading=14,
         spaceAfter=6,
         spaceBefore=12,
@@ -65,7 +65,7 @@ async def format_data_for_pdf(data: dict) -> list:
                         Paragraph(
                             point, ParagraphStyle(
                                 name="bullet_point",
-                                fontName="TimesNewRoman",
+                                fontName="TimesNewRoman-Regular",
                                 fontSize=11,
                                 leading=13,
                                 
@@ -117,7 +117,7 @@ async def format_bayley_data_for_pdf(data: dict) -> list:
         name="BayleyBulletStyle",
         fontSize=11,
         leading=14,
-        fontName="TimesNewRoman",
+        fontName="TimesNewRoman-Regular",
         leftIndent=20,
         spaceAfter=3,
     )
@@ -126,7 +126,7 @@ async def format_bayley_data_for_pdf(data: dict) -> list:
         name="BayleyPatientAssessment",
         fontSize=11,
         leading=14,
-        fontName="TimesNewRoman",
+        fontName="TimesNewRoman-Regular",
         spaceAfter=12,
         spaceBefore=0,
         firstLineIndent=0,
@@ -137,7 +137,7 @@ async def format_bayley_data_for_pdf(data: dict) -> list:
         name="BayleyAdaptiveSubdomain",
         fontSize=11,
         leading=14,
-        fontName="TimesNewRoman",
+        fontName="TimesNewRoman-Regular",
         spaceAfter=0,
         spaceBefore=8,
         firstLineIndent=0,
@@ -327,7 +327,7 @@ async def format_pedieat_data_for_pdf(data: dict) -> list:
         parent=styles['Normal'],
         fontSize=11,
         leading=14,
-        fontName="TimesNewRoman",
+        fontName="TimesNewRoman-Regular",
         spaceAfter=4,
         spaceBefore=8,
     )
@@ -336,7 +336,7 @@ async def format_pedieat_data_for_pdf(data: dict) -> list:
         name="PediEATBodyText",
         fontSize=11,
         leading=14,
-        fontName="TimesNewRoman",
+        fontName="TimesNewRoman-Regular",
         spaceAfter=8,
         spaceBefore=4,
         firstLineIndent=0,
@@ -346,7 +346,7 @@ async def format_pedieat_data_for_pdf(data: dict) -> list:
         name="PediEATBulletStyle",
         fontSize=11,
         leading=14,
-        fontName="TimesNewRoman",
+        fontName="TimesNewRoman-Regular",
         leftIndent=20,
         spaceAfter=3,
     )

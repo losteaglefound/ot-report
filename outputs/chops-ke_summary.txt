@@ -1,0 +1,32 @@
+AWS Textract Table Analysis Summary
+==================================================
+
+Source File: assets/inputs/ChOMPS_image_fillable_KE.pdf
+Analysis Date: 2025-07-12T18:25:20.650319
+Total Pages: 2
+Total Blocks: 1000
+AWS Region: us-east-1
+
+Number of Tables Found: 3
+
+Table 1:
+  - Table ID: cfabfd2e-3466-410f-b40d-8e3094cbcb19
+  - Page: 1
+  - Confidence: 99.95%
+  - Rows: 17
+  - Columns: 5
+
+Table 2:
+  - Table ID: f3b186aa-8e69-4c92-bbc5-75874c1e3119
+  - Page: 2
+  - Confidence: 99.95%
+  - Rows: 11
+  - Columns: 5
+
+Table 3:
+  - Table ID: f021545e-1440-4f25-a1f6-be4df7bacfcc
+  - Page: 2
+  - Confidence: 99.95%
+  - Rows: 11
+  - Columns: 5
+

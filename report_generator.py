@@ -41,7 +41,7 @@ class OTReportGenerator:
         # Sub-header Style
         self.styles.add(ParagraphStyle(
             name='SubHeader',
-            fontName='TimesNewRoman',
+            fontName='TimesNewRoman-Regular',
             fontSize=12,
             leading=14,
             alignment=1,  # centered
@@ -77,7 +77,7 @@ class OTReportGenerator:
             fontSize=11,
             spaceAfter=6,
             alignment=TA_JUSTIFY,
-            fontName='TimesNewRoman'
+            fontName='TimesNewRoman-Regular'
         ))
         
         self.logger.info("✅ Custom styles configured")
@@ -159,7 +159,7 @@ class OTReportGenerator:
         patient_table.setStyle(TableStyle([
             ('ALIGN', (0, 0), (-1, -1), 'LEFT'),
             ('FONTNAME', (0, 0), (0, -1), 'TimesNewRoman-Bold'),
-            ('FONTNAME', (1, 0), (1, -1), 'TimesNewRoman'),
+            ('FONTNAME', (1, 0), (1, -1), 'TimesNewRoman-Regular'),
             ('FONTSIZE', (0, 0), (-1, -1), 11),
             ('BOTTOMPADDING', (0, 0), (-1, -1), 8),
         ]))
@@ -242,7 +242,7 @@ class OTReportGenerator:
             ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
             ('FONTNAME', (0, 0), (-1, 0), 'TimesNewRoman-Bold'),
             ('FONTSIZE', (0, 0), (-1, 0), 10),
-            ('FONTNAME', (0, 1), (-1, -1), 'TimesNewRoman'),
+            ('FONTNAME', (0, 1), (-1, -1), 'TimesNewRoman-Regular'),
             ('FONTSIZE', (0, 1), (-1, -1), 9),
             ('BOTTOMPADDING', (0, 0), (-1, -1), 6),
             ('GRID', (0, 0), (-1, -1), 1, colors.black),
@@ -270,7 +270,7 @@ class OTReportGenerator:
                 ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
                 ('FONTNAME', (0, 0), (-1, 0), 'TimesNewRoman-Bold'),
                 ('FONTSIZE', (0, 0), (-1, 0), 10),
-                ('FONTNAME', (0, 1), (-1, -1), 'TimesNewRoman'),
+                ('FONTNAME', (0, 1), (-1, -1), 'TimesNewRoman-Regular'),
                 ('FONTSIZE', (0, 1), (-1, -1), 9),
                 ('BOTTOMPADDING', (0, 0), (-1, -1), 6),
                 ('GRID', (0, 0), (-1, -1), 1, colors.black),
@@ -313,7 +313,7 @@ class OTReportGenerator:
                 ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
                 ('FONTNAME', (0, 0), (-1, 0), 'TimesNewRoman-Bold'),
                 ('FONTSIZE', (0, 0), (-1, 0), 10),
-                ('FONTNAME', (0, 1), (-1, -1), 'TimesNewRoman'),
+                ('FONTNAME', (0, 1), (-1, -1), 'TimesNewRoman-Regular'),
                 ('FONTSIZE', (0, 1), (-1, -1), 9),
                 ('BOTTOMPADDING', (0, 0), (-1, -1), 6),
                 ('GRID', (0, 0), (-1, -1), 1, colors.black),

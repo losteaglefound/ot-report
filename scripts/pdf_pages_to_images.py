@@ -13,10 +13,10 @@ sys.path.append(str(PROJECT_DIR))
 
 def convert_to_image_pdf():
     # Path to your input PDF
-    input_pdf_path = 'assets/inputs/PediEAT_Full_Version_2024-2-12.pdf'
+    input_pdf_path = '/home/lap-49/Documents/ot-report/assets/inputs/ChOMPS_fillable.pdf'
 
     # Output directory for separate PDFs
-    output_path = os.path.join(PROJECT_DIR, 'assets', 'inputs', "PediEAT-image_Full_Version_2024-2-12.pdf")
+    output_path = os.path.join(PROJECT_DIR, 'assets', 'inputs', "ChOMPS_image.pdf")
 
     # Convert PDF pages to images
     print("Converting PDF pages to images...")
