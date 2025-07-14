@@ -14,7 +14,6 @@ import aiofiles
 
 
 # Load configuration first
-from backend.domain_detector_bayley4_social_adaptive import process_bayley_social_adaptive_assessment
 from config import (
     config, 
     is_openai_enabled, 
@@ -23,6 +22,8 @@ from config import (
     get_app_host, 
     get_app_port
 )
+from backend.domain_detector_bayley4_social_adaptive import process_bayley_social_adaptive_assessment
+from backend.utils.pdf import pdf_convert_to_image
 
 
 sys.stdout.reconfigure(encoding='utf-8')
@@ -270,6 +271,7 @@ async def upload_files(
         
         # Save uploaded files
         uploaded_files = {}
+        uploaded_files_pdf_images = {}
         files_to_process = {
             'facesheet': facesheet_file if (facesheet_file.filename != "" and facesheet_file.size != 0) else None,
             'bayley4_cognitive': bayley4_cognitive_file if (bayley4_cognitive_file.filename != ""  and bayley4_cognitive_file.size != 0) else None,
@@ -311,6 +313,8 @@ async def upload_files(
                     "assets/inputs/bayley-4-record-form.json"
                 )
                 
+                uploaded_files_pdf_images['bayley4_cognitive'] = pdf_convert_to_image(uploaded_files['bayley4_cognitive'], session_dir)
+
                 if bayley_results["cognitive_and_motor"]:
                     domains_found = list(bayley_results["cognitive_and_motor"].keys())
                     total_items = sum(len(items) for items in bayley_results["cognitive_and_motor"].values())
@@ -331,6 +335,8 @@ async def upload_files(
                     uploaded_files['bayley4_social'],
                     "assets/inputs/baylay-4-social-and-adaptive-questioner.json"
                 )
+
+                uploaded_files_pdf_images['bayley4_social'] = pdf_convert_to_image(uploaded_files['bayley4_social'], session_dir)
                 
                 if bayley_results["social_and_adaptive"]:
                     # Calculate totals for the new hierarchical structure
@@ -382,6 +388,8 @@ async def upload_files(
             try:
                 logger.info("🧠 Processing SP2 assessment with sensory agent...")
                 sp2_result = extract_sp2_data(uploaded_files['sp2'])
+
+                uploaded_files_pdf_images['sp2'] = pdf_convert_to_image(uploaded_files['sp2'], session_dir)
                 
                 if sp2_result.get("success"):
                     sp2_results = sp2_result.get("sp2_data", {})
@@ -400,6 +408,8 @@ async def upload_files(
             try:
                 logger.info("🧠 Processing PediEAT assessment with pedieat agent...")
                 pedieat_result = extract_pedieat_data(uploaded_files['pedieat'])
+
+                uploaded_files_pdf_images['pedieat'] = pdf_convert_to_image(uploaded_files['pedieat'], session_dir)
                 
                 if pedieat_result.get("success"):
                     pedieat_results = pedieat_result.get("pedieat_data", {})
@@ -418,6 +428,8 @@ async def upload_files(
             try:
                 logger.info("🧠 Processing CHOMPS assessment with chomps agent...")
                 chomps_result = extract_chomps_data_wrapper(uploaded_files['chomps'])
+
+                uploaded_files_pdf_images['chomps'] = pdf_convert_to_image(uploaded_files['pedieat'], session_dir)
                 
                 if chomps_result.get("success"):
                     chomps_results = chomps_result.get("chomps_data", {})
@@ -443,6 +455,7 @@ async def upload_files(
                 "chronological_age": chronological_age
             },
             "uploaded_files": uploaded_files,
+            "uploaded_files_pdf_images": uploaded_files_pdf_images,
             "extracted_data": {
                 "sp2": sp2_results,
                 "pedieat": pedieat_results,

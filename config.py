@@ -19,11 +19,16 @@ logger = logging.getLogger(__name__)
 BASE_DIR = Path(__file__).resolve().parent
 """Project root directory"""
 
+# make upload dirs
+os.makedirs(os.path.join(BASE_DIR, "uploads"), exist_ok=True)
+
 
 class Config:
     """Centralized configuration management"""
     BASE_DIR: Path = BASE_DIR
     PROJECT_DIR: Path = BASE_DIR
+    UPLOAD_DIR: Path = os.path.join(BASE_DIR, "uploads")
+    OPENAI_API_KEY: str = os.getenv("OPENAI_API_KEY")
     
     def __init__(self):
         self.logger = logging.getLogger(f"{__name__}.{self.__class__.__name__}")

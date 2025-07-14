@@ -9,30 +9,30 @@
     },
     "sensory_overview": {
         "type": "paragraph",
-        "content": "The assessment reveals distinct sensory processing patterns with implications for the child\u2019s daily life. The Avoiding quadrant scores indicate 'Much More Than Others' within the 96-99 percentile range, suggesting significant avoidance of sensory experiences, resulting in potential over-reaction to sensory input. The Sensitivity quadrant also indicates 'Much More Than Others,' placing the child at the 98-99 percentile, highlighting a heightened awareness and potential difficulty filtering irrelevant sensory information. The Seeking and Registration scores are 'Just like the Majority of Others,' suggesting typical engagement and response to sensory stimuli."
+        "content": "The assessment reveals a complex sensory processing profile with marked challenges in the Avoiding and Sensitivity quadrants, which are both classified as 'Much More Than Others,' indicating heightened sensory defensiveness and sensitivity. In contrast, the Seeking and Registration quadrants fall within the range 'Just like the Majority of Others,' suggesting typical levels of sensory exploration and response to sensory input. Thus, the child is likely to exhibit avoidance of sensory input and significant discomfort with specific sensory stimuli, impacting their ability to participate in daily activities."
     },
     "touch_processing_domain": {
         "type": "paragraph",
-        "content": "Touch Processing scores are within 'Much More Than Others' (96-99 percentile), with notable observations like resisting being cuddled and becoming upset with nail trimming. Such touch sensitivities may impact tactile-rich activities like playing with peers and self-care routines, requiring focused desensitization strategies to improve comfort and participation."
+        "content": "The raw score for Touch Processing is 18, placing it in the 96-99 percentile range, classified as 'Much More Than Others.' This score indicates a pronounced sensitivity to tactile stimuli, which could manifest as aversion to certain textures and discomfort with physical contact. Functional implications include potential challenges in grooming activities like dressing and bathing, as the child might resist varied textures and physical manipulations."
     },
     "oral_sensory_domain": {
         "type": "paragraph",
-        "content": "Oral Sensory Processing scores reflect 'Much More Than Others' concerns (98-99 percentile). Exhibiting strong food aversions and difficulty in transitioning to varied food textures suggests pronounced oral hypersensitivity, potentially complicating feeding routines and nutritional intake. Interventions should target gradual exposure and acceptance of new textures to enhance dietary variety and oral motor competence."
+        "content": "The Oral Sensory Processing score is 27, within the 98-99 percentile range, also classified as 'Much More Than Others.' This suggests significant oral sensitivity and selectivity, likely affecting feeding habits with preferences for specific food textures and potentially leading to restrictive eating patterns. Clinically, this may necessitate an intervention focused on introducing a broader range of food textures within a structured and supportive feeding program."
     },
     "auditory_processing_domain": {
         "type": "paragraph",
-        "content": "Auditory Processing is categorized as 'More Than Others' (88-95 percentile). The child shows distractibility in noisy environments, undermining attention and engagement in learning and play. Tailored strategies to modify auditory environments, such as using noise-cancelling headphones, may ameliorate these challenges."
+        "content": "In the Auditory Processing domain, the score of 15 falls in the 88-95 percentile range, classified as 'More Than Others.' This indicates increased distractibility and potential challenges with auditory processing. The child might experience difficulty concentrating in noisy environments and exhibit heightened reactions to unexpected sounds, impacting their ability to stay on task and engage in activities requiring focused attention."
     },
     "visual_and_movement_processing": {
         "type": "paragraph",
-        "content": "Both Visual and Movement Processing are 'Just like the Majority of Others,' indicating appropriate responses to visual stimuli and engagement in physical activity. Enjoyment of swinging and rhythmic activities demonstrates a well-balanced sensory-motor profile suitable for participation in dynamic play activities and gross motor exploration."
+        "content": "Both Visual and Movement Processing scores fall within typical ranges, signifying typical visual engagement and movement exploration behaviors. However, the child's high seeking scores within movement activities suggest a preference for dynamic input, which can be leveraged therapeutically to encourage positive sensory experiences through structured physical activities. These typical scores may facilitate more successful motor planning and integration during play and learning tasks."
     },
     "behavioural_response_domain": {
         "type": "paragraph",
-        "content": "Behavioral responses associated with sensory processing classify as 'Much More Than Others' (96-99 percentile), suggesting heightened responses to sensory input, potentially affecting self-regulation and adaptive behavior. This heightened response may manifest as anxiety or withdrawal in novel situations, warranting interventions targeting coping strategies and environmental modifications."
+        "content": "The Behavioral responses associated with sensory processing scored 22, in the 96-99 percentile range, 'Much More Than Others.' This highlights significant challenges in self-regulation and adaptive responses, potentially leading to avoidant behaviors or distress in new or stimulating environments. These behavioral tendencies necessitate interventions aimed at enhancing self-regulation skills through sensory strategies tailored to the child\u2019s specific sensitivities."
     },
     "summary": {
         "type": "paragraph",
-        "content": "The SP2 findings suggest prominent sensory avoiding and sensitivity which may significantly affect habits, social interactions, and learning. Key areas of concern include tactile and oral sensory challenges impacting grooming and feeding, alongside auditory processing difficulties affecting attention. Intervention strategies should incorporate sensory integration techniques to foster adaptive responses, coupled with personalized coping strategies to enhance self-regulation and functional participation across daily activities."
+        "content": "In summary, the Sensory Profile 2 indicates specific challenges in tactile and oral sensory domains with heightened sensory defensiveness and seeking. Key areas of concern include resistance to tactile input and selective eating, affecting daily living skills. Recommended intervention strategies include sensory integration therapy to acclimate the child to a variety of sensory stimuli and enhance coping strategies, thereby improving engagement and functional performance in daily activities."
     }
 }

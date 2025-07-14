@@ -184,7 +184,7 @@ def clip_image_section(img_info, left, top, right, bottom):
 
 # Main execution
 if __name__ == "__main__":
-    pdf_path = "assets/inputs/Sensory-image-Profile-2-Summary-Report_70247631_1751134355067.pdf"
+    pdf_path = "assets/inputs/images/Sensory-image-Profile-2-Summary-Report_70247631_1751134355067.pdf"
     
     # Extract all images from PDF
     extracted_images = extract_images_from_pdf(pdf_path)
@@ -216,7 +216,8 @@ if __name__ == "__main__":
             result_json = json.loads(result)
             print(result_json)
         except json.JSONDecodeError as e:
-            continue
+            print("json decode error")
+            print(result_json)
 
 
         if (

@@ -26,6 +26,7 @@ if OPENAI_AVAILABLE:
 else:
     logger.warning("⚠️ OpenAI library not available - install with: pip install openai")
 
+import aiofiles
 from PIL import Image as PILImage
 from reportlab.lib.fonts import addMapping
 from reportlab.lib.enums import TA_LEFT
@@ -53,6 +54,9 @@ from reportlab.lib import colors
 from backend.prompts import save_response, remove_lang_tags, get_prompt
 from backend.utils.response import format_data_for_pdf, format_bayley_data_for_pdf, format_pedieat_data_for_pdf
 from backend.langgraph import graph_invoke
+
+# Import sensory image extractor
+from backend.langgraph.sensory_image_extraction_agent import sensory_image_extract
 
 
 pdfmetrics.registerFont(TTFont('TimesNewRoman-Regular', config.PROJECT_DIR / 'assets/fonts/Times New Roman.ttf'))
@@ -442,6 +446,14 @@ class OpenAIEnhancedReportGenerator:
         
         output_path = os.path.join("outputs", f"professional_ot_report_{session_id}.pdf")
         self.logger.info(f"📁 Output path: {output_path}")
+
+        # Save report data for potential regeneration
+        report_data_path = os.path.join("outputs", f"enchaned_data_{session_id}.json")
+        async with aiofiles.open(report_data_path, 'w') as f:
+            # json.dump(report_data, f, indent=4)
+            await f.write(json.dumps(report_data, indent=4))
+        logger.info("✅ Report data compiled")
+
         
         try:
             top_margin = 1.85*inch
@@ -529,6 +541,9 @@ class OpenAIEnhancedReportGenerator:
             story.append(PageBreak())
             self.logger.info("🔧 Adding assessment tools description...")
             story.extend(self._create_assessment_tools_description(enhanced_data))
+
+            self.logger.info("Adding scoring table and graphs images from pdfs")
+            story.extend(await self._create_scoring_table_and_graphs(enhanced_data))
             
             self.logger.info("📊 Generating detailed assessment results...")
             story.extend(await self._create_detailed_assessment_results(enhanced_data))
@@ -1733,7 +1748,7 @@ class OpenAIEnhancedReportGenerator:
         are built. It encompasses the nervous system's capacity to receive, interpret, and respond to
         sensory input from various sources, including touch, sight, sound, taste, smell, and movement.
         This process enables children to engage with their environment effectively and adaptively.
-        Occupational therapists working in early intervention focus on understanding how a child’s
+        Occupational therapists working in early intervention focus on understanding how a child's
         sensory processing abilities influence their overall development, including fine motor, visual-
         motor integration, and feeding skills.
         """
@@ -2321,7 +2336,7 @@ class OpenAIEnhancedReportGenerator:
 
             assessment_tools += bayley4_assessment_tools
 
-        if extracted_data.get("sp2", {}):
+        if report_data.get('uploaded_files', {}).get("sp2", None):
             sp2_header = Paragraph("<u><b>Toddler Sensory Profile 2 (SP2)</b></u>", ParagraphStyle(
                 "assessments_tool_sp2",
                 fontName="TimesNewRoman-Bold",
@@ -2334,7 +2349,7 @@ class OpenAIEnhancedReportGenerator:
                 The SP2 was designed to determine how a child responds to sensory input, grouping them into
                 sensory processing patterns that support or may be affecting their ability to function,
                 participate, and perform with the school, home, and/or community environment. Sensory
-                processing patterns are determined in order to assist with identification of the child’s strengths
+                processing patterns are determined in order to assist with identification of the child's strengths
                 and challenges. These can then be used for RtI, eligibility of services, and intervention
                 planning. The data collected is not designed to monitor progress. It is important to note that
                 results of this form can be helpful in identifying patterns of function and behavior that indicate
@@ -2350,7 +2365,7 @@ class OpenAIEnhancedReportGenerator:
             ))
             assessment_tools.append([sp2_paragraph])
 
-        if extracted_data.get("pedieat", {}) or extracted_data.get("chomps", {}):
+        if report_data.get("uploaded_files", {}).get("pedieat", None) or report_data.get("uploaded_files", {}).get("chomps", None):
             chomps_header = Paragraph("<u><b>The Child Oral and Motor Proficiency Scale (ChOMPS)</b></u>", ParagraphStyle(
                 "assessments_tool_sp2",
                 fontName="TimesNewRoman-Bold",
@@ -2362,7 +2377,7 @@ class OpenAIEnhancedReportGenerator:
             chomps_paragraph_text = f"""
                 The ChOMPS is intended to assess eating and related skills in children between
                 the ages of 6 months and 7 years old who are being offered solid foods. The ChOMPS is
-                intended to be completed by a caregiver that is familiar with the child’s typical eating and
+                intended to be completed by a caregiver that is familiar with the child's typical eating and
                 movement abilities. This is most often a parent but may be another primary caregiver. The
                 descriptive terms are no concern, concern, and high concern.
             """
@@ -2385,7 +2400,7 @@ class OpenAIEnhancedReportGenerator:
             pedieat_paragraph_text = f"""
                 The PediEAT is intended to assess observable symptoms of problematic feeding in children
                 between the ages of 6 months and 7 years old who are being offered some solid foods. The
-                Pedi EAT is intended to be completed by a caregiver that is familiar with the child’s typical
+                Pedi EAT is intended to be completed by a caregiver that is familiar with the child's typical
                 eating habits. This is most often a parent but may be another primary caregiver. The
                 descriptive terms are no concern, concern, and high concern.
             """
@@ -2397,20 +2412,73 @@ class OpenAIEnhancedReportGenerator:
             ))
             assessment_tools.append([pedieat_paragraph])
 
-
-        assessment_tools_table = Table(assessment_tools, colWidths=[6.5 * inch])
-        assessment_tools_table.setStyle(TableStyle([
-            ('BACKGROUND', (0, 0), (-1, -1), colors.white),
-            ('BOX', (0, 0), (-1, -1), 1, colors.black),
-            ('LEFTPADDING', (0, 0), (-1, -1), 6),
-            ('RIGHTPADDING', (0, 0), (-1, -1), 6),
-        ]))
-
-        elements.append(assessment_tools_table)
-
+        # Only create table if assessment_tools is not empty
+        if assessment_tools:
+            assessment_tools_table = Table(assessment_tools, colWidths=[6.5 * inch])
+            assessment_tools_table.setStyle(TableStyle([
+                ('BACKGROUND', (0, 0), (-1, -1), colors.white),
+                ('BOX', (0, 0), (-1, -1), 1, colors.black),
+                ('LEFTPADDING', (0, 0), (-1, -1), 6),
+                ('RIGHTPADDING', (0, 0), (-1, -1), 6),
+            ]))
+            elements.append(assessment_tools_table)
+        else:
+            # Add default message when no assessment tools are available
+            default_message = Paragraph(
+                "Clinical observation and parent report were used as assessment tools for this report.",
+                self.styles['ClinicalBody']
+            )
+            elements.append(default_message)
 
         return elements
-    
+
+    async def _create_scoring_table_and_graphs(self, report_data: Dict[str, Any]) -> str:
+        
+        # Extract actual assessment data for context
+        extracted_data = report_data.get("extracted_data", {})
+        uploaded_files = report_data.get('uploaded_files')
+        bayley_cognitive = extracted_data.get("bayley4_cognitive", {})
+        bayley_social = extracted_data.get("bayley4_social", {})
+
+        elements = [Spacer(0, 20)]
+
+        if "bayley4_cognitive" in uploaded_files:
+            pass 
+
+        if "bayley4_social" in uploaded_files:
+            pass 
+
+        if "sp2" in uploaded_files:
+            image_pdf_sp2 = report_data['uploaded_files_pdf_images']['sp2'] 
+            elements.append(self._section_header("Toddler Sensory Profile 2 (SP2)"))
+            elements.append(Spacer(0, 10))
+            
+            # Extract and add sensory profile images using the agent
+            try:
+                sensory_elements = sensory_image_extract(image_pdf_sp2)
+                if sensory_elements:
+                    elements.extend(sensory_elements)
+                    elements.append(Spacer(0, 20))
+                else:
+                    elements.append(Paragraph("No sensory profile score tables found in the uploaded document.", 
+                                            self.styles['Normal']))
+                    elements.append(Spacer(0, 10))
+            except Exception as e:
+                print(f"Error extracting sensory profile images: {e}")
+                elements.append(Paragraph("Error processing sensory profile images from the uploaded document.", 
+                                        self.styles['Normal']))
+                elements.append(Spacer(0, 10))
+
+
+        if "chomps" in uploaded_files:
+            pass
+
+        if "pedieat" in uploaded_files:
+            pass
+        
+        return elements
+
+
     async def _generate_background_narrative(self, report_data: Dict[str, Any]) -> str:
         """Generate professional background narrative using actual assessment data"""
         patient_info = report_data.get("patient_info", {})
