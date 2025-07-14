@@ -56,6 +56,8 @@ from backend.utils.response import format_data_for_pdf, format_bayley_data_for_p
 from backend.langgraph import graph_invoke
 
 # Import sensory image extractor
+from backend.langgraph.bayley4_cognitive_image_extract_agent import bayley4_cognitive_image_extract
+from backend.langgraph.bayley4_social_image_extract_agent import bayley4_social_image_extract
 from backend.langgraph.sensory_image_extraction_agent import sensory_image_extract
 
 
@@ -2443,10 +2445,49 @@ class OpenAIEnhancedReportGenerator:
         elements = [Spacer(0, 20)]
 
         if "bayley4_cognitive" in uploaded_files:
-            pass 
+            image_pdf_bayley4_cognitive = report_data['uploaded_files_pdf_images']['bayley4_cognitive']
+            # elements.append(self._section_header("Toddler Bayley4 Assessment"))
+            elements.append(Spacer(0, 10))
+
+            # Extract and add sensory profile images using the agent
+            try:
+                bayley4_cognitive_elements = bayley4_cognitive_image_extract(image_pdf_bayley4_cognitive)
+                if bayley4_cognitive_elements:
+                    elements.extend(bayley4_cognitive_elements)
+                    elements.append(Spacer(0, 20))
+                else:
+                    elements.append(Paragraph("No bayley4_cognitive profile score tables found in the uploaded document.", 
+                                            self.styles['Normal']))
+                    elements.append(Spacer(0, 10))
+            except Exception as e:
+                print(f"Error extracting bayley4_cognitive profile images: {e}")
+                elements.append(Paragraph("Error processing bayley4_cognitive profile images from the uploaded document.", 
+                                        self.styles['Normal']))
+                elements.append(Spacer(0, 10))
+            
 
         if "bayley4_social" in uploaded_files:
-            pass 
+            image_pdf_bayley4_social = report_data['uploaded_files_pdf_images']['bayley4_social']
+            # elements.append(self._section_header("Toddler Bayley4 Assessment"))
+            elements.append(Spacer(0, 10))
+
+            # Extract and add sensory profile images using the agent
+            try:
+                bayley4_social_elements = bayley4_social_image_extract(image_pdf_bayley4_social)
+                if bayley4_social_elements:
+                    elements.extend(bayley4_social_elements)
+                    elements.append(Spacer(0, 20))
+                else:
+                    elements.append(Paragraph("No bayley4_social profile score tables found in the uploaded document.", 
+                                            self.styles['Normal']))
+                    elements.append(Spacer(0, 10))
+            except Exception as e:
+                print(f"Error extracting bayley4_social profile images: {e}")
+                elements.append(Paragraph("Error processing bayley4_social profile images from the uploaded document.", 
+                                        self.styles['Normal']))
+                elements.append(Spacer(0, 10))
+            
+
 
         if "sp2" in uploaded_files:
             image_pdf_sp2 = report_data['uploaded_files_pdf_images']['sp2'] 
