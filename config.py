@@ -29,6 +29,10 @@ class Config:
     PROJECT_DIR: Path = BASE_DIR
     UPLOAD_DIR: Path = os.path.join(BASE_DIR, "uploads")
     OPENAI_API_KEY: str = os.getenv("OPENAI_API_KEY")
+    AMAZON_ACCESS_KEY_ID: str = os.getenv("AMAZON_ACCESS_KEY_ID")
+    AMAZON_SECRET_ACCESS_KEY: str = os.getenv("AMAZON_SECRET_ACCESS_KEY")
+    AMAZON_REGION: str = os.getenv("AMAZON_REGION")
+    AMAZON_S3_BUCKET: str = os.getenv("AMAZON_S3_BUCKET")
     
     def __init__(self):
         self.logger = logging.getLogger(f"{__name__}.{self.__class__.__name__}")

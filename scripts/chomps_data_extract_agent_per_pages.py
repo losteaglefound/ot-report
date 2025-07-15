@@ -78,11 +78,12 @@ extraction_prompt_template = ChatPromptTemplate.from_messages([
 
 
 def extract_text_from_pdf(state: Dict[str, Any]) -> Dict[str, Any]:
-    """Extract text from PDF file."""
+    """Extract text from PDF file page by page."""
     logger.info("=== Starting PDF text extraction ===")
     try:
         pdf_path = state.get("pdf_path", "")
-        logger.info(f"PDF path: {pdf_path}")
+        page_number = state.get("page_number", 0)
+        logger.info(f"PDF path: {pdf_path}, processing page: {page_number}")
         
         if not pdf_path or not os.path.exists(pdf_path):
             logger.error(f"PDF file not found: {pdf_path}")
@@ -95,26 +96,39 @@ def extract_text_from_pdf(state: Dict[str, Any]) -> Dict[str, Any]:
         
         logger.info("Opening PDF document...")
         doc = fitz.open(pdf_path)
-        full_text = "".join([page.get_text() for page in doc])
-        print(f"\n\nFull text: {full_text}\n\n")
-        doc.close()
         
-        text_length = len(full_text.strip())
-        logger.info(f"Extracted text length: {text_length} characters")
-        
-        if not full_text.strip():
-            logger.error("No text could be extracted from the PDF")
+        # Check if page number is valid
+        if page_number >= len(doc):
+            logger.error(f"Page number {page_number} exceeds total pages {len(doc)}")
+            doc.close()
             return {
                 **state,
-                "error_message": "No text could be extracted from the PDF",
+                "error_message": f"Page number {page_number} exceeds total pages {len(doc)}",
                 "report_text": "",
                 "valid": False
             }
         
-        logger.info("PDF text extraction completed successfully")
+        # Extract text from specific page
+        page = doc[page_number]
+        page_text = page.get_text()
+        doc.close()
+        
+        text_length = len(page_text.strip())
+        logger.info(f"Extracted text length from page {page_number}: {text_length} characters")
+        
+        if not page_text.strip():
+            logger.warning(f"No text could be extracted from page {page_number}")
+            return {
+                **state,
+                "report_text": "",
+                "error_message": f"No text extracted from page {page_number}",
+                "valid": False
+            }
+        
+        logger.info(f"PDF text extraction completed successfully for page {page_number}")
         return {
             **state,
-            "report_text": full_text,
+            "report_text": page_text,
             "error_message": "",
             "retry_count": state.get("retry_count", 0)
         }
@@ -129,44 +143,49 @@ def extract_text_from_pdf(state: Dict[str, Any]) -> Dict[str, Any]:
             "valid": False
         }
 
-def ai_convert_raw_data_to_json(state: Dict[str, Any]) -> Dict[str, any]:
+def ai_convert_raw_data_to_json(state: Dict[str, any]) -> Dict[str, any]:
     logger.info("=== Starting raw data to JSON conversion ===")
     try:
+        page_number = state.get("page_number", 0)
+        output_file = f"outputs/chomps_raw_to_json_page_{page_number}.json"
 
-        # if os.path.exists("outputs/chomps_raw_to_json.json"):
-        #     logger.info("Loading existing raw_to_json response")
-        #     with open("outputs/chomps_raw_to_json.json", 'r') as f:
+        # Check if we already processed this page
+        # if os.path.exists(output_file):
+        #     logger.info(f"Loading existing raw_to_json response for page {page_number}")
+        #     with open(output_file, 'r') as f:
         #         output = f.read()
 
         #     return {
         #         **state,
         #         "report_json": output,
-        #         "raw_to_json_retry_count": 0,  # Initialize retry count
-        #         "previous_attempts": [],  # Initialize attempt history
+        #         "raw_to_json_retry_count": 0,
+        #         "previous_attempts": [],
         #         "retry_count": state.get("retry_count", 0)
         #     }
 
         report_text = state.get("report_text", "")
         retry_count = state.get("raw_to_json_retry_count", 0)
         
-        logger.info(f"Report text length: {len(report_text)} characters")
+        logger.info(f"Report text length for page {page_number}: {len(report_text)} characters")
         logger.info(f"Current retry count: {retry_count}")
 
         if not report_text:
-            logger.error("No report text available for parsing")
+            logger.error(f"No report text available for parsing page {page_number}")
             return {
                 **state,
-                "error_message": "No report text available for parsing",
+                "error_message": f"No report text available for parsing page {page_number}",
                 "parsed_json": "",
                 "valid": False
             }
         
-        logger.info("Creating extraction prompt...")
+        logger.info(f"Creating extraction prompt for page {page_number}...")
         # Create the extraction prompt
         prompt = f"""
         You are an assistant that converts survey-based pediatric feeding assessment data into structured JSON format.
 
         You will be given a text containing numbered items from the Child Oral and Motor Proficiency Scale (ChOMPS), each with a description and a score.
+
+        This is PAGE {page_number} of the PDF document.
 
         ---
 
@@ -197,38 +216,39 @@ def ai_convert_raw_data_to_json(state: Dict[str, Any]) -> Dict[str, any]:
 
         ---
 
-        Now, using this format, extract all items and scores from the following input text:
+        Now, using this format, extract all items and scores from the following input text from PAGE {page_number}:
         <<<
         {report_text}
         >>>
         """
         
-        logger.info("Sending prompt to LLM...")
+        logger.info(f"Sending prompt to LLM for page {page_number}...")
         # Generate response
         response = llm.invoke(prompt)
         
-        logger.info("Received response from LLM")
+        logger.info(f"Received response from LLM for page {page_number}")
         # Clean the response
         output = response.content.strip().replace("```json", "").replace("```", "")
         
-        logger.info(f"Cleaned output length: {len(output)} characters")
+        logger.info(f"Cleaned output length for page {page_number}: {len(output)} characters")
         logger.info(f"Output preview: {output[:200]}...")
 
-        with open("outputs/chomps_raw_to_json.json", 'w') as f:
+        # Save with page number
+        with open(output_file, 'w') as f:
             f.write(output)
-        logger.info("Saved raw JSON output to file")
+        logger.info(f"Saved raw JSON output to {output_file}")
 
-        logger.info("Raw data to JSON conversion completed successfully")
+        logger.info(f"Raw data to JSON conversion completed successfully for page {page_number}")
         return {
             **state,
             "report_json": output,
-            "raw_to_json_retry_count": 0,  # Initialize retry count
-            "previous_attempts": [],  # Initialize attempt history
+            "raw_to_json_retry_count": 0,
+            "previous_attempts": [],
             "retry_count": state.get("retry_count", 0)
         }
         
     except Exception as e:
-        logger.error(f"Error in raw data to JSON conversion: {str(e)}")
+        logger.error(f"Error in raw data to JSON conversion for page {page_number}: {str(e)}")
         logger.error(format_exc())
         return {
             **state,
@@ -236,18 +256,41 @@ def ai_convert_raw_data_to_json(state: Dict[str, Any]) -> Dict[str, any]:
             "parsed_json": "",
             "valid": False
         }
-
-
+    
 def report_translation(state: Dict[str, Any]) -> Dict[str, Any]:
     logger.info("=== Starting report translation ===")
     try:
+        page_number = state.get("page_number", 0)
+        output_file = f"outputs/chomps_report_context_page_{page_number}.json"
+        
+        # Check if we already processed this page
+        # if os.path.exists(output_file):
+        #     with open(output_file, 'r') as f:
+        #         output = f.read()
+
+        #     output_json = json.loads(output)
+
+        #     report_context_translation_list = []
+        #     for d in output_json:
+        #         report_context_translation_list.append(d['context'])
+
+        #     logger.info(f"Report translation completed successfully for page {page_number}")
+        #     return {
+        #         **state,
+        #         "report_context_translation_list": report_context_translation_list,
+        #         "report_context_translation": output,
+        #         "retry_count": state.get("retry_count", 0)
+        #     }
+
         report_json = state['report_json']
-        logger.info(f"Report JSON length: {len(report_json)} characters")
+        logger.info(f"Report JSON length for page {page_number}: {len(report_json)} characters")
 
         prompt = f"""
         You are an expert pediatric occupational therapist interpreting individual ChOMPS assessment items.
 
         Your task is to read each item and its score, and generate a 1–3 sentence clinical interpretation that explains what the score says about the child's current skill level.
+
+        This is PAGE {page_number} of the PDF document.
 
         Use the following scoring criteria:
         - 2 = YES: Skill is mastered and performed independently
@@ -308,41 +351,42 @@ def report_translation(state: Dict[str, Any]) -> Dict[str, Any]:
         ]
 
 
-        >>> JSON CONTENT FOR INTERPRETATION
+        >>> JSON CONTENT FOR INTERPRETATION (PAGE {page_number})
         {report_json}
         <<<
         """
 
-        logger.info("Sending translation prompt to LLM...")
+        logger.info(f"Sending translation prompt to LLM for page {page_number}...")
         result = llm.invoke(prompt)
         
-        logger.info("Received translation response from LLM")
+        logger.info(f"Received translation response from LLM for page {page_number}")
         output = result.content.strip().replace("```json", "").replace('```', '')
         
-        logger.info(f"Translation output length: {len(output)} characters")
+        logger.info(f"Translation output length for page {page_number}: {len(output)} characters")
 
-        with open("outputs/chomps_report_context.json", 'w') as f:
+        # Save with page number
+        with open(output_file, 'w') as f:
             f.write(output)
-        logger.info("Saved translation output to file")
+        logger.info(f"Saved translation output to {output_file}")
 
-        logger.info("Attempting to parse translation output as JSON...")
-        output = json.loads(output)
-        logger.info(f"Successfully parsed translation output with {len(output)} items")
+        logger.info(f"Attempting to parse translation output as JSON for page {page_number}...")
+        output_json = json.loads(output)
+        logger.info(f"Successfully parsed translation output with {len(output_json)} items for page {page_number}")
 
         report_context_translation_list = []
-        for d in output:
+        for d in output_json:
             report_context_translation_list.append(d['context'])
 
-        logger.info("Report translation completed successfully")
+        logger.info(f"Report translation completed successfully for page {page_number}")
         return {
             **state,
             "report_context_translation_list": report_context_translation_list,
-            "report_context_translation": output,
+            "report_context_translation": output_json,
             "retry_count": state.get("retry_count", 0)
         }
     
     except json.JSONDecodeError as e:
-        logger.error(f"JSON decode error in report translation: {str(e)}")
+        logger.error(f"JSON decode error in report translation for page {page_number}: {str(e)}")
         logger.error(format_exc())
         return {
             **state,
@@ -352,7 +396,7 @@ def report_translation(state: Dict[str, Any]) -> Dict[str, Any]:
         }
         
     except Exception as e:
-        logger.error(f"Error in report translation: {str(e)}")
+        logger.error(f"Error in report translation for page {page_number}: {str(e)}")
         logger.error(format_exc())
         return {
             **state,
@@ -370,39 +414,29 @@ def parse_sensory_data(state: Dict[str, Any]) -> Dict[str, Any]:
     """Parse sensory data using LLM."""
     logger.info("=== Starting sensory data parsing ===")
     try:
+        page_number = state.get("page_number", 0)
         report_text = state.get("report_text", "")
-        logger.info(f"Report text length: {len(report_text)} characters")
+        logger.info(f"Report text length for page {page_number}: {len(report_text)} characters")
         
-        
-
-        print(2)
-
-
-        print(2)
-        with open("outputs/chomps_agent.txt", 'w') as f:
+        # Save report text for this page
+        page_text_file = f"outputs/chomps_agent_page_{page_number}.txt"
+        with open(page_text_file, 'w') as f:
             f.write(report_text)
-        logger.info("Saved report text to outputs/chomps_agent.txt")
+        logger.info(f"Saved report text to {page_text_file}")
         
-        
-
-        print(3)
-
-
-        print(3)
         if not report_text:
-            logger.error("No report text available for parsing")
+            logger.error(f"No report text available for parsing page {page_number}")
             return {
                 **state,
-                "error_message": "No report text available for parsing",
+                "error_message": f"No report text available for parsing page {page_number}",
                 "parsed_json": "",
                 "valid": False
             }
         
-
         # Create the extraction prompt
         prompt = f"""
         🎯 TASK:
-        Interpret and analyze the observations provided below. Then return a structured JSON report organized into five sections.
+        Interpret and analyze the observations provided below from PAGE {page_number}. Then return a structured JSON report organized into five sections.
 
         Each section requires insight based on your OT expertise:
         1. **Physical Exam** – Analyze posture, orofacial tone, movement patterns
@@ -411,25 +445,26 @@ def parse_sensory_data(state: Dict[str, Any]) -> Dict[str, Any]:
         4. **Oral-Motor Findings** – Identify compensations, weaknesses, and developmental gaps
         5. **PediEAT Analysis** – Identify feeding risks, sensory preferences, and safety issues
 
-        --- BEGIN REPORT TEXT ---
+        --- BEGIN REPORT TEXT (PAGE {page_number}) ---
         {report_text}
         --- END REPORT TEXT ---
         """
         
-
         # Generate response
         messages = extraction_prompt_template.format_messages(prompt=prompt)
         response = llm.invoke(messages)
         
-
         # Clean the response
         output = response.content.strip().replace("```json", "").replace("```", "")
 
-        # with open("outputs/pedieat.json", 'w') as f:
-        #     f.write(output)
+        # Save output for this page
+        page_output_file = f"outputs/chomps_parsed_page_{page_number}.json"
+        with open(page_output_file, 'w') as f:
+            f.write(output)
+        logger.info(f"Saved parsed output to {page_output_file}")
 
-        logger.info(f"Sensory data output length: {len(output)} characters")
-        logger.info("Sensory data parsing completed successfully")
+        logger.info(f"Sensory data output length for page {page_number}: {len(output)} characters")
+        logger.info(f"Sensory data parsing completed successfully for page {page_number}")
         
         return {
             **state,
@@ -438,7 +473,7 @@ def parse_sensory_data(state: Dict[str, Any]) -> Dict[str, Any]:
         }
         
     except Exception as e:
-        logger.error(f"Error in sensory data parsing: {str(e)}")
+        logger.error(f"Error in sensory data parsing for page {page_number}: {str(e)}")
         logger.error(format_exc())
         return {
             **state,
@@ -563,30 +598,33 @@ def check_text_extraction(state: Dict[str, Any]) -> str:
 def reflect(state: Dict[str, Any]) -> Dict[str, Any]:
     try:
         logger.info("====== Starting reflect ======")
+        page_number = state.get("page_number", 0)
         report_text = state['report_text']
         initial_json = state['report_json']
         reflect_retry_count = state.get("reflect", {}).get("retry_count", 1)
         reflect_outputs: list = state.get('reflect', {}).get("outputs", [])
         
-        logger.info("Reflection retry {}".format(reflect_retry_count))
+        logger.info(f"Reflection retry {reflect_retry_count} for page {page_number}")
 
-        logger.info("Building reflect prompt")
+        logger.info(f"Building reflect prompt for page {page_number}")
         prompt = f"""
         You are a data extraction validator and corrector.
         Your job is to review a JSON object extracted from raw PDF text, reflect on the accuracy of the "Score" field, and correct any mistakes by comparing it to the raw source.
         Evaluate how confident you are in the analyze that the score in json structure is correct based on the raw text.
 
+        This is PAGE {page_number} of the PDF document.
+
         Confidence criteria, range from 0.1 to 0.9. 
 
         ---
 
-        RAW TEXT (from the PDF):
+        RAW TEXT (from the PDF PAGE {page_number}):
 
         {report_text}
 
         ---
 
-        INITIAL JSON (possibly inaccurate):
+        INITIAL JSON (possibly inaccurate) for PAGE {page_number}:
 
         {initial_json}
 
@@ -606,6 +644,7 @@ def reflect(state: Dict[str, Any]) -> Dict[str, Any]:
 
         RESPONES FORMAT:
         {{
+            "page": {page_number},
             "verified": [
                 {{
                     "item_no": "1", 
@@ -643,12 +682,13 @@ def reflect(state: Dict[str, Any]) -> Dict[str, Any]:
         ---
         """
 
-        logger.info("Calling llm for reflection")
+        logger.info(f"Calling llm for reflection on page {page_number}")
         result = llm.invoke(prompt)
         output = result.content.strip().replace("```json", "").replace("```", "")
 
-        logger.info(f"Writting reflection output to outputs/chomps_reflect_{reflect_retry_count}.json")
-        with open(f"outputs/chomps_reflect_{reflect_retry_count}.json", 'w') as f:
+        output_file = f"outputs/chomps_reflect_page_{page_number}_retry_{reflect_retry_count}.json"
+        logger.info(f"Writing reflection output to {output_file}")
+        with open(output_file, 'w') as f:
             f.write(output)
 
         reflect_outputs.append(output)
@@ -724,9 +764,67 @@ builder.add_conditional_edges("validate_json", route_by_validation)
 # Compile the graph
 sensory_graph = builder.compile()
 
+def get_pdf_page_count(pdf_path: str) -> int:
+    """Get the total number of pages in a PDF."""
+    try:
+        doc = fitz.open(pdf_path)
+        page_count = len(doc)
+        doc.close()
+        return page_count
+    except Exception as e:
+        logger.error(f"Error getting page count: {str(e)}")
+        return 0
+
+def process_single_page(pdf_path: str, page_number: int) -> Dict[str, Any]:
+    """
+    Process a single page of the PDF through the extraction pipeline.
+    
+    Args:
+        pdf_path: Path to the PDF file
+        page_number: Page number to process (0-indexed)
+        
+    Returns:
+        dict: Processing result for the page
+    """
+    logger.info(f"=== Processing page {page_number} ===")
+    
+    try:
+        # Create initial state for this page
+        initial_state = {
+            "pdf_path": pdf_path,
+            "page_number": page_number,
+            "report_text": "",
+            "parsed_json": "",
+            "valid": False,
+            "retry_count": 0,
+            "error_message": ""
+        }
+        
+        # Process through the pipeline
+        final_state = sensory_graph.invoke(initial_state)
+        
+        logger.info(f"Page {page_number} processing completed")
+        
+        return {
+            "page_number": page_number,
+            "success": not bool(final_state.get("error_message")),
+            "error": final_state.get("error_message"),
+            "data": final_state
+        }
+        
+    except Exception as e:
+        logger.error(f"Error processing page {page_number}: {str(e)}")
+        logger.error(format_exc())
+        return {
+            "page_number": page_number,
+            "success": False,
+            "error": f"Error processing page {page_number}: {str(e)}",
+            "data": None
+        }
+
 def extract_sensory_data(pdf_path: str) -> Dict[str, Any]:
     """
-    Extract sensory data from a PDF using the LangGraph agent.
+    Extract sensory data from a PDF using the LangGraph agent, processing each page separately.
     
     Args:
         pdf_path: Path to the PDF file
@@ -738,51 +836,62 @@ def extract_sensory_data(pdf_path: str) -> Dict[str, Any]:
     logger.info(f"PDF path: {pdf_path}")
     
     try:
-        final_state = sensory_graph.invoke({
-            "pdf_path": pdf_path,
-            "report_text": "",
-            "parsed_json": "",
-            "valid": False,
-            "retry_count": 0,
-            "error_message": ""
-        })
-        
-        logger.info("Pipeline execution completed")
-        logger.info(f"Final state keys: {list(final_state.keys())}")
-        
-        if final_state.get("error_message"):
-            logger.error(f"Pipeline ended with error: {final_state.get('error_message')}")
+        # First, get the total number of pages
+        total_pages = get_pdf_page_count(pdf_path)
+        if total_pages == 0:
             return {
                 "success": False,
-                "error": final_state.get("error_message"),
+                "error": "Could not read PDF or PDF has no pages",
                 "data": None
             }
         
-        parsed_json = final_state.get("parsed_json", "")
-        if parsed_json:
-            try:
-                data = json.loads(parsed_json)
-                logger.info("Successfully parsed final JSON response")
-                return {
-                    "success": True,
-                    "error": None,
-                    "data": data
-                }
-            except json.JSONDecodeError:
-                logger.error("Failed to parse final JSON response")
-                logger.error(format_exc())
-                return {
-                    "success": False,
-                    "error": "Failed to parse final JSON response",
-                    "data": parsed_json  # Return raw response for debugging
-                }
+        logger.info(f"PDF has {total_pages} pages. Processing each page separately...")
         
-        logger.warning("No data extracted from pipeline")
-        return {
-            "success": False,
-            "error": "No data extracted",
-            "data": None
+        # Process each page
+        all_results = []
+        successful_pages = []
+        failed_pages = []
+        
+        for page_num in range(total_pages):
+            logger.info(f"Processing page {page_num + 1} of {total_pages}")
+            
+            result = process_single_page(pdf_path, page_num)
+            all_results.append(result)
+            
+            if result["success"]:
+                successful_pages.append(page_num)
+                logger.info(f"Page {page_num} processed successfully")
+            else:
+                failed_pages.append(page_num)
+                logger.warning(f"Page {page_num} failed: {result['error']}")
+        
+        # Save summary of all results
+        summary = {
+            "total_pages": total_pages,
+            "successful_pages": successful_pages,
+            "failed_pages": failed_pages,
+            "results": all_results
         }
+        
+        summary_file = "outputs/chomps_processing_summary.json"
+        with open(summary_file, 'w') as f:
+            json.dump(summary, f, indent=2, default=str)
+        logger.info(f"Saved processing summary to {summary_file}")
+        
+        if successful_pages:
+            logger.info(f"Successfully processed {len(successful_pages)} out of {total_pages} pages")
+            return {
+                "success": True,
+                "error": None,
+                "data": summary
+            }
+        else:
+            logger.error("No pages were processed successfully")
+            return {
+                "success": False,
+                "error": "No pages were processed successfully",
+                "data": summary
+            }
         
     except Exception as e:
         logger.error(f"Error in sensory data extraction pipeline: {str(e)}")
@@ -802,22 +911,42 @@ def main():
     parser.add_argument("--output", help="Output JSON file path (optional)")
     args = parser.parse_args()
     
+    # Ensure outputs directory exists
+    os.makedirs("outputs", exist_ok=True)
+    os.makedirs("logs", exist_ok=True)
+    
     # Extract sensory data
     result = extract_sensory_data(args.pdf)
     
     if result["success"]:
-        output_data = json.dumps(result["data"], indent=2)
+        # The data now contains a summary of all pages processed
+        summary_data = result["data"]
         
+        print(f"Processing completed!")
+        print(f"Total pages: {summary_data['total_pages']}")
+        print(f"Successfully processed pages: {summary_data['successful_pages']}")
+        print(f"Failed pages: {summary_data['failed_pages']}")
+        
+        # Save summary to output file if specified
         if args.output:
             with open(args.output, 'w') as f:
-                f.write(output_data)
-            print(f"Successfully extracted data and saved to {args.output}")
-        else:
-            print(output_data)
+                json.dump(summary_data, f, indent=2, default=str)
+            print(f"Processing summary saved to {args.output}")
+        
+        # Print information about generated files
+        print("\nGenerated files:")
+        print("- outputs/chomps_processing_summary.json (overall summary)")
+        
+        for page_num in summary_data['successful_pages']:
+            print(f"- outputs/chomps_raw_to_json_page_{page_num}.json")
+            print(f"- outputs/chomps_report_context_page_{page_num}.json")
+            print(f"- outputs/chomps_reflect_page_{page_num}_retry_1.json")
+        
     else:
         print(f"Error: {result['error']}")
         if result["data"]:
-            print(f"Raw response: {result['data']}")
+            # Even if failed, we might have partial results
+            print("Partial results available in outputs/chomps_processing_summary.json")
 
 if __name__ == "__main__":
     main()

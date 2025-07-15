@@ -5,7 +5,6 @@ Extracts tables from PDF documents using Amazon Textract analyze_document API
 Processes each page individually and saves responses with enumeration
 """
 
-import boto3
 from datetime import datetime
 import json
 import logging
@@ -15,16 +14,22 @@ import sys
 import time
 from traceback import format_exc
 from typing import Dict, List, Optional, Any
-import fitz  # PyMuPDF
 from PIL import Image
 import io
 
+import boto3
 from dotenv import load_dotenv
+import fitz  # PyMuPDF
+
+from aws_respnose_parser import parse_chomps_json
 
 assert load_dotenv()
 
 # Add parent directory to path to import config
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
+
+full_response = {}
 
 class AWSTextractOCRTableAnalyzer:
     """
@@ -151,6 +156,15 @@ class AWSTextractOCRTableAnalyzer:
 
                     with open(f"outputs/aws_chomps_page_{page_num}.json", 'w+') as f:
                         f.write(json.dumps(response, indent=4))
+
+                    json_data = parse_chomps_json(response)
+                    if json_data.get('patientInfo', {}).get("name", ""):
+                        full_response['patientInfo'] = json_data['patientInfo']
+                    if check1 := json_data.get("observations", []):
+                        if check2 := full_response.get("observations", []):
+                            full_response['observations'].extend(json_data['observations'])
+                        else:
+                            full_response['observations'] = json_data['observations']
                     
                     # Process the response
                     processed_response = self.process_textract_response(response, page_num + 1)
@@ -160,6 +174,7 @@ class AWSTextractOCRTableAnalyzer:
                     time.sleep(0.1)
                     
                 except Exception as e:
+                    print(format_exc())
                     self.logger.error(f"Failed to analyze page {page_num + 1}: {e}")
                     # Continue with next page
                     error_response = {
@@ -457,9 +472,20 @@ def main():
     import argparse
     
     parser = argparse.ArgumentParser(description='Analyze PDF documents using AWS Textract OCR (analyze_document API)')
-    parser.add_argument('pdf_path', help='Path to the PDF file to analyze')
-    parser.add_argument('--output-dir', default='outputs', help='Output directory for results')
-    parser.add_argument('--output-filename', help='Custom output filename (without extension)')
+    parser.add_argument(
+        'pdf_path', 
+        help='Path to the PDF file to analyze',
+    )
+    parser.add_argument(
+        '--output-dir', 
+        default='outputs', 
+        help='Output directory for results',
+    )
+    parser.add_argument(
+        '--output-filename', 
+        help='Custom output filename (without extension)',
+        default="chomps_image"
+    )
     
     args = parser.parse_args()
     
@@ -509,6 +535,9 @@ def main():
                 else:
                     page_tables = len(page_result['tables'])
                     print(f"  📄 Page {page_num + 1}: {page_tables} tables")
+
+        with open("aws_full_response_parse.json", 'w+') as f:
+            json.dump(full_response, f, indent=4)
         
     except Exception as e:
         print(f"❌ Error during analysis: {e}")
