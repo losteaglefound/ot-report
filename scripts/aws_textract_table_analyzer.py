@@ -153,7 +153,7 @@ class AWSTextractTableAnalyzer:
                             'Name': filename
                         }
                     },
-                    FeatureTypes=["TABLES", "FORMS"]
+                    FeatureTypes=["TABLES"]
             )
             print(f"Started analysis job: {start_response['JobId']}")
             
@@ -212,6 +212,10 @@ class AWSTextractTableAnalyzer:
             
             if status == 'SUCCEEDED':
                 self.logger.info("✅ Textract job completed successfully")
+                
+                with open("outputs/chomps_aws_result.json", 'w+') as f:
+                    f.write(json.dumps(result, indent=4))
+                
                 break
             elif status == 'FAILED':
                 error_msg = f"Textract job failed: {result.get('StatusMessage', 'Unknown error')}"
@@ -226,6 +230,8 @@ class AWSTextractTableAnalyzer:
             else:
                 print(f"⏳ Job status: {status}, waiting...")
                 time.sleep(5)
+
+       
 
         # Final status check
         if result['JobStatus'] == 'FAILED':
