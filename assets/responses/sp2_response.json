@@ -1,38 +1,34 @@
 {
-    "sp2_overview": {
-        "type": "header",
-        "content": "Sensory Profile 2 (SP2) Assessment"
-    },
     "assessment_description": {
         "type": "paragraph",
         "content": "The Sensory Profile 2 is a standardized assessment that evaluates sensory processing patterns and their impact on daily functioning. The assessment examines four sensory processing quadrants: Seeking, Avoiding, Sensitivity, and Registration."
     },
     "sensory_overview": {
         "type": "paragraph",
-        "content": "The assessment reveals a complex sensory processing profile with marked challenges in the Avoiding and Sensitivity quadrants, which are both classified as 'Much More Than Others,' indicating heightened sensory defensiveness and sensitivity. In contrast, the Seeking and Registration quadrants fall within the range 'Just like the Majority of Others,' suggesting typical levels of sensory exploration and response to sensory input. Thus, the child is likely to exhibit avoidance of sensory input and significant discomfort with specific sensory stimuli, impacting their ability to participate in daily activities."
+        "content": "The child\u2019s Sensory Profile 2 results indicate that they demonstrate specific patterns of sensory processing across multiple domains. Within the Seeking quadrant, the child scores within the typical range, suggesting consistent sensory seeking behaviors comparable to peers. Conversely, the Avoiding and Sensitivity quadrants both indicate scores 'much more than others', reflecting a heightened likelihood to avoid sensory stimuli and exhibit increased sensitivity to sensory input. Registration scores fall within typical parameters, indicating that the child shows appropriate engagement and awareness of sensory input. These patterns suggest that while the child is alert and adequately responsive to sensory cues, they may experience significant sensory defensiveness and hypersensitivity impacting social participation and tasks requiring sensory modulation."
     },
     "touch_processing_domain": {
         "type": "paragraph",
-        "content": "The raw score for Touch Processing is 18, placing it in the 96-99 percentile range, classified as 'Much More Than Others.' This score indicates a pronounced sensitivity to tactile stimuli, which could manifest as aversion to certain textures and discomfort with physical contact. Functional implications include potential challenges in grooming activities like dressing and bathing, as the child might resist varied textures and physical manipulations."
+        "content": "Within the Touch Processing domain, the child\u2019s raw score of 18 places them in the 'much more than others' classification, with a percentile range of 96-99. This indicates a significant hypersensitivity to tactile input. Clinically, such sensitivity can manifest as discomfort and adverse reactions to touch, such as becoming upset with nail trimming or resisting contact with various textures. Functionally, this can impact daily activities such as dressing, playing, and interacting with peers, potentially leading to avoidance of tactile-rich environments."
     },
     "oral_sensory_domain": {
         "type": "paragraph",
-        "content": "The Oral Sensory Processing score is 27, within the 98-99 percentile range, also classified as 'Much More Than Others.' This suggests significant oral sensitivity and selectivity, likely affecting feeding habits with preferences for specific food textures and potentially leading to restrictive eating patterns. Clinically, this may necessitate an intervention focused on introducing a broader range of food textures within a structured and supportive feeding program."
+        "content": "The Oral Sensory Processing domain score of 27 indicates a high level of sensitivity, classified as 'much more than others', falling within the 98-99 percentile range. This suggests pronounced difficulties with oral sensory processing, such as a limited diet and aversion to certain textures. These difficulties can significantly impact feeding routines, resulting in challenges with introducing varied foods and textures, potentially affecting nutritional intake and oral motor development."
     },
     "auditory_processing_domain": {
         "type": "paragraph",
-        "content": "In the Auditory Processing domain, the score of 15 falls in the 88-95 percentile range, classified as 'More Than Others.' This indicates increased distractibility and potential challenges with auditory processing. The child might experience difficulty concentrating in noisy environments and exhibit heightened reactions to unexpected sounds, impacting their ability to stay on task and engage in activities requiring focused attention."
+        "content": "Auditory Processing scores reveal a raw score of 15, classified as 'more than others' within the 88-95 percentile range. This reflects a moderate sensitivity to auditory stimuli, characterized by distraction and distress in noisy settings. This auditory hypersensitivity can impact the child\u2019s ability to focus in louder environments, potentially affecting participation in classroom and home settings where background noise is prevalent."
     },
     "visual_and_movement_processing": {
         "type": "paragraph",
-        "content": "Both Visual and Movement Processing scores fall within typical ranges, signifying typical visual engagement and movement exploration behaviors. However, the child's high seeking scores within movement activities suggest a preference for dynamic input, which can be leveraged therapeutically to encourage positive sensory experiences through structured physical activities. These typical scores may facilitate more successful motor planning and integration during play and learning tasks."
+        "content": "In the Visual Processing domain, the child\u2019s score of 15 is classified as 'just like the majority of others', indicating typical responses to visual stimuli. Movement Processing also shows a typical range response with a raw score of 18. These findings suggest adequate visual and kinesthetic awareness, indicating that while the child is sensitive to certain other sensory modalities, their visual-spatial processing and motor planning are not significantly impacted and are comparable to peers."
     },
     "behavioural_response_domain": {
         "type": "paragraph",
-        "content": "The Behavioral responses associated with sensory processing scored 22, in the 96-99 percentile range, 'Much More Than Others.' This highlights significant challenges in self-regulation and adaptive responses, potentially leading to avoidant behaviors or distress in new or stimulating environments. These behavioral tendencies necessitate interventions aimed at enhancing self-regulation skills through sensory strategies tailored to the child\u2019s specific sensitivities."
+        "content": "The child\u2019s Behavioral Responses associated with Sensory Processing yield a raw score of 22, placing them in the 'much more than others' classification with a percentile range of 96-99. This indicates significant challenges with self-regulation when facing sensory stimuli, which may manifest as difficulty adapting to new environments, significant anxiety, and withdrawal behaviors. These behaviors can considerably affect the child's adaptive responses and participation in daily activities, necessitating structured support."
     },
     "summary": {
         "type": "paragraph",
-        "content": "In summary, the Sensory Profile 2 indicates specific challenges in tactile and oral sensory domains with heightened sensory defensiveness and seeking. Key areas of concern include resistance to tactile input and selective eating, affecting daily living skills. Recommended intervention strategies include sensory integration therapy to acclimate the child to a variety of sensory stimuli and enhance coping strategies, thereby improving engagement and functional performance in daily activities."
+        "content": "Overall, the SP2 findings highlight several critical areas of sensory processing concern, primarily related to sensory sensitivity and avoidance phenomena. These issues particularly impact touch and oral sensory processing. Consequently, the child may benefit from intervention strategies focusing on sensory integration therapy to improve adaptive behaviors and increase tolerance to various sensory inputs. Recommendations include the use of sensory diets, implementing calming strategies in overwhelming environments, and gradual exposure to varied textures in feeding to enhance desensitization. Such interventions aim to enhance the child\u2019s functional performance and participation in everyday activities."
     }
 }

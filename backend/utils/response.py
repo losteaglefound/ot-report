@@ -30,7 +30,7 @@ async def format_data_for_pdf(data: dict) -> list:
     # )
     header_style = ParagraphStyle(
         name="SectionHeader",
-        fontSize=11,
+        fontSize=12,
         leading=14,
         fontName="TimesNewRoman-Bold",
         underlineWidth=1
@@ -38,7 +38,7 @@ async def format_data_for_pdf(data: dict) -> list:
     body_style = ParagraphStyle(
         name='BodyText',
         parent=styles['Normal'],
-        fontSize=11,
+        fontSize=12,
         fontName="TimesNewRoman-Regular",
         leading=14,
         spaceAfter=6,
@@ -66,7 +66,7 @@ async def format_data_for_pdf(data: dict) -> list:
                             point, ParagraphStyle(
                                 name="bullet_point",
                                 fontName="TimesNewRoman-Regular",
-                                fontSize=11,
+                                fontSize=12,
                                 leading=13,
                                 
                             )
@@ -106,7 +106,7 @@ async def format_bayley_data_for_pdf(data: dict) -> list:
     
     domain_summary_style = ParagraphStyle(
         name="BayleyDomainSummary",
-        fontSize=11,
+        fontSize=12,
         leading=14,
         fontName="TimesNewRoman-Bold",
         spaceAfter=6,
@@ -115,7 +115,7 @@ async def format_bayley_data_for_pdf(data: dict) -> list:
     
     bullet_style = ParagraphStyle(
         name="BayleyBulletStyle",
-        fontSize=11,
+        fontSize=12,
         leading=14,
         fontName="TimesNewRoman-Regular",
         leftIndent=20,
@@ -124,7 +124,7 @@ async def format_bayley_data_for_pdf(data: dict) -> list:
     
     patient_assessment_style = ParagraphStyle(
         name="BayleyPatientAssessment",
-        fontSize=11,
+        fontSize=12,
         leading=14,
         fontName="TimesNewRoman-Regular",
         spaceAfter=12,
@@ -135,7 +135,7 @@ async def format_bayley_data_for_pdf(data: dict) -> list:
     # Style for adaptive behavior sub-domain headers
     adaptive_subdomain_style = ParagraphStyle(
         name="BayleyAdaptiveSubdomain",
-        fontSize=11,
+        fontSize=12,
         leading=14,
         fontName="TimesNewRoman-Regular",
         spaceAfter=0,
@@ -325,7 +325,7 @@ async def format_pedieat_data_for_pdf(data: dict) -> list:
     subsection_header_style = ParagraphStyle(
         name="PediEATSubsectionHeader",
         parent=styles['Normal'],
-        fontSize=11,
+        fontSize=12,
         leading=14,
         fontName="TimesNewRoman-Regular",
         spaceAfter=4,
@@ -334,7 +334,7 @@ async def format_pedieat_data_for_pdf(data: dict) -> list:
     
     body_style = ParagraphStyle(
         name="PediEATBodyText",
-        fontSize=11,
+        fontSize=12,
         leading=14,
         fontName="TimesNewRoman-Regular",
         spaceAfter=8,
@@ -344,7 +344,7 @@ async def format_pedieat_data_for_pdf(data: dict) -> list:
     
     bullet_style = ParagraphStyle(
         name="PediEATBulletStyle",
-        fontSize=11,
+        fontSize=12,
         leading=14,
         fontName="TimesNewRoman-Regular",
         leftIndent=20,
@@ -363,7 +363,7 @@ async def format_pedieat_data_for_pdf(data: dict) -> list:
             elements.append(Paragraph(f"<u>{content}</u>", header_style))
             
         if content_type == "physical_examination_header" or content_type == "cranial_nerve_screening_header":
-            elements.append(Paragraph(f"{content}", header_style))
+            elements.append(Paragraph(f"<u><b>{content}</b></u>", header_style))
 
         elif content_type == "paragraph":
             if isinstance(content, dict):
@@ -374,6 +374,18 @@ async def format_pedieat_data_for_pdf(data: dict) -> list:
                         formatted_subkey = subkey.replace('_', ' ').title()
                         if formatted_subkey.lower() != 'body':  # Skip generic 'body' header
                             elements.append(Paragraph(f"<b>{formatted_subkey}:</b> {subcontent}", subsection_header_style))
+                        # elements.append(Paragraph(subcontent, body_style))
+            else:
+                # Handle simple string content
+                if isinstance(content, str) and content.strip():
+                    elements.append(Paragraph(content, body_style))
+        elif content_type == "physical_examination_paragraph" or content_type == 'cranial_nerve_screening_paragraph':
+            if isinstance(content, dict):
+                # Handle nested content structure for examination sections
+                for subkey, subcontent in content.items():
+                    if isinstance(subcontent, str) and subcontent.strip():
+                        # Format subkey as a readable header
+                        elements.append(Paragraph(f"<b>{subkey}:</b> {subcontent}", subsection_header_style))
                         # elements.append(Paragraph(subcontent, body_style))
             else:
                 # Handle simple string content

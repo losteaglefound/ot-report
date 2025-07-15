@@ -17,7 +17,7 @@
         },
         "patient_assessment": {
             "type": "paragraph",
-            "content": "Due to the absence of clinical data, interpretation cannot be conducted. Typically, this assessment would involve tasks such as shape sorting to evaluate Sabrina's ability to categorize basic concepts and demonstrate emerging problem-solving skills. Observations would focus on her ability to use spatial memory and manipulate objects purposefully, indicating her exploration and manipulation capabilities."
+            "content": "Given the lack of data in the Cognitive domain, I am unable to provide a specific interpretation concerning Sabrina's attention, memory, sensory-motor development, or problem-solving abilities. Clinicians should consider supplementary assessments to thoroughly evaluate Sabrina's cognitive abilities and inform potential intervention strategies."
         }
     },
     "receptive_communication": {
@@ -38,7 +38,7 @@
         },
         "patient_assessment": {
             "type": "paragraph",
-            "content": "Without concrete data, a clinical interpretation cannot be performed. Ordinarily, Sabrina would be expected to follow one-step commands and identify objects or body parts. Mastery in these tasks would indicate her ability to comprehend and process verbal communication effectively for her age."
+            "content": "Unfortunately, without specific data in the Receptive Communication domain, an accurate assessment of Sabrina's ability to comprehend verbal and non-verbal communication cannot be made. It is recommended that further standardized assessment be carried out to gain insight into her receptive language abilities and develop appropriate intervention goals."
         }
     },
     "expressive_communication": {
@@ -59,7 +59,7 @@
         },
         "patient_assessment": {
             "type": "paragraph",
-            "content": "As no data is provided, specific assessment of expressive communication is not possible. Typically, Sabrina should be capable of using words to express wants and combine them into short sentences, indicating emerging language structure skills appropriate for her age."
+            "content": "Due to the absence of Expressive Communication data, an analysis of Sabrina's verbal and non-verbal skills cannot be performed. Additional testing focusing on her expressive language capabilities would be beneficial to identify her current communication level and assist in planning targeted therapy."
         }
     },
     "fine_motor": {
@@ -80,7 +80,7 @@
         },
         "patient_assessment": {
             "type": "paragraph",
-            "content": "Given the lack of recorded data, a comprehensive analysis cannot be derived. Generally, Sabrina's performance in tasks like stacking blocks or using a pincer grasp for threading would assess her precision and control in manual dexterity. Evaluation of visual-motor integration through drawing and pre-writing tasks would be critical for determining readiness for more structured desk-based tasks common in preschool activities."
+            "content": "With the absence of specific data in the Fine Motor domain, tasks such as pincer grasp development, stacking, and other manual dexterity skills remain unassessed. It is critical to evaluate these areas to understand Sabrina's hand function and visual-motor integration skills, which are essential for tasks such as self-feeding and dressing."
         }
     },
     "gross_motor": {
@@ -101,7 +101,7 @@
         },
         "patient_assessment": {
             "type": "paragraph",
-            "content": "In the absence of specific data, a detailed mechanical analysis cannot be concluded. Normally, tasks such as stair navigation, running, and jumping are assessed for postural control and bilateral coordination at Sabrina's developmental stage, highlighting her motor planning abilities and overall muscular development relative to her peers."
+            "content": "As we lack observations in Gross Motor tasks, difficulties in postural control, body coordination, and balance cannot be confirmed or addressed for Sabrina at this time. Evaluating these areas is essential to inform interventions that could enhance her ability to engage in active play and navigate her environment safely."
         }
     }
 }

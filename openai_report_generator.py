@@ -257,7 +257,7 @@ class OpenAIEnhancedReportGenerator:
         self.styles.add(ParagraphStyle(
             name='ClinicInfo',
             parent=self.styles['Normal'],
-            fontSize=11,
+            fontSize=12,
             textColor=colors.HexColor('#444444'),
             spaceAfter=6,
             spaceBefore=2,
@@ -320,7 +320,7 @@ class OpenAIEnhancedReportGenerator:
         self.styles.add(ParagraphStyle(
             name='BulletPoint',
             parent=self.styles['Normal'],
-            fontSize=11,
+            fontSize=12,
             textColor=colors.HexColor('#333333'),
             spaceAfter=6,
             spaceBefore=3,
@@ -335,7 +335,7 @@ class OpenAIEnhancedReportGenerator:
         self.styles.add(ParagraphStyle(
             name='AssessmentResults',
             parent=self.styles['Normal'],
-            fontSize=10,
+            fontSize=12,
             textColor=colors.HexColor('#2d3748'),
             spaceAfter=8,
             spaceBefore=4,
@@ -354,7 +354,7 @@ class OpenAIEnhancedReportGenerator:
         self.styles.add(ParagraphStyle(
             name='KeyFindings',
             parent=self.styles['Normal'],
-            fontSize=11,
+            fontSize=12,
             textColor=colors.HexColor('#2b6cb0'),
             spaceAfter=8,
             spaceBefore=8,
@@ -373,7 +373,7 @@ class OpenAIEnhancedReportGenerator:
         self.styles.add(ParagraphStyle(
             name='RecommendationItem',
             parent=self.styles['Normal'],
-            fontSize=11,
+            fontSize=12,
             textColor=colors.HexColor('#2d5016'),
             spaceAfter=6,
             spaceBefore=3,
@@ -392,7 +392,7 @@ class OpenAIEnhancedReportGenerator:
         self.styles.add(ParagraphStyle(
             name='Footer',
             parent=self.styles['Normal'],
-            fontSize=9,
+            fontSize=12,
             textColor=colors.HexColor('#666666'),
             spaceAfter=4,
             spaceBefore=2,
@@ -405,7 +405,7 @@ class OpenAIEnhancedReportGenerator:
         self.styles.add(ParagraphStyle(
             name='TableHeader',
             parent=self.styles['Normal'],
-            fontSize=10,
+            fontSize=12,
             textColor=colors.white,
             spaceAfter=4,
             spaceBefore=4,
@@ -418,7 +418,7 @@ class OpenAIEnhancedReportGenerator:
         self.styles.add(ParagraphStyle(
             name='TableCell',
             parent=self.styles['Normal'],
-            fontSize=10,
+            fontSize=12,
             textColor=colors.HexColor('#2d3748'),
             spaceAfter=3,
             spaceBefore=3,
@@ -540,7 +540,7 @@ class OpenAIEnhancedReportGenerator:
             self.logger.info("👁️ Generating clinical observations...")
             story.extend(await self._create_clinical_observations(enhanced_data))
             
-            story.append(PageBreak())
+            # story.append(PageBreak())
             self.logger.info("🔧 Adding assessment tools description...")
             story.extend(self._create_assessment_tools_description(enhanced_data))
 
@@ -1758,7 +1758,7 @@ class OpenAIEnhancedReportGenerator:
         sp2_paragraph = Paragraph(sp2_paragraph_text, ParagraphStyle(
             name="sp2-paragraph",
             fontName="TimesNewRoman-Regular",
-            fontSize=11,
+            fontSize=12,
             leading=14
         ))
         elements.append(Spacer(0, 20))
@@ -1821,7 +1821,7 @@ class OpenAIEnhancedReportGenerator:
 
 
         feeding_paragraph_text = f"""
-            <b><i>Feeding Skills:</i><b> Early intervention in feeding encompasses the objective of fostering proficient
+            <b><i>Feeding Skills:</i></b> Early intervention in feeding encompasses the objective of fostering proficient
             oral motor control and enhancing texture tolerance to facilitate the consumption of a diverse
             range of foods. This comprehensive approach also encompasses the refinement of fine motor
             skills essential for self-feeding and the mastery of drinking from a cup.
@@ -1829,7 +1829,7 @@ class OpenAIEnhancedReportGenerator:
         feeding_paragraph = Paragraph(feeding_paragraph_text, ParagraphStyle(
             name="sp2-paragraph",
             fontName="TimesNewRoman-Regular",
-            fontSize=11,
+            fontSize=12,
             leading=14
         ))
         elements.append(Spacer(0, 20))
@@ -1863,7 +1863,7 @@ class OpenAIEnhancedReportGenerator:
             ParagraphStyle(
                 "recommendations",
                 fontName="TimesNewRoman-Bold",
-                fontSize=11,
+                fontSize=12,
                 leading=12
             )
         )
@@ -1890,7 +1890,7 @@ class OpenAIEnhancedReportGenerator:
             intro_para = Paragraph(
                 intro_text, ParagraphStyle(
                     "recommendation_points",
-                    fontSize=11,
+                    fontSize=12,
                     leading=14,
                     fontName="TimesNewRoman-Regular"
                 )
@@ -1914,7 +1914,7 @@ class OpenAIEnhancedReportGenerator:
                         formatted_rec, 
                         ParagraphStyle(
                             "recommendation_points",
-                            fontSize=11,
+                            fontSize=12,
                             leading=14,
                             fontName="TimesNewRoman-Regular"
                         )
@@ -1981,7 +1981,7 @@ class OpenAIEnhancedReportGenerator:
             ParagraphStyle(
                 name="ot_goals",
                 fontName="TimesNewRoman-Bold",
-                fontSize=11,
+                fontSize=12,
                 leading=14
             )
         )
@@ -2342,7 +2342,7 @@ class OpenAIEnhancedReportGenerator:
             sp2_header = Paragraph("<u><b>Toddler Sensory Profile 2 (SP2)</b></u>", ParagraphStyle(
                 "assessments_tool_sp2",
                 fontName="TimesNewRoman-Bold",
-                fontSize=11,
+                fontSize=12,
                 leading=14
             ))
             assessment_tools.append([sp2_header])
@@ -2362,7 +2362,7 @@ class OpenAIEnhancedReportGenerator:
             sp2_paragraph = Paragraph(sp2_paragraph_text, ParagraphStyle(
                 "assessments_tool_sp2_text",
                 fontName="TimesNewRoman-Regular",
-                fontSize=11,
+                fontSize=12,
                 leading=14
             ))
             assessment_tools.append([sp2_paragraph])
@@ -2371,7 +2371,7 @@ class OpenAIEnhancedReportGenerator:
             chomps_header = Paragraph("<u><b>The Child Oral and Motor Proficiency Scale (ChOMPS)</b></u>", ParagraphStyle(
                 "assessments_tool_sp2",
                 fontName="TimesNewRoman-Bold",
-                fontSize=11,
+                fontSize=12,
                 leading=14
             ))
             assessment_tools.append([chomps_header])
@@ -2386,7 +2386,7 @@ class OpenAIEnhancedReportGenerator:
             chomps_paragraph = Paragraph(chomps_paragraph_text, ParagraphStyle(
                 "assessments_tool_sp2_text",
                 fontName="TimesNewRoman-Regular",
-                fontSize=11,
+                fontSize=12,
                 leading=14
             ))
             assessment_tools.append([chomps_paragraph])
@@ -2394,7 +2394,7 @@ class OpenAIEnhancedReportGenerator:
             pedieat_header = Paragraph("<u><b>Pediatric Eating Assessment Tool (PediEAT)</b></u>", ParagraphStyle(
                 "assessments_tool_sp2",
                 fontName="TimesNewRoman-Bold",
-                fontSize=11,
+                fontSize=12,
                 leading=14
             ))
             assessment_tools.append([pedieat_header])
@@ -2409,7 +2409,7 @@ class OpenAIEnhancedReportGenerator:
             pedieat_paragraph = Paragraph(pedieat_paragraph_text, ParagraphStyle(
                 "assessments_tool_sp2_text",
                 fontName="TimesNewRoman-Regular",
-                fontSize=11,
+                fontSize=12,
                 leading=14
             ))
             assessment_tools.append([pedieat_paragraph])
@@ -2793,7 +2793,7 @@ class OpenAIEnhancedReportGenerator:
             ParagraphStyle(
                 "recommendations",
                 fontName="TimesNewRoman-Bold",
-                fontSize=11,
+                fontSize=12,
                 leading=14
             )
         )
@@ -2811,7 +2811,7 @@ class OpenAIEnhancedReportGenerator:
         elements = []
 
 
-        elements.append(PageBreak())  # Start signature on new page if needed
+        # elements.append(PageBreak())  # Start signature on new page if needed
         
         # Signature header
         elements.append(Spacer(20, 20))

@@ -57,9 +57,11 @@ async def get_professional_summary_prompt(report_data: dict, json_format: bool =
         {{
             "professional_summary": {{
                 "type": "paragraph",
-                "content": "{child_name} (chronological age: {age}) was assessed using multiple standardized pediatric assessment tools to evaluate developmental functioning across cognitive, motor, sensory processing, and adaptive behavior domains. The comprehensive evaluation revealed both areas of emerging strength and areas requiring targeted intervention support. Based on the assessment findings, occupational therapy services are recommended to address identified areas of need and support optimal developmental progression. A collaborative, family-centered approach involving occupational therapy and related services will be beneficial to address the client's comprehensive developmental needs. Regular monitoring and reassessment will be important to track progress and adjust intervention strategies as needed to promote functional independence and developmental success."
+                "content": "**REPLACE WITH COMPREHENSIVE PROFESSIONAL SUMMARY BASED ON ALL ASSESSMENT DATA. Start with '{child_name} (chronological age: {age}) was assessed using multiple standardized pediatric assessment tools to evaluate developmental functioning across [specific domains assessed]. Include specific assessment names used, overall performance patterns, delay percentages where applicable, areas of emerging strength, areas requiring targeted intervention support, functional implications for daily activities, evidence-based recommendations for occupational therapy services, collaborative family-centered approach recommendations, specific related services needed, prognosis and benefit expectations from services, family involvement and education needs, regular monitoring and reassessment importance, and individualized intervention plan foundation. Use professional clinical language typical of pediatric OT summaries with 6-8 comprehensive sentences.**"
             }}
         }}
+
+        IMPORTANT: Replace the content marked with **REPLACE WITH...** with actual clinical interpretations and professional summary based on the provided assessment data and analysis. Do not output the placeholder instructions literally. Ensure specific assessment findings, scores, and recommendations are integrated into a cohesive professional summary.
 
         Ensure the response is valid JSON and follows this exact structure.
         """

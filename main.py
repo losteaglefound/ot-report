@@ -24,6 +24,7 @@ from config import (
 )
 from backend.domain_detector_bayley4_social_adaptive import process_bayley_social_adaptive_assessment
 from backend.utils.pdf import pdf_convert_to_image
+from backend.utils.save_json import save_json_data
 
 
 sys.stdout.reconfigure(encoding='utf-8')
@@ -408,6 +409,7 @@ async def upload_files(
             try:
                 logger.info("🧠 Processing PediEAT assessment with pedieat agent...")
                 pedieat_result = extract_pedieat_data(uploaded_files['pedieat'])
+                await save_json_data(pedieat_result, "pedieat_result", extension="json")
 
                 uploaded_files_pdf_images['pedieat'] = pdf_convert_to_image(uploaded_files['pedieat'], session_dir)
                 
@@ -428,6 +430,7 @@ async def upload_files(
             try:
                 logger.info("🧠 Processing CHOMPS assessment with chomps agent...")
                 chomps_result = extract_chomps_data_wrapper(uploaded_files['chomps'])
+                await save_json_data(chomps_result, "chomps_result", extension="json")
 
                 uploaded_files_pdf_images['chomps'] = pdf_convert_to_image(uploaded_files['pedieat'], session_dir)
                 

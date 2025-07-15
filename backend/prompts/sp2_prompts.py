@@ -32,10 +32,6 @@ async def get_sp2_prompt(report_data: dict, json_format: bool = False) -> str:
 
         JSON response format:
         {{
-            "sp2_overview": {{
-                "type": "header",
-                "content": "Sensory Profile 2 (SP2) Assessment"
-            }},
             "assessment_description": {{
                 "type": "paragraph",
                 "content": "The Sensory Profile 2 is a standardized assessment that evaluates sensory processing patterns and their impact on daily functioning. The assessment examines four sensory processing quadrants: Seeking, Avoiding, Sensitivity, and Registration."

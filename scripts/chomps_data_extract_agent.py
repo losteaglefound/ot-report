@@ -96,6 +96,7 @@ def extract_text_from_pdf(state: Dict[str, Any]) -> Dict[str, Any]:
         logger.info("Opening PDF document...")
         doc = fitz.open(pdf_path)
         full_text = "".join([page.get_text() for page in doc])
+        print(f"\n\nFull text: {full_text}\n\n")
         doc.close()
         
         text_length = len(full_text.strip())
@@ -813,8 +814,8 @@ def main():
     """Main function for command line usage."""
     import argparse
     
-    parser = argparse.ArgumentParser(description="Extract sensory data from PDF reports")
-    parser.add_argument("--pdf", required=True, help="Path to the Sensory Profile PDF report")
+    parser = argparse.ArgumentParser(description="Extract Chomps data from PDF reports")
+    parser.add_argument("--pdf", required=True, help="Path to the Chomps Profile PDF report")
     parser.add_argument("--output", help="Output JSON file path (optional)")
     args = parser.parse_args()
     

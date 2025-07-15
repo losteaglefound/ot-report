@@ -74,7 +74,7 @@ class OTReportGenerator:
         self.styles.add(ParagraphStyle(
             name='BasicBodyText',
             parent=self.styles['Normal'],
-            fontSize=11,
+            fontSize=12,
             spaceAfter=6,
             alignment=TA_JUSTIFY,
             fontName='TimesNewRoman-Regular'

@@ -179,7 +179,8 @@ def find_quadrant_image(state: State):
             result =  response.choices[0].message.content
             
             result = result.replace("```json", "").replace("```", "")
-                
+            
+            result_json: dict | None = None
             try:
                 result_json = json.loads(result)
                 print(result_json)
@@ -187,11 +188,13 @@ def find_quadrant_image(state: State):
                 print("json decode error")
                 print(result)
 
-            if (
-                (type(result_json['found']) == bool and result_json['found'] == False) or 
-                (type(result_json['found']) == str and result_json['found'].lower() == "false")
-            ):
-                continue
+            if result_json:
+                if (
+                    (type(result_json['found']) == bool and result_json['found'] == False) or 
+                    (type(result_json['found']) == str and result_json['found'].lower() == "false")
+                ):
+                    continue
+
             state['found_pages'].append(i)
             break
 
@@ -237,7 +240,8 @@ def find_social_and_behavioural_image(state: State):
             result =  response.choices[0].message.content
             
             result = result.replace("```json", "").replace("```", "")
-                
+            
+            result_json: dict | None = None
             try:
                 result_json = json.loads(result)
                 print(result_json)
@@ -245,11 +249,12 @@ def find_social_and_behavioural_image(state: State):
                 print("json decode error")
                 print(result)
 
-            if (
-                (type(result_json['found']) == bool and result_json['found'] == False) or 
-                (type(result_json['found']) == str and result_json['found'].lower() == "false")
-            ):
-                continue
+            if result_json:
+                if (
+                    (type(result_json['found']) == bool and result_json['found'] == False) or 
+                    (type(result_json['found']) == str and result_json['found'].lower() == "false")
+                ):
+                    continue
             
             # Add to existing found_pages
             existing_found_pages = state.get('found_pages', [])
@@ -314,7 +319,7 @@ def create_pdf_with_found_pages(found_pages, pages_data, output_path="output_rep
         
         # Calculate new dimensions
         new_width = original_width * scale
-        new_height = original_height * scale
+        new_height = original_height * scale * 0.8
         
         # Create Image flowable - pass the BytesIO stream directly
         image = Image(

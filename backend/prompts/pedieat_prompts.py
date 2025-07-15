@@ -134,25 +134,21 @@ async def get_pedieat_prompt(extracted_data: dict, json_format=False) -> str:
         
         JSON response format:
         {{
-            "pedieat_overview": {{
-                "type": "header",
-                "content": "PediEAT Assessment (Feeding Evaluation Report)"
-            }},
             "physical_examination_header": {{
                 "type": "physical_examination_header",
                 "content": "Physical Examination"
             }},
             "physical_examination": {{
-                "type": "paragraph",
+                "type": "physical_examination_paragraph",
                 "content": {{
-                "body": "replace the content with detailed interpretation from the given data",
-                "head_and_neck": "replace the content with detailed interpretation from the given data",
-                "face": "replace the content with detailed interpretation from the given data",
-                "jaw": "replace the content with detailed interpretation from the given data",
-                "lips": "replace the content with detailed interpretation from the given data",
-                "tongue": "replace the content with detailed interpretation from the given data",
-                "cheeks": "replace the content with detailed interpretation from the given data",
-                "palate": "replace the content with detailed interpretation from the given data"
+                "Body": "**REPLACE WITH DETAILED INTERPRETATION OF BODY POSITIONING AND GENERAL PHYSICAL FINDINGS. Include postural observations, muscle tone, overall physical presentation, and their impact on feeding function.**",
+                "Head & Neck": "**REPLACE WITH DETAILED INTERPRETATION OF HEAD AND NECK STRUCTURE AND FUNCTION. Include head control, neck stability, positioning during feeding, and any structural abnormalities that affect feeding.**",
+                "Face": "**REPLACE WITH DETAILED INTERPRETATION OF FACIAL STRUCTURE AND SYMMETRY. Include facial muscle tone, symmetry, expressions, and any dysmorphic features that impact oral-motor function.**",
+                "Jaw": "**REPLACE WITH DETAILED INTERPRETATION OF JAW STRUCTURE AND FUNCTION. Include jaw stability, range of motion, strength, grading patterns, and their impact on chewing and biting.**",
+                "Lips": "**REPLACE WITH DETAILED INTERPRETATION OF LIP STRUCTURE AND FUNCTION. Include lip seal, mobility, strength, coordination, and their impact on feeding efficiency and liquid containment.**",
+                "Tongue": "**REPLACE WITH DETAILED INTERPRETATION OF TONGUE STRUCTURE AND FUNCTION. Include tongue mobility, strength, coordination, lateralization, elevation, and their impact on bolus manipulation and swallowing.**",
+                "Cheeks": "**REPLACE WITH DETAILED INTERPRETATION OF CHEEK STRUCTURE AND FUNCTION. Include cheek tone, buccal tension, coordination with tongue movements, and their role in bolus containment.**",
+                "Palate": "**REPLACE WITH DETAILED INTERPRETATION OF PALATE STRUCTURE AND FUNCTION. Include hard and soft palate integrity, height, width, and their impact on suction and swallowing safety.**"
                 }}
             }},
             "cranial_nerve_screening_header": {{
@@ -160,40 +156,43 @@ async def get_pedieat_prompt(extracted_data: dict, json_format=False) -> str:
                 "content": "Cranial Nerve Screening"
             }},
             "cranial_nerve_screening": {{
-                "type": "paragraph",
+                "type": "cranial_nerve_screening_paragraph",
                 "content": {{
-                "CN I (Olfactory)": "replace the content with detailed interpretation from the given data",
-                "CN V (Trigeminal)": "replace the content with detailed interpretation from the given data",
-                "CN VII (Facial)": "replace the content with detailed interpretation from the given data",
-                "CN IX (Glossopharyngeal)": "replace the content with detailed interpretation from the given data",
-                "CN X (Vagus):": "replace the content with detailed interpretation from the given data",
-                "CN XI (Accessory)": "replace the content with detailed interpretation from the given data",
-                "CN XII (Hypoglossal)": "replace the content with detailed interpretation from the given data"
+                "CN I (Olfactory)": "**REPLACE WITH DETAILED INTERPRETATION OF OLFACTORY NERVE FUNCTION. Include smell recognition, appetite stimulation, and their impact on feeding motivation and safety.**",
+                "CN V (Trigeminal)": "**REPLACE WITH DETAILED INTERPRETATION OF TRIGEMINAL NERVE FUNCTION. Include sensation, jaw strength, bite reflex, and their impact on chewing and protective reflexes.**",
+                "CN VII (Facial)": "**REPLACE WITH DETAILED INTERPRETATION OF FACIAL NERVE FUNCTION. Include facial expressions, lip seal, cheek function, and their impact on feeding efficiency and oral containment.**",
+                "CN IX (Glossopharyngeal)": "**REPLACE WITH DETAILED INTERPRETATION OF GLOSSOPHARYNGEAL NERVE FUNCTION. Include taste sensation, gag reflex, and their impact on swallowing safety and food acceptance.**",
+                "CN X (Vagus):": "**REPLACE WITH DETAILED INTERPRETATION OF VAGUS NERVE FUNCTION. Include swallowing coordination, voice quality, cough reflex, and their impact on airway protection and feeding safety.**",
+                "CN XI (Accessory)": "**REPLACE WITH DETAILED INTERPRETATION OF ACCESSORY NERVE FUNCTION. Include neck and shoulder muscle function, head positioning, and their impact on feeding posture and stability.**",
+                "CN XII (Hypoglossal)": "**REPLACE WITH DETAILED INTERPRETATION OF HYPOGLOSSAL NERVE FUNCTION. Include tongue movement, strength, coordination, and their impact on bolus manipulation and swallowing initiation.**"
                 }}
             }},
             "intraoral_inspection": {{
                 "type": "paragraph",
-                "content": "replace the content with detailed interpretation from the given data"
+                "content": "**REPLACE WITH DETAILED INTERPRETATION OF INTRAORAL EXAMINATION FINDINGS. Include oral structures, tissue integrity, dental status, frenulum restrictions, and their impact on feeding function and oral-motor development.**"
             }},
             "pedieat_score_summary": {{
                 "type": "paragraph",
-                "content": "replace the content with detailed interpretation from the given data"
+                "content": "**REPLACE WITH DETAILED INTERPRETATION OF PEDIEAT TOTAL SCORES AND DOMAIN-SPECIFIC RESULTS. Include overall concern level, elevated subscale domains, percentile rankings, clinical significance, and implications for feeding intervention.**"
             }},
             "feeding_and_swallowing_observations": {{
                 "type": "paragraph",
-                "content": "replace the content with detailed interpretation from the given data"
+                "content": "**REPLACE WITH DETAILED INTERPRETATION OF FEEDING AND SWALLOWING OBSERVATIONS. Include oral-motor coordination, swallowing safety, feeding efficiency, behavioral responses, and specific observations during different textures and feeding methods.**"
             }},
             "clinical_recommendations": {{
                 "type": "bullet_points",
                 "content": [
-                "replace the content with detailed interpretation from the given data"
+                "**REPLACE WITH SPECIFIC CLINICAL RECOMMENDATIONS BASED ON ASSESSMENT FINDINGS. Include intervention strategies, therapy goals, environmental modifications, and referral recommendations.**"
                 ]
             }},
             "safety_considerations": {{
                 "type": "paragraph",
-                "content": "replace the content with detailed interpretation from the given data"
+                "content": "**REPLACE WITH DETAILED INTERPRETATION OF FEEDING SAFETY CONSIDERATIONS. Include aspiration risk, texture modifications, positioning requirements, supervision needs, and emergency protocols.**"
             }}
             }}
+        
+        IMPORTANT: Replace all content marked with **REPLACE WITH...** with actual clinical interpretations based on the provided PediEAT and feeding assessment data. Do not output the placeholder instructions literally.
+        
         Ensure the response is valid JSON and all required sections are populated with clinical-level detail.
         """
         return pedieat_prompt
