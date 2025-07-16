@@ -153,7 +153,7 @@ def parse_chomps_json(file_path):
 
 if __name__ == "__main__":
     # The name of the JSON file from Textract
-    json_file_path = 'outputs/aws_chomps_page_2.json'
+    json_file_path = 'outputs/aws_chomps_page_1.json'
     
     # Parse the file
     extracted_data = parse_chomps_json(json_file_path)
