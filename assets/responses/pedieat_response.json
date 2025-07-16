@@ -6,14 +6,14 @@
     "physical_examination": {
         "type": "physical_examination_paragraph",
         "content": {
-            "Body": "The child's overall body positioning during meals was characterized by slight hypotonia, impacting postural stability and presenting challenges in maintaining an upright posture, which may contribute to decreased feeding efficiency.",
-            "Head & Neck": "Head control appeared variable, with intermittent loss of neck stability. The child demonstrated difficulty maintaining an optimal feeding posture, potentially affecting airway protection during swallowing.",
-            "Face": "Facial symmetry is within normal limits, although the child exhibited reduced facial muscle tone that may impact oral-motor activities.",
-            "Jaw": "Jaw stability was compromised, with noted lack of consistent grading patterns during chewing. This may contribute to difficulties in biting and efficient food manipulation.",
-            "Lips": "Examination of the lips revealed compromised seal and inconsistent strength, which could result in decreased ability to maintain negative intraoral pressure necessary for efficient feeding.",
-            "Tongue": "Tongue movements appeared restricted, particularly in lateralization and elevation, which may interfere with effective bolus manipulation and transport.",
-            "Cheeks": "The cheeks exhibited adequate tone but displayed reduced coordination with tongue movements, impacting bolus containment and transition.",
-            "Palate": "The palate structures appear intact; however, there is concern regarding the functional height relative to effective suction, suggesting a potential for compromised swallowing safety."
+            "Body": "The patient demonstrates appropriate overall posture with no apparent abnormalities affecting feeding function. Muscular tone is within normal limits, and the child exhibits adequate physical presentation without asymmetries or significant hypotonia.",
+            "Head & Neck": "The patient shows good head control and neck stability both at rest and during feeding. There are no structural abnormalities observed that might impact feeding function.",
+            "Face": "Facial symmetry is normal, with balanced muscle tone observed. There are no dysmorphic features affecting oral-motor functions encountered during the examination.",
+            "Jaw": "Jaw function is stable, demonstrating good range of motion and sufficient strength necessary for efficient chewing and biting. Normal grading patterns are observed without any disruptions.",
+            "Lips": "Lip structure is normal, showing efficient mobility and coordination. There is an effective lip seal with no evidence of significant flaring or inversion affecting feeding efficiency.",
+            "Tongue": "Tongue mobility and coordination are adequate, with normal strength. The patient displays effective lateralization and elevation, supporting adequate bolus manipulation and safe swallowing.",
+            "Cheeks": "Cheek tone is normal, with effective buccal tension maintaining coordination with tongue movements. There are no issues noted in relation to bolus containment.",
+            "Palate": "Palatal structure, both hard and soft, appears intact. The height and width are within normal limits, contributing to effective suction and swallowing safety."
         }
     },
     "cranial_nerve_screening_header": {
@@ -23,37 +23,38 @@
     "cranial_nerve_screening": {
         "type": "cranial_nerve_screening_paragraph",
         "content": {
-            "CN I (Olfactory)": "Olfactory function could not be reliably assessed; however, lack of appetite stimulation may impact feeding motivation.",
-            "CN V (Trigeminal)": "Trigeminal nerve function appears intact with adequate sensation, although jaw strength seems reduced affecting chewing efficiency.",
-            "CN VII (Facial)": "Facial nerve appears to be functioning adequately, although diminished cheek tone may compromise feeding efficiency and oral containment.",
-            "CN IX (Glossopharyngeal)": "Glossopharyngeal nerve function appears to be normal with no overt signs of compromised gag reflex affecting swallowing safety.",
-            "CN X (Vagus):": "Vagus nerve appears functional with no significant issues noted in swallowing coordination or airway protection during feeding.",
-            "CN XI (Accessory)": "Accessory nerve function appeared adequate in terms of neck and shoulder stability, though slight variability in head positioning during feeding was noted.",
-            "CN XII (Hypoglossal)": "Hypoglossal nerve function indicates somewhat reduced tongue strength and coordination, potentially impacting bolus manipulation and swallowing initiation."
+            "CN I (Olfactory)": "Olfactory nerve function was not assessed as it is not directly relevant to the current oral-motor and feeding evaluation.",
+            "CN V (Trigeminal)": "The trigeminal nerve demonstrates normal function, with adequate sensation and jaw strength. The bite reflex is appropriate, contributing to effective chewing and protective reflexes.",
+            "CN VII (Facial)": "Facial nerve function is intact, with normal expressions and an effective lip seal. Cheek function supports overall feeding efficiency and oral containment.",
+            "CN IX (Glossopharyngeal)": "Glossopharyngeal nerve function is normal with intact taste sensation and gag reflex, supporting safe swallowing and positive food acceptance.",
+            "CN X (Vagus):": "Vagus nerve function is normal, demonstrating efficient swallowing coordination, normal voice quality, and intact cough reflex, ensuring airway protection and feeding safety.",
+            "CN XI (Accessory)": "The accessory nerve is functioning normally, with effective neck and shoulder muscle function supporting stable head positioning necessary for feeding.",
+            "CN XII (Hypoglossal)": "Hypoglossal nerve function is intact, with appropriate tongue movement, strength, and coordination, effectively facilitating bolus manipulation and initiation of swallowing."
         }
     },
     "intraoral_inspection": {
         "type": "paragraph",
-        "content": "Intraoral examination demonstrated a slightly shortened lingual frenulum, indicating a mild restriction in tongue elevation. No significant blanching was noted upon retraction, suggesting minimal impact on lingual tether. The upper labial frenulum was moderately prominent with no tethering effect evident. Overall, the oral structures presented with no visible anomalies impeding oral-motor development."
+        "content": "Intraoral examination reveals normotensive labial and lingual frenulum without evidence of tethering or blanching. All mucosae exhibit normal elasticity, and there are no observable restrictions affecting lip or tongue elevation and lateral movements. Dental integrity is satisfactory and presents no barriers to oral-motor development."
     },
     "pedieat_score_summary": {
         "type": "paragraph",
-        "content": "The PediEAT assessment indicated a high level of concern with the global feeding issues identified across multiple domains. The most pronounced difficulties were observed in the Selective Restrictive Eating and Physiological Symptoms subscales, suggesting complex issues with oropharyngeal and sensory integration affecting global feeding ability. These findings underscore the necessity for comprehensive, multidisciplinary interventions to address these pervasive feeding challenges."
+        "content": "The patient exhibits a high concern level according to the total PediEAT score, surpassing normative thresholds indicative of feeding difficulty. Elevated scores across the oral-motor and sensory domains suggest multidimensional challenges. Data imply significant global feeding difficulty, advocating for comprehensive assessment and intervention."
     },
     "feeding_and_swallowing_observations": {
         "type": "paragraph",
-        "content": "Feeding observations revealed disrupted oropharyngeal coordination, necessitating frequent pauses to catch breath. Labial function issues were noted, with a tendency for lip flaring disrupting the anterior lip seal. The child displayed labored efforts to maintain intraoral pressure, resulting in inefficiencies during feeding, characterized by inconsistent latching and rapid fatigue."
+        "content": "Feeding observations highlight mild disruptions in oropharyngeal coordination characterized by occasional breathing pauses during bottle feeding. The patient demonstrates adequate labial function with a sufficient anterior lip seal, although occasional flaring is noted, impacting intraoral pressure maintenance. Functional outcomes include reduced feeding efficiency and periods of fatigue, suggesting potential areas for targeted support."
     },
     "clinical_recommendations": {
         "type": "bullet_points",
         "content": [
-            "Referral to a pediatric speech-language pathologist for comprehensive oral-motor and speech assessment.",
-            "Consideration for an ENT evaluation to explore potential anatomical contributors to restricted feeding patterns and symptoms.",
-            "Implementation of a structured feeding intervention plan targeting oropharyngeal coordination and sensory modulation."
+            "Consider referral to a pediatric speech-language pathologist for further assessment of oral-motor and swallowing function.",
+            "Implement strategies to enhance coordinated suck-swallow-breathe patterns.",
+            "Engage in exercises to strengthen labial seal and reduce flaring.",
+            "Monitor feeding efficiency and adjust feeding techniques to support stamina."
         ]
     },
     "safety_considerations": {
         "type": "paragraph",
-        "content": "Due to potential aspiration risks identified, it is recommended that the child be positioned with proper head and neck support during meals. Consideration for texture modifications to thicker consistencies may enhance swallowing safety and minimize risk. Supervision during all meals is crucial to ensure prompt intervention should choking or respiratory distress occur."
+        "content": "The patient's current feeding methods indicate minimized aspiration risk with observed stability in swallowing safety. Recommendations include supervising during feeding sessions, ensuring the child is in an optimal semi-upright position, and adherence to texture modifications as necessary."
     }
 }

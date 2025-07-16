@@ -2,167 +2,226 @@ import json
 import re
 from collections import defaultdict
 
-def get_text_from_block(block, block_map):
-    """Recursively fetches and concatenates text from WORD blocks."""
-    text = ""
-    if 'Relationships' in block and block['Relationships']:
-        for relationship in block['Relationships']:
-            if relationship['Type'] == 'CHILD':
-                for child_id in relationship['Ids']:
-                    child_block = block_map.get(child_id)
-                    if child_block and child_block['BlockType'] == 'WORD':
-                        text += child_block.get('Text', '') + ' '
-                    elif child_block and (child_block['BlockType'] == 'CELL' or child_block['BlockType'] == 'LINE'):
-                        text += get_text_from_block(child_block, block_map) + ' '
-    return text.strip()
+CATEGORY_NAMES = [
+    "COMPLEX MOVEMENT PATTERNS",
+    "BASIC MOVEMENT PATTERNS",
+    "ORAL-MOTOR COORDINATION",
+    "FUNDAMENTAL ORAL-MOTOR SKILLS"
+]
 
-def parse_table_data(table_block, block_map):
-    """Extracts and processes data from a single table block."""
-    score_mapping = {'YES': 2, 'SOMETIMES': 1, 'NOT YET': 0}
-    parsed_rows = []
-    
-    cells = []
-    if 'Relationships' in table_block:
-        for rel in table_block['Relationships']:
+SCORE_MAPPING = {
+    'YES': 2,
+    'SOMETIMES': 1,
+    'NOT YET': 0
+}
+
+def get_text_from_block(block, block_map):
+    text = ""
+    if 'Relationships' in block:
+        for rel in block['Relationships']:
             if rel['Type'] == 'CHILD':
                 for child_id in rel['Ids']:
-                    cell = block_map.get(child_id)
-                    if cell:
-                        cells.append(cell)
+                    child = block_map.get(child_id)
+                    if child and child['BlockType'] in ['WORD', 'LINE']:
+                        text += child.get('Text', '') + ' '
+                    elif child and child['BlockType'] == 'CELL':
+                        text += get_text_from_block(child, block_map) + ' '
+    return text.strip()
+
+def detect_header_row(rows, block_map):
+    for idx in sorted(rows.keys()):
+        row_texts = [get_text_from_block(cell, block_map).upper() for cell in rows[idx]]
+        if any(val in row_texts for val in SCORE_MAPPING.keys()):
+            return rows[idx]
+    return []
+
+def parse_table(table_block, block_map):
+    if 'Relationships' not in table_block:
+        return []
+
+    cell_ids = []
+    for rel in table_block['Relationships']:
+        if rel['Type'] == 'CHILD':
+            cell_ids.extend(rel['Ids'])
+
+    cells = [block_map[cid] for cid in cell_ids if cid in block_map and block_map[cid]['BlockType'] == 'CELL']
 
     rows = defaultdict(list)
     for cell in cells:
         rows[cell['RowIndex']].append(cell)
+    for row in rows.values():
+        row.sort(key=lambda x: x['ColumnIndex'])
 
-    for row_index in rows:
-        rows[row_index].sort(key=lambda x: x['ColumnIndex'])
-        
-    header_row = rows.get(2, [])
+    header_row = detect_header_row(rows, block_map)
+    if not header_row:
+        return []
 
-    for row_index in sorted(rows.keys()):
-        if row_index <= 2:
+    header_map = {
+        cell['ColumnIndex']: get_text_from_block(cell, block_map).upper()
+        for cell in header_row
+    }
+
+    data = []
+    header_row_idx = header_row[0]['RowIndex']
+    for row_idx in sorted(rows.keys()):
+        if row_idx <= header_row_idx:
             continue
 
-        row_cells = rows[row_index]
-        observation_text = get_text_from_block(row_cells[0], block_map) if row_cells else "N/A"
-        
+        row_cells = rows[row_idx]
+        if not row_cells:
+            continue
+
+        observation_text = get_text_from_block(row_cells[0], block_map)
         response = "N/A"
         score = -1
 
         for cell in row_cells:
-            is_selected = False
-            if 'Relationships' in cell:
-                for rel in cell['Relationships']:
-                    if rel['Type'] == 'CHILD':
-                        for child_id in rel['Ids']:
-                            child_block = block_map.get(child_id)
-                            if (child_block and 
-                                child_block['BlockType'] == 'SELECTION_ELEMENT' and 
-                                child_block['SelectionStatus'] == 'SELECTED'):
-                                is_selected = True
-                                break
-                    if is_selected:
+            if 'Relationships' not in cell:
+                continue
+            for rel in cell['Relationships']:
+                if rel['Type'] != 'CHILD':
+                    continue
+                for child_id in rel['Ids']:
+                    child = block_map.get(child_id)
+                    if child and child['BlockType'] == 'SELECTION_ELEMENT' and child['SelectionStatus'] == 'SELECTED':
+                        col = cell['ColumnIndex']
+                        header_text = header_map.get(col, '').upper()
+                        response = header_text
+                        score = SCORE_MAPPING.get(response, -1)
                         break
-            
-            if is_selected:
-                col_index = cell['ColumnIndex']
-                header_cell = next((h for h in header_row if h['ColumnIndex'] == col_index), None)
-                if header_cell:
-                    response_text = get_text_from_block(header_cell, block_map).upper()
-                    response = response_text
-                    score = score_mapping.get(response, -1)
-                break 
+                if response != "N/A":
+                    break
+            if response != "N/A":
+                break
 
         if response != "N/A":
-            parsed_rows.append({
+            data.append({
                 "observation": observation_text,
                 "response": response.title(),
                 "score": score
             })
-            
-    return parsed_rows
+
+    return data
 
 def parse_chomps_json_from_file(file_path):
-    """
-    Parses a merged, multi-page Textract JSON file for a ChOMPS assessment, 
-    correctly categorizing data across pages.
-    """
-    try:
-        with open(file_path, 'r') as f:
-            data = json.load(f)
-    except FileNotFoundError:
-        return {"error": "File not found."}
-    except json.JSONDecodeError:
-        return {"error": "Invalid JSON format."}
+    with open(file_path, 'r') as f:
+        data = json.load(f)
 
-    block_map = {block['Id']: block for block in data['Blocks']}
-    
-    # --- 1. Extract Patient Details (optional, but good to keep) ---
-    patient_details = {}
-    line_blocks = [b for b in data['Blocks'] if b['BlockType'] == 'LINE']
-    
-    for line in line_blocks:
-        text = line.get('Text', '')
-        if "Child's Name/ID:" in text:
-            patient_details['name'] = re.search(r"Child's Name/ID:\s*(.*)", text).group(1).strip()
-        elif "Child's Date of Birth:" in text:
-            patient_details['dob'] = re.search(r"Child's Date of Birth:\s*(.*)", text).group(1).strip()
-        elif "Today's Date:" in text:
-            patient_details['assessmentDate'] = re.search(r"Today's Date:\s*(.*)", text).group(1).strip()
-
-    # --- 2. Find Categories and Tables, now Page-Aware ---
-    categories_to_find = [
-        "COMPLEX MOVEMENT PATTERNS", 
-        "BASIC MOVEMENT PATTERNS", 
-        "ORAL MOTOR PATTERN", 
-        "FUNDAMENTAL ORAL-MOTOR SKILLS"
-    ]
-    
+    block_map = {b['Id']: b for b in data['Blocks']}
     table_blocks = [b for b in data['Blocks'] if b['BlockType'] == 'TABLE']
-    category_blocks = [
-        b for b in line_blocks 
-        if b.get('Text', '').strip().upper() in categories_to_find
-    ]
-    
-    # Sort categories by their appearance in the document (Page, then Top)
-    category_blocks.sort(key=lambda b: (b['Page'], b['Geometry']['BoundingBox']['Top']))
-    
-    categorized_observations = defaultdict(list)
-    
+    line_blocks = [b for b in data['Blocks'] if b['BlockType'] == 'LINE']
+
+    # --- Extract Patient Info ---
+    patient_info = {}
+    for line in line_blocks:
+        txt = line.get('Text', '')
+        if "Child's Name/ID:" in txt:
+            patient_info['name'] = txt.split(":", 1)[-1].strip()
+        elif "Child's Date of Birth:" in txt:
+            patient_info['dob'] = txt.split(":", 1)[-1].strip()
+        elif "Today's Date:" in txt:
+            patient_info['assessmentDate'] = txt.split(":", 1)[-1].strip()
+
+    # --- Detect Category Headings ---
+    category_blocks = []
+    for b in line_blocks:
+        text_upper = b.get('Text', '').strip().upper()
+        for cat in CATEGORY_NAMES:
+            if cat in text_upper:
+                category_blocks.append((b.get('Page', 1), b['Geometry']['BoundingBox']['Top'], cat))
+                break
+
+    category_blocks.sort()  # Sort by (Page, Y-position)
+
+    categorized = defaultdict(list)
+
     for table in table_blocks:
         table_page = table.get('Page', 1)
-        table_y_pos = table['Geometry']['BoundingBox']['Top']
-        
-        # Find the last category header that appeared before this table
-        last_category_before_table = None
-        for cat in category_blocks:
-            cat_page = cat.get('Page', 1)
-            cat_y_pos = cat['Geometry']['BoundingBox']['Top']
-            
-            if cat_page < table_page or (cat_page == table_page and cat_y_pos < table_y_pos):
-                last_category_before_table = cat
-            else:
-                # Since the categories are sorted, we can stop once we pass the table's position
-                break
-        
-        if last_category_before_table:
-            category_name = last_category_before_table.get('Text', '').strip()
-            table_data = parse_table_data(table, block_map)
-            if table_data:
-                categorized_observations[category_name].extend(table_data)
+        table_top = table['Geometry']['BoundingBox']['Top']
+        table_data = parse_table(table, block_map)
+        if not table_data:
+            continue
 
-    # --- 3. Assemble Final Output ---
-    final_output = {
-        "patientInfo": patient_details,
-        "observationsByCategory": categorized_observations
+        # Match category by nearest previous header
+        category = None
+        for cat_page, cat_top, cat_name in reversed(category_blocks):
+            if cat_page < table_page or (cat_page == table_page and cat_top < table_top):
+                category = cat_name
+                break
+
+        if category:
+            categorized[category].extend(table_data)
+        else:
+            print(f"⚠️ Table on Page {table_page} at Y={table_top:.3f} could not be categorized.")
+
+    return {
+        "patientInfo": patient_info,
+        "observationsByCategory": dict(categorized)
     }
 
-    return final_output
+
+def parse_chomps_json_response(state):
+    aws_merged_response = state['aws_merged_response']
+    data = aws_merged_response
+
+    block_map = {b['Id']: b for b in data['Blocks']}
+    table_blocks = [b for b in data['Blocks'] if b['BlockType'] == 'TABLE']
+    line_blocks = [b for b in data['Blocks'] if b['BlockType'] == 'LINE']
+
+    # --- Extract Patient Info ---
+    patient_info = {}
+    for line in line_blocks:
+        txt = line.get('Text', '')
+        if "Child's Name/ID:" in txt:
+            patient_info['name'] = txt.split(":", 1)[-1].strip()
+        elif "Child's Date of Birth:" in txt:
+            patient_info['dob'] = txt.split(":", 1)[-1].strip()
+        elif "Today's Date:" in txt:
+            patient_info['assessmentDate'] = txt.split(":", 1)[-1].strip()
+
+    # --- Detect Category Headings ---
+    category_blocks = []
+    for b in line_blocks:
+        text_upper = b.get('Text', '').strip().upper()
+        for cat in CATEGORY_NAMES:
+            if cat in text_upper:
+                category_blocks.append((b.get('Page', 1), b['Geometry']['BoundingBox']['Top'], cat))
+                break
+
+    category_blocks.sort()  # Sort by (Page, Y-position)
+
+    categorized = defaultdict(list)
+
+    for table in table_blocks:
+        table_page = table.get('Page', 1)
+        table_top = table['Geometry']['BoundingBox']['Top']
+        table_data = parse_table(table, block_map)
+        if not table_data:
+            continue
+
+        # Match category by nearest previous header
+        category = None
+        for cat_page, cat_top, cat_name in reversed(category_blocks):
+            if cat_page < table_page or (cat_page == table_page and cat_top < table_top):
+                category = cat_name
+                break
+
+        if category:
+            categorized[category].extend(table_data)
+        else:
+            print(f"⚠️ Table on Page {table_page} at Y={table_top:.3f} could not be categorized.")
+
+    observation_data = {
+        "patientInfo": patient_info,
+        "observationsByCategory": dict(categorized)
+    }
+
+    with open("outputs/aws_chomps_observation_data.json", "w+") as f:
+        f.write(json.dumps(observation_data, indent=2))
+
+    state['observation_data'] = observation_data
+    return state
 
 if __name__ == "__main__":
-    # Use the MERGED JSON file here
-    json_file_path = 'outputs/aws_chomps_page_merged.json' 
-    
-    extracted_data = parse_chomps_json_from_file(json_file_path)
-    
-    print(json.dumps(extracted_data, indent=4))
+    result = parse_chomps_json_from_file("outputs/aws_chomps_page_merged.json")
+    print(json.dumps(result, indent=2))

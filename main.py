@@ -1,6 +1,5 @@
 import asyncio
 from datetime import datetime
-import logging
 import os
 import shutil
 from typing import Dict, Any, Optional
@@ -22,6 +21,8 @@ from config import (
     get_app_host, 
     get_app_port
 )
+from backend.langgraph.aws.chomps_agent import aws_chomps_data_extract_agent
+from backend.common.logging import logging
 from backend.domain_detector_bayley4_social_adaptive import process_bayley_social_adaptive_assessment
 from backend.utils.pdf import pdf_convert_to_image
 from backend.utils.save_json import save_json_data
@@ -30,19 +31,19 @@ from backend.utils.save_json import save_json_data
 sys.stdout.reconfigure(encoding='utf-8')
 
 # Create logs directory if needed
-if config.app['log_to_file']:
-    os.makedirs('logs', exist_ok=True)
+# if config.app['log_to_file']:
+#     os.makedirs('logs', exist_ok=True)
 
-# Configure logging based on config
-log_handlers = [logging.StreamHandler()]
-if config.app['log_to_file']:
-    log_handlers.append(logging.FileHandler('logs/app.log', encoding='utf-8'))
+# # Configure logging based on config
+# log_handlers = [logging.StreamHandler()]
+# if config.app['log_to_file']:
+#     log_handlers.append(logging.FileHandler('logs/app.log', encoding='utf-8'))
 
-logging.basicConfig(
-    level=getattr(logging, config.app['log_level']),
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-    handlers=log_handlers
-)
+# logging.basicConfig(
+#     level=getattr(logging, config.app['log_level']),
+#     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+#     handlers=log_handlers
+# )
 
 # Configure module logger
 logger = logging.getLogger(__name__)
@@ -429,19 +430,23 @@ async def upload_files(
         if 'chomps' in uploaded_files:
             try:
                 logger.info("🧠 Processing CHOMPS assessment with chomps agent...")
-                chomps_result = extract_chomps_data_wrapper(uploaded_files['chomps'])
+                # chomps_result = extract_chomps_data_wrapper(uploaded_files['chomps'])
+                # await save_json_data(chomps_result, "chomps_result", extension="json")
+
+                chomps_image_pdf_path = uploaded_files_pdf_images['chomps'] = pdf_convert_to_image(uploaded_files['chomps'], session_dir)
+                chomps_result = aws_chomps_data_extract_agent(chomps_image_pdf_path)
                 await save_json_data(chomps_result, "chomps_result", extension="json")
 
-                uploaded_files_pdf_images['chomps'] = pdf_convert_to_image(uploaded_files['pedieat'], session_dir)
                 
-                if chomps_result.get("success"):
-                    chomps_results = chomps_result.get("chomps_data", {})
+                if chomps_result.get("status"):
+                    chomps_results = chomps_result.get("full_response", {})
                     logger.info("✅ CHOMPS processing complete with chomps agent")
                 else:
                     logger.error(f"❌ CHOMPS processing failed: {chomps_result.get('error')}")
                     chomps_results = {}
                     
             except Exception as e:
+                print(format_exc())
                 logger.error(f"❌ Error processing CHOMPS assessment: {e}")
                 chomps_results = {}
 
@@ -474,10 +479,12 @@ async def upload_files(
 
         # Save report data for potential regeneration
         report_data_path = os.path.join("outputs", f"report_data_{session_id}.json")
+        logger.info(f"Saved report data to: {report_data_path}")
         async with aiofiles.open(report_data_path, 'w') as f:
             # json.dump(report_data, f, indent=4)
             await f.write(json.dumps(report_data, indent=4))
         logger.info("✅ Report data compiled")
+        
 
         # raise RuntimeError("Intentional error.")
         

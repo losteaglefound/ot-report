@@ -1667,7 +1667,9 @@ class OpenAIEnhancedReportGenerator:
         #     elements.extend(await self._create_chomps_detailed_section(report_data))
         
         # PediEAT detailed results - only if pedieat file was uploaded
+        print(f"######################################## pedieat: {extracted_data['pedieat']}, chomps: {extracted_data['chomps']}")
         if extracted_data.get("pedieat") or extracted_data.get('chomps'):
+            print("#---------------------------------------------------")
             elements.extend(await self._create_pedieat_detailed_section(extracted_data))
         
         return elements

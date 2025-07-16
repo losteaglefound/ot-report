@@ -10,7 +10,7 @@ from pathlib import Path
 # Add the current directory to sys.path to import the analyzer
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
-from aws_textract_table_analyzer import AWSTextractTableAnalyzer
+from aws_textract_start_document_analysis import AWSTextractTableAnalyzer
 
 def main():
     """

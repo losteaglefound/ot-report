@@ -10,6 +10,7 @@ from typing import (
     Any,
     Dict,
     List,
+    Literal,
     Optional,
     TypedDict,
     Union
@@ -24,10 +25,8 @@ from langgraph.graph import (
     StateGraph
 )
 
-from aws_respnose_parser import parse_chomps_json
-from aws_merged_response_parser_from_file import parse_chomps_json_response
-from backend.common.logging import logging
-from sconfig import config as script_config
+from ...utils.aws.chomps import parse_chomps_json_response
+from ...common.logging import logging
 from config import config as server_config
 
 
@@ -38,7 +37,6 @@ from config import config as server_config
 #     filename=os.path.join(server_config.PROJECT_DIR, 'logs', __file__)
 # )
 logger = logging.getLogger(__name__)
-
 
 
 class State(TypedDict):
@@ -52,6 +50,7 @@ class State(TypedDict):
     observation_data: dict = {}
     contextual_report: dict[str, list[str]]
     error: str
+    status: Literal['success', 'error']
     max_retries: int = 3
 
 
@@ -160,26 +159,36 @@ def clean_observation(state: State):
         cleaned_text = re.sub(r'^\d+\.\s+', '', text)
         return text
         
-    
-    data = state['observation_data']
-    observation_data = data["observationsByCategory"]
-    
-    for cat, observations in observation_data.items():
-        cleaned_observations = []
-        for ob in observations:
-            text = clean_sentence(ob['observation'])
-            print(text)
-            ob['observation'] = text
-            cleaned_observations.append(ob)
-        observation_data[cat] = cleaned_observations
-    
-    data["observationsByCategory"] = observation_data
-    state['observation_data'] = data
 
-    with open("outputs/aws_chomps_observation_data_cleaned.json", 'w+') as f:
-        f.write(json.dumps(data, indent=4))
+    try:    
+        data = state['observation_data']
+        observation_data = data["observationsByCategory"]
+        
+        for cat, observations in observation_data.items():
+            cleaned_observations = []
+            for ob in observations:
+                text = clean_sentence(ob['observation'])
+                print(text)
+                ob['observation'] = text
+                cleaned_observations.append(ob)
+            observation_data[cat] = cleaned_observations
+        
+        data["observationsByCategory"] = observation_data
+        state['observation_data'] = data
 
-    return state
+        logger.info("Saving clean observations data: outputs/aws_chomps_observation_data_cleaned.json")
+        with open("outputs/aws_chomps_observation_data_cleaned.json", 'w+') as f:
+            f.write(json.dumps(data, indent=4))
+    
+        return state
+
+    except Exception as e:
+        logger.info("Error on clean observations data: {}".format(str(e)))
+        state['status']['error']
+        state['error'] = "Error on clean observations data: {}".format(str(e))
+        return state    
+
+    
 
 
 def merge_textract_json_response(state: State):
@@ -409,7 +418,7 @@ def get_context(state: State) -> State:
         with open("outputs/aws_chomps_contextual_observations.json", 'w+') as f:
             f.write(json.dumps(contextual_report, indent=4))
         logger.info("Saved the contentual data to: outputs/aws_chomps_contextual_observations.json")
-
+        state['status'] = "success"
         return state
     
     except Exception as e:
@@ -472,12 +481,23 @@ def aws_chomps_data_extract_agent(pdf_path: str, /):
     state['pdf_path'] = pdf_path
 
     final_state = graph.invoke(state)
-    full_response = state['full_response']
+    full_response = final_state['contextual_report']
+
+    if final_state.get('status') == 'error':
+        return {
+            "status": final_state['status']
+        }
 
     with open("outputs/aws_final_full_response.json", 'w+') as f:
         json.dump(full_response, f, indent=4)
 
     logger.info("Chomps data parsed successfully.`")
+
+    return {
+        "status": final_state['status'],
+        "full_response": full_response
+    }
+
 
 def main():
     pdf_path: str = "/home/lap-49/Documents/ot-report/assets/inputs/images/ChOMPS_image.pdf"
