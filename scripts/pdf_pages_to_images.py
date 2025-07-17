@@ -13,10 +13,10 @@ sys.path.append(str(PROJECT_DIR))
 
 def convert_to_image_pdf():
     # Path to your input PDF
-    input_pdf_path = '/home/lap-49/Documents/ot-report/assets/inputs/PediEAT_fillable.pdf'
+    input_pdf_path = '/home/lap-49/Documents/ot-report/assets/inputs/PediEAT-LEO.pdf'
 
     # Output directory for separate PDFs
-    output_path = os.path.join(PROJECT_DIR, 'assets', 'inputs', "images", "PediEAT_fillable_image.pdf")
+    output_path = os.path.join(PROJECT_DIR, 'assets', 'inputs', "images", "PediEAT-LEO_image.pdf")
 
     # Convert PDF pages to images
     print("Converting PDF pages to images...")
