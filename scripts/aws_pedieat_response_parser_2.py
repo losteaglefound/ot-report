@@ -1,6 +1,14 @@
 import glob
 import json
 import re
+import os
+
+CATEGORIES = [
+    "PHYSIOLOGIC SYMPTOMS",
+    "PROBLEMATIC MEALTIME BEHAVIORS",
+    "SELECTIVE / RESTRICTIVE EATING",
+    "ORAL PROCESSING"
+]
 
 def get_text(result, blocks_map):
     text = ''
@@ -32,113 +40,111 @@ def get_rows_columns_map(table_result, blocks_map):
 def is_question_row(text):
     return re.match(r'^\d+\.', text.strip())
 
-def is_section_header(row):
-    # A section header is in column 1, is uppercase, and not a question.
-    return 1 in row and isinstance(row[1], str) and row[1].isupper() and not is_question_row(row[1])
+def find_category_for_question(question_block, all_blocks):
+    # Search for the category title on the page of the question
+    for block in all_blocks:
+        if block.get('Page') == question_block.get('Page') and block['BlockType'] == 'LINE':
+            for category in CATEGORIES:
+                if category in block['Text']:
+                    return category
+    return "General"
 
-def parse_pedieat_assessment(file_path):
+
+def parse_pedieat_assessment(file_path, output_filename):
     with open(file_path, 'r') as file:
         response = json.load(file)
 
     blocks = response['Blocks']
     blocks_map = {block['Id']: block for block in blocks}
     
-    table_blocks = [block for block in blocks if block['BlockType'] == 'TABLE']
-    
-    if not table_blocks:
-        print("No tables found in the document.")
-        return
+    parsed_data = {category: [] for category in CATEGORIES}
+    parsed_data["General"] = []
 
-    for table_index, table_result in enumerate(table_blocks):
-        print(f"--- Processing Table {table_index + 1}/{len(table_blocks)} ---")
+    score_columns = {}
+
+    for table_result in [b for b in blocks if b['BlockType'] == 'TABLE']:
         rows = get_rows_columns_map(table_result, blocks_map)
         
-        # Correctly identify score columns from the first row that contains single-digit numbers
-        score_columns = {}
         header_row_index = -1
+        # Find score columns in the current table
         for i, row in sorted(rows.items()):
-            if any(cell.strip().isdigit() and len(cell.strip()) == 1 for cell in row.values()):
-                score_columns = {col_index: cell.strip() for col_index, cell in row.items() if cell.strip().isdigit()}
+            digit_cells = {col_index: cell.strip() for col_index, cell in row.items() if cell.strip().isdigit() and len(cell.strip()) == 1}
+            if len(digit_cells) > 2:
+                score_columns = digit_cells
                 header_row_index = i
                 break
-
-        if not score_columns:
-            print("Could not find the score values row for this table.")
-            continue
-
-        # Group rows into sections based on headers
-        sections = {}
-        current_section_title = "General"
-        sections[current_section_title] = []
-
-        # Remove header row from rows to process
+        
         if header_row_index != -1:
             del rows[header_row_index]
 
-        for _, row in sorted(rows.items()):
-            if 1 not in row:
-                # Append rows without column 1 to the current section as they might be continuations
-                if sections[current_section_title]: # only if there is a section to append to
-                     sections[current_section_title].append(row)
-                continue
+        if not score_columns:
+            print(f"Warning: No valid score columns found for a table. Questions in this table might not have scores.")
+            continue
+        
+        i = 0
+        section_rows = sorted(rows.values(), key=lambda r: min(r.keys()) if r else 0)
 
-            if is_section_header(row):
-                current_section_title = row[1]
-                if current_section_title not in sections:
-                    sections[current_section_title] = []
-            else:
-                # Add any row that is not a section header to the current section
-                sections[current_section_title].append(row)
-
-        # Process each section
-        for title, section_rows in sections.items():
-            if not section_rows:
-                continue
-            print(f"--- {title} ---")
+        while i < len(section_rows):
+            row = section_rows[i]
             
-            i = 0
-            while i < len(section_rows):
-                row = section_rows[i]
-                
-                if 1 not in row or not is_question_row(row.get(1, '')):
-                    i += 1
-                    continue
+            if 1 not in row or not is_question_row(row.get(1, '')):
+                i += 1
+                continue
 
-                question_text = row.get(1, '').strip()
+            question_text = row.get(1, '').strip()
+            
+            # Find the block for the first line of the question to determine its page.
+            question_start_block = None
+            for block in blocks:
+                if block['BlockType'] == 'LINE' and question_text.startswith(block['Text'].strip()):
+                     question_start_block = block
+                     break
+            
+            j = i + 1
+            while j < len(section_rows):
+                next_row = section_rows[j]
+                if 1 in next_row and is_question_row(next_row.get(1,'')):
+                    break
                 
-                # Combine multi-line questions
-                j = i + 1
-                while j < len(section_rows):
-                    next_row = section_rows[j]
-                    if 1 in next_row and is_question_row(next_row.get(1,'')):
-                        break
-                    
-                    if 1 in next_row:
-                        question_text += " " + next_row.get(1, '').strip()
-                    j += 1
-                
-                # Clean up question text from instructional phrases
-                question_text = re.sub(r'If you would like to explain.*$', '', question_text).strip()
-                question_text = re.sub(r'\s{2,}', ' ', question_text) # Replace multiple spaces with a single space
+                if 1 in next_row:
+                    question_text += " " + next_row.get(1, '').strip()
+                j += 1
+            
+            question_text = re.sub(r'If you would like to explain.*$', '', question_text).strip()
+            question_text = re.sub(r'\s{2,}', ' ', question_text)
 
-                selected_score = "Not Found"
-                for k in range(i, j):
-                    current_question_row = section_rows[k]
-                    for col_index, cell in current_question_row.items():
-                        if "SELECTION_ELEMENT: SELECTED" in cell:
-                            if col_index in score_columns:
-                                selected_score = score_columns[col_index]
-                                break
-                    if selected_score != "Not Found":
-                        break
-                
-                print(f"Question: {question_text}")
-                print(f"Score: {selected_score}")
-                print("-" * 20)
-                i = j
+            selected_score = "Not Found"
+            for k in range(i, j):
+                current_question_row = section_rows[k]
+                for col_index, cell in current_question_row.items():
+                    if "SELECTION_ELEMENT: SELECTED" in cell:
+                        if col_index in score_columns:
+                            selected_score = score_columns[col_index]
+                            break
+                if selected_score != "Not Found":
+                    break
+            
+            category = find_category_for_question(question_start_block, blocks) if question_start_block else "General"
+
+            observation = {
+                "question": question_text,
+                "score": selected_score
+            }
+            
+            parsed_data[category].append(observation)
+            i = j
+
+    with open(output_filename, 'w') as f:
+        json.dump(parsed_data, f, indent=4)
+    print(f"Successfully created JSON output at {output_filename}")
+
 
 if __name__ == "__main__":
-    files = glob.glob("outputs/aws_pedieat_page_merged.json")
-    files = sorted(files)
-    for f in files:
-        parse_pedieat_assessment(f) 
+    merged_file = "outputs/aws_pedieat_page_merged.json"
+    output_json_file = "outputs/parsed_pedieat_assessment.json"
+    
+    if os.path.exists(merged_file):
+        parse_pedieat_assessment(merged_file, output_json_file)
+    else:
+        print(f"Merged file not found: {merged_file}")
+        print("Please run the merge script first.") 

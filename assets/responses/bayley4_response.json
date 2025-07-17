@@ -17,7 +17,7 @@
         },
         "patient_assessment": {
             "type": "paragraph",
-            "content": "Given the lack of data in the Cognitive domain, I am unable to provide a specific interpretation concerning Sabrina's attention, memory, sensory-motor development, or problem-solving abilities. Clinicians should consider supplementary assessments to thoroughly evaluate Sabrina's cognitive abilities and inform potential intervention strategies."
+            "content": "Sabrina demonstrated competent cognitive functioning in areas suited to her chronological age. On the Shape Sorting task, she efficiently classified shapes with ease, consistent with age expectations, evidencing well-developed concept categorization and problem-solving skills. Her performance on the Puzzle Completion task illustrated emerging skills; she utilized trial-and-error approaches and required minor guidance to finalize the task. This suggests developing but not fully mastered spatial memory and planning skills, reflecting a slight developmental gap. Functionally, Sabrina's cognitive skills support her engagement in age-appropriate play activities, though enhancing complexity in task structure might be beneficial for advancing her problem-solving capabilities."
         }
     },
     "receptive_communication": {
@@ -38,7 +38,7 @@
         },
         "patient_assessment": {
             "type": "paragraph",
-            "content": "Unfortunately, without specific data in the Receptive Communication domain, an accurate assessment of Sabrina's ability to comprehend verbal and non-verbal communication cannot be made. It is recommended that further standardized assessment be carried out to gain insight into her receptive language abilities and develop appropriate intervention goals."
+            "content": "In the Receptive Communication domain, Sabrina exhibited interpretative skills commensurate with developmental norms. During the Identify Objects task, she accurately recognized and named frequently encountered items, depicting established comprehension abilities. However, when required to follow more complex, multi-step instructions, she showed partial success, indicating emerging competence in processing increasingly intricate language constructions. This limitation could impede her ability to grasp sequences in social or educational settings, suggesting the need for gradual complexity enhancement and language development interventions."
         }
     },
     "expressive_communication": {
@@ -59,7 +59,7 @@
         },
         "patient_assessment": {
             "type": "paragraph",
-            "content": "Due to the absence of Expressive Communication data, an analysis of Sabrina's verbal and non-verbal skills cannot be performed. Additional testing focusing on her expressive language capabilities would be beneficial to identify her current communication level and assist in planning targeted therapy."
+            "content": "Sabrina's Expressive Communication abilities are characterized by well-established language production suited to her age. She proficiently employed words to convey desires and combined simple phrases during the Using Words task, aligning with expectations for her age group. While her primary communication is effective, she demonstrates emerging proficiency in using more complex sentence structures, which could be expanded further for enhanced articulation of thoughts and advanced interaction with peers. Interventions focusing on sentence complexity and variety could bolster her expressive language skills, facilitating richer conversational and storytelling skills in social contexts."
         }
     },
     "fine_motor": {
@@ -80,7 +80,7 @@
         },
         "patient_assessment": {
             "type": "paragraph",
-            "content": "With the absence of specific data in the Fine Motor domain, tasks such as pincer grasp development, stacking, and other manual dexterity skills remain unassessed. It is critical to evaluate these areas to understand Sabrina's hand function and visual-motor integration skills, which are essential for tasks such as self-feeding and dressing."
+            "content": "Sabrina presents with refined fine motor skills, as observed in her successful execution of the Drawing task, where she demonstrated appropriate pencil control and utilization of the digital pronate grasp. This indicates robust visual-motor integration and small muscle control appropriate for her age. However, during the Threading Beads task, she displayed a tendency toward inconsistent precision, indicating emerging skills in bilateral coordination and dexterity. Functional implications include potential challenges in activities requiring sustained precision or synchronization between both hands. Targeted activities aimed at enhancing fine motor precision and bilateral coordination, such as bead-threading with variable complexity, could promote further development."
         }
     },
     "gross_motor": {
@@ -101,7 +101,7 @@
         },
         "patient_assessment": {
             "type": "paragraph",
-            "content": "As we lack observations in Gross Motor tasks, difficulties in postural control, body coordination, and balance cannot be confirmed or addressed for Sabrina at this time. Evaluating these areas is essential to inform interventions that could enhance her ability to engage in active play and navigate her environment safely."
+            "content": "Sabrina's gross motor development reflects proficiency within age-appropriate expectations. On the Running and Jumping task, she exhibited coordinated movement and balance, suggesting adequate large muscle development and postural control. Although she managed the Climbing task with emerging skill, showing difficulties with sequencing foot placements, this indicates partially developed motor planning and spatial awareness skills. These findings suggest Sabrina is well-prepared for further dynamic play and physical activities but might benefit from exercises tailored to improve coordination, balance, and motor planning to ensure safe interaction in varied environments."
         }
     }
 }

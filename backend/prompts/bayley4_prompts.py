@@ -15,6 +15,12 @@ async def get_bayley4_prompt(report_data: dict, json_format: bool = False) -> st
     fine_motor_data = bayley_data.get("fine_motor", [])
     gross_motor_data = bayley_data.get("gross_motor", [])
 
+    cognitive_data = "\n".join([f"- {x['contextual_observation']}" for x in cognitive_data])
+    receptive_comm_data = "\n".join([f"- {x['contextual_observation']}" for x in receptive_comm_data])
+    expressive_comm_data = "\n".join([f"- {x['contextual_observation']}" for x in expressive_comm_data])
+    fine_motor_data = "\n".join([f"- {x['contextual_observation']}" for x in fine_motor_data])
+    gross_motor_data = "\n".join([f"- {x['contextual_observation']}" for x in gross_motor_data])
+
     domain_contexts = {
         "cognitive": {
             "description": "Assesses attention, memory, sensory-motor development, exploration and manipulation, object relatedness, concept formation, and problem-solving abilities.",
@@ -177,11 +183,20 @@ async def get_bayley4_prompt(report_data: dict, json_format: bool = False) -> st
         Chronological age: {chronological_age.get('formatted', 'Not available')}
         
         ACTUAL BAYLEY-4 VALID ANSWERS DATA:
-        Cognitive Domain: {cognitive_data}
-        Receptive Communication Domain: {receptive_comm_data}
-        Expressive Communication Domain: {expressive_comm_data}
-        Fine Motor Domain: {fine_motor_data}
-        Gross Motor Domain: {gross_motor_data}
+        Cognitive Domain: 
+        {cognitive_data}
+        
+        Receptive Communication Domain: 
+        {receptive_comm_data}
+        
+        Expressive Communication Domain: 
+        {expressive_comm_data}
+        
+        Fine Motor Domain: 
+        {fine_motor_data}
+        
+        Gross Motor Domain: 
+        {gross_motor_data}
         
         DOMAIN CONTEXTS FOR DETAILED UNDERSTANDING:
         {domain_contexts}

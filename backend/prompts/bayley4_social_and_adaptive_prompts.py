@@ -1,5 +1,11 @@
+import json
+
 async def get_bayley4_social_adaptive_prompt(report_data: dict, json_format: bool = False) -> str:
     """Generate Bayley-4 assessment interpretation prompt for Social-Emotional and Adaptive Behavior domains."""
+
+    with open("outputs/test_baley_social_and_adaptive_response.json", 'w') as f:
+        f.write(json.dumps(report_data, indent=4))
+    print("\n Bayley4 social and adaptive prompt: outputs/test_baley_social_and_adaptive_response.json\n")
 
     patient_info = report_data.get("patient_info", {})
     child_name = patient_info.get("name", "the child")
@@ -7,8 +13,20 @@ async def get_bayley4_social_adaptive_prompt(report_data: dict, json_format: boo
 
     bayley_data = report_data.get("bayley", {})
     social_and_adaptive = bayley_data.get("social_and_adaptive", {})
-    social_emotional_data = social_and_adaptive.get("social_emotional", [])
-    adaptive_behavior_data = social_and_adaptive.get("adaptive_behavior", [])
+    social_emotional_data = social_and_adaptive.get("social_emotional", {}).get("observations", [])
+    adaptive_behavior_data = social_and_adaptive.get("adaptive_behavior", {})
+
+    adaptive_receptive_data = adaptive_behavior_data.get('subdomains', {}).get("receptive", {}).get('observations', [])
+    adaptive_expressive_data = adaptive_behavior_data.get('subdomains', {}).get("expressive", {}).get('observations', [])
+    adaptive_personal_data = adaptive_behavior_data.get('subdomains', {}).get("personal", {}).get('observations', [])
+    adaptive_play_data = adaptive_behavior_data.get('subdomains', {}).get("play_and_liesure", {}).get('observations', [])
+
+    social_emotional_data = [f"- {x['contextual_observation']}" for x in social_emotional_data]
+    adaptive_receptive_data = [f"- {x['contextual_observation']}" for x in adaptive_receptive_data]
+    adaptive_expressive_data = [f"- {x['contextual_observation']}" for x in adaptive_expressive_data]
+    adaptive_personal_data = [f"- {x['contextual_observation']}" for x in adaptive_personal_data]
+    adaptive_play_data = [f"- {x['contextual_observation']}" for x in adaptive_play_data]
+    
 
     social_emotional_context = (
         "The Social-Emotional Scale assesses your child's ability to engage with others, recognize emotions, "
@@ -29,9 +47,23 @@ async def get_bayley4_social_adaptive_prompt(report_data: dict, json_format: boo
         Patient: {child_name}
         Chronological Age: {chronological_age}
 
-        ACTUAL BAYLEY-4 VALID ANSWERS:
-        Social-Emotional Domain: {social_emotional_data}
-        Adaptive Behavior Domain: {adaptive_behavior_data}
+
+        ACTUAL BAYLEY-4 VALID ANSWERS INTERPRETATIONS:
+        Social-Emotional Domain: 
+        {social_emotional_data}
+        
+        Adaptive Behavior Domain: 
+            Receptive behaviour
+                {adaptive_receptive_data}
+
+            Expressive behaviour
+                {adaptive_expressive_data}
+
+            Personal
+                {adaptive_personal_data}
+
+            Play and Liesure
+                {adaptive_play_data}
 
         CLINICAL INTERPRETATION INSTRUCTIONS:
 
@@ -117,9 +149,22 @@ async def get_bayley4_social_adaptive_prompt(report_data: dict, json_format: boo
     Patient: {child_name}
     Chronological Age: {chronological_age}
 
-    ACTUAL BAYLEY-4 VALID ANSWERS:
-    Social-Emotional Domain: {social_emotional_data}
-    Adaptive Behavior Domain: {adaptive_behavior_data}
+    ACTUAL BAYLEY-4 VALID ANSWERS INTERPRETATIONS:
+    Social-Emotional Domain: 
+    {social_emotional_data}
+    
+    Adaptive Behavior Domain: 
+        Receptive behaviour
+            {adaptive_receptive_data}
+
+        Expressive behaviour
+            {adaptive_expressive_data}
+
+        Personal
+            {adaptive_personal_data}
+
+        Play and Liesure
+            {adaptive_play_data}
 
     INSTRUCTIONS FOR CLINICAL INTERPRETATION:
 

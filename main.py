@@ -22,6 +22,8 @@ from config import (
     get_app_port
 )
 from backend.langgraph.aws.chomps_agent import aws_chomps_data_extract_agent
+from backend.langgraph.bayley4_cognitive_context_generate_agent import cognitive_and_motor_context_agent
+from backend.langgraph.bayley4_social_context_generate_agent import social_adaptive_context_agent
 from backend.common.logging import logging
 from backend.domain_detector_bayley4_social_adaptive import process_bayley_social_adaptive_assessment
 from backend.utils.pdf import pdf_convert_to_image
@@ -476,6 +478,28 @@ async def upload_files(
             },
             "bayley": bayley_results
         }
+
+        # generate context information for bayley cognitive and motor
+        # Process Bayley-4 assessment if file is provided
+        bayley_results = {}
+        if 'bayley4_cognitive' in uploaded_files:
+            try:
+                cognitive_and_motor_context = cognitive_and_motor_context_agent(report_data)
+                report_data['bayley']['cognitive_and_motor'] = cognitive_and_motor_context
+            except Exception as e:
+                logger.error(f"❌ Error processing Bayley-4 cognitive context generation: {e}")
+                bayley_results["cognitive_and_motor"] = {}
+        
+        # Process Bayley-4 social and adaptive behavior assessment if file is provided
+        if 'bayley4_social' in uploaded_files:
+            try:
+                social_and_adaptive_context = social_adaptive_context_agent(report_data)
+                report_data['bayley']['social_and_adaptive'] = social_and_adaptive_context
+                    
+            except Exception as e:
+                logger.error(f"❌ Error processing Bayley-4 social adaptive assessment: {e}")
+                bayley_results["social_and_adaptive"] = {}
+
 
         # Save report data for potential regeneration
         report_data_path = os.path.join("outputs", f"report_data_{session_id}.json")
