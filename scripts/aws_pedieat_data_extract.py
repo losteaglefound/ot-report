@@ -2,154 +2,124 @@
 import csv
 import json
 import re
-from typing import Literal
+from typing import Literal, TypedDict, cast
 
 
 from trp.trp2_analyzeid import TAnalyzeIdDocument, TAnalyzeIdDocumentSchema
 from trp import Document
 
 
-filename = '/home/lap-49/Documents/ot-report/outputs/aws_pedieat_page_merged.json'
-raw_data = ""
-
-with open(filename, 'r') as f:
-    raw_data = f.read()
-
-
-json_response = json.loads(raw_data)
-
-
-doc = Document(json_response)
-
-
-columns = ['Observations', 'Never', 'Almost Never', "Sometimes", 'Often', 'Almost Always', 'Always', "Score"]
-
-csv_dict: dict = {}
-csv_data = []
-
-with open('output.csv', 'w', newline='') as f:
-    writer = csv.writer(f)
-    for page in doc.pages:
-        for table in page.tables:
-            for row in table.rows:
-                d = {col: cell.text for col, cell in zip(columns, row.cells)}
-                csv_data.append(d)
-                writer.writerow(csv_data)
-
-
-scores = {
-    "Never": "0",
-    "Almost Never": "1",
-    "Sometimes": "2",
-    "Often": "3",
-    "Almost Always": "4",
-    "Always": "5"
-}
-scores_reverse = {
-    "Never": "5",
-    "Almost Never": "4",
-    "Sometimes": "3",
-    "Often": "2",
-    "Almost Always": "1",
-    "Always": "0"
-}
-
-
-def get_selected(text):
+# Functional approach: Data extraction and processing functions
+def get_selected(text: str) -> str | None:
     matches = re.findall(r'\b[A-Z]+\b', text)
-    return matches[0]
-
-
-csv_data
-
-
-# t_doc = TAnalyzeIdDocument().load(json.loads(raw_data))
-observation_scores = []
-
-for d in csv_data:
-    l = []
-    for k, v in d.items():
-        if v == '': break
-        if k == 'Score': continue
-        if k == 'Observations':
-            l.append(v)
-        if "SELECTED" in d[k] and 'NOT_SELECTED' not in d[k]:
-            if get_selected(v) == "SELECTED":
-                l.append(scores[k])
-    if l and not len(l) == 1:
-        observation_scores.append(l)
-
-
-observation_scores
-
-
-
-
-
-observation_schema = Literal["physiologic_symtoms", "problematic_mealtime_bahaviors", "selective_restrictive_eating", "oral_processing"]
-score_schema = Literal['asc_scoring', 'desc_scoring']
-observations_keys_schema = Literal['observations', 'total_score']
-observation_schema = Literal['description', 'score']
-
-pediate_observations_schema = dict[observation_schema, dict[score_schema, dict[observations_keys_schema, str | list[dict[observation_schema]]]]]
-
-pediate_observations: pediate_observations_schema = {
-    "physiologic_symtoms": {
-        "asc_scoring": {
-            "observations": [],
-            "score": ""
-        },
-        "desc_scoring": {
-            "observations": [],
-            "score": ""
-        }
-    },
-    "problematic_mealtime_bahaviors": {
-        "asc_scoring": {
-            "observations": [],
-            "score": ""
-        },
-        "desc_scoring": {
-            "observations": [],
-            "score": ""
-        }
-    },
-    "selective_restrictive_eating": {
-        "asc_scoring": {
-            "observations": [],
-            "score": ""
-        },
-        "desc_scoring": {
-            "observations": [],
-            "score": ""
-        }
-    },
-    "oral_processing": {
-        "asc_scoring": {
-            "observations": [],
-            "score": ""
-        },
-        "desc_scoring": {
-            "observations": [],
-            "score": ""
-        }
-    }
-}
-
-
-for x in observation_scores:
-    print(" ----> ".join(x[::-1]))
+    return matches[0] if matches else None
 
 
 def clean_sentence(text: str) -> str:
-    cleaned_text = re.sub(r'^\d+\.\s+', '', text)
-    return cleaned_text
+    return re.sub(r'^\d+\.\s+', '', text).strip()
 
 
-for o in observation_scores:
-    print(o[0])
+def extract_observation_score(row: dict[str, str], scores: dict[str, str]) -> list[str] | None:
+    observation = row.get('Observations')
+    if not observation:
+        return None
+
+    for key, value in row.items():
+        if key in scores and "SELECTED" in value and "NOT_SELECTED" not in value:
+            if get_selected(value) == "SELECTED":
+                return [observation, scores[key]]
+    return None
 
 
+def categorize_observation(
+    observation_score: list[str],
+    categories: dict[str, list[str]],
+    reverse_scoring_questions: list[str]
+) -> tuple[str, str, dict[str, str]] | None:
+    
+    ob_sentence = clean_sentence(observation_score[0])
+    ob_score = observation_score[1]
+
+    for category, questions in categories.items():
+        if ob_sentence in questions:
+            scoring_type = 'desc_scoring' if ob_sentence in reverse_scoring_questions else 'asc_scoring'
+            return category, scoring_type, {'description': ob_sentence, "score": ob_score}
+    return None
+
+
+# Data Schemas and Types
+class Observation(TypedDict):
+    description: str
+    score: str
+
+class ScoringData(TypedDict):
+    observations: list[Observation]
+    score: str
+
+class ObservationCategory(TypedDict):
+    asc_scoring: ScoringData
+    desc_scoring: ScoringData
+
+PediateObservations = dict[str, ObservationCategory]
+
+
+# Main data processing function
+def process_document_to_pediate_observations(doc: Document) -> PediateObservations:
+    columns = ['Observations', 'Never', 'Almost Never', "Sometimes", 'Often', 'Almost Always', 'Always', "Score"]
+    scores = {
+        "Never": "0", "Almost Never": "1", "Sometimes": "2",
+        "Often": "3", "Almost Always": "4", "Always": "5"
+    }
+    scores_reverse = {
+        "Never": "5",
+        "Almost Never": "4",
+        "Sometimes": "3",
+        "Often": "2",
+        "Almost Always": "1",
+        "Always": "0"
+    }
+
+    # Data is extracted and transformed through a series of pure functions
+    csv_data = [
+        {col: cell.text for col, cell in zip(columns, row.cells)}
+        for page in doc.pages
+        for table in page.tables
+        for row in table.rows
+    ]
+
+    observation_scores = [
+        score for row in csv_data
+        if (score := extract_observation_score(row, scores)) is not None
+    ]
+    
+    # Initialize the data structure
+    pediate_observations: PediateObservations = {
+        category: {
+            "asc_scoring": {"observations": [], "score": ""},
+            "desc_scoring": {"observations": [], "score": ""}
+        } for category in OBSERVATION_CATEGORIES
+    }
+
+    # Categorize observations
+    for ob_score in observation_scores:
+        result = categorize_observation(ob_score, OBSERVATION_CATEGORIES, REVERSE_SCORING_QUESTION)
+        if result:
+            category, scoring_type, observation_data = result
+            # We cast here to satisfy the type checker, as we are building the structure
+            cast(ScoringData, pediate_observations[category][scoring_type])['observations'].append(observation_data)
+
+    # Calculate final scores
+    for category_data in pediate_observations.values():
+        for scoring_type in ['asc_scoring', 'desc_scoring']:
+            scoring_dict = cast(ScoringData, category_data[scoring_type])
+            observations = scoring_dict['observations']
+            total_score = sum(int(obs['score']) for obs in observations)
+            scoring_dict['score'] = str(total_score)
+            
+    return pediate_observations
+
+
+# Constants (moved here for clarity)
 REVERSE_SCORING_QUESTION = [
     "likes to eat",
     "eats a variety of foods (fruits, vegetables, proteins, etc.)",
@@ -255,48 +225,36 @@ ORAL_PROCESSING = [
     "chews a bite of food for a long time (~30 seconds or longer)",
 ]
 
+OBSERVATION_CATEGORIES = {
+    "physiologic_symtoms": PHYSIOLOGIC_SYMTOMS,
+    "problematic_mealtime_bahaviors": PROBLEMATIC_MEALTIME_BEHAVIORS,
+    "selective_restrictive_eating": SELECTIVE_RESTRICTIVE_EATING,
+    "oral_processing": ORAL_PROCESSING,
+}
 
-def create_json_structure():
-    for ob in observation_scores:
-        if len(ob) == 2:
-            ob_sentence, ob_score = ob[0], ob[1]
-            ob_sentence = clean_sentence(ob_sentence).strip()
-            if ob_sentence in PROBLEMATIC_MEALTIME_BEHAVIORS:
-                if ob_sentence in REVERSE_SCORING_QUESTION:
-                    pediate_observations['problematic_mealtime_bahaviors']['desc_scoring']['observations'].append({'description': ob_sentence, "score": ob_score})
-                else:
-                    pediate_observations['problematic_mealtime_bahaviors']['asc_scoring']['observations'].append({'description': ob_sentence, "score": ob_score})
-            if ob_sentence in PHYSIOLOGIC_SYMTOMS:
-                if ob_sentence in REVERSE_SCORING_QUESTION:
-                    pediate_observations['physiologic_symtoms']['desc_scoring']['observations'].append({'description': ob_sentence, "score": ob_score})
-                else:
-                    pediate_observations['physiologic_symtoms']['asc_scoring']['observations'].append({'description': ob_sentence, "score": ob_score})
-            if ob_sentence in ORAL_PROCESSING:
-                if ob_sentence in REVERSE_SCORING_QUESTION:
-                    pediate_observations['oral_processing']['desc_scoring']['observations'].append({'description': ob_sentence, "score": ob_score})
-                else:
-                    pediate_observations['oral_processing']['asc_scoring']['observations'].append({'description': ob_sentence, "score": ob_score})
-            if ob_sentence in SELECTIVE_RESTRICTIVE_EATING:
-                if ob_sentence in REVERSE_SCORING_QUESTION:
-                    pediate_observations['selective_restrictive_eating']['desc_scoring']['observations'].append({'description': ob_sentence, "score": ob_score})
-                else:
-                    pediate_observations['selective_restrictive_eating']['asc_scoring']['observations'].append({'description': ob_sentence, "score": ob_score})
 
-def calculate_total_scores():
-    for category_data in pediate_observations.values():
-        for scoring_type in ['asc_scoring', 'desc_scoring']:
-            observations = category_data[scoring_type]['observations']
-            total_score = sum(int(obs['score']) for obs in observations)
-            category_data[scoring_type]['score'] = str(total_score)
+def main():
+    """Main function to run the data extraction and processing."""
+    filename = '/home/lap-49/Documents/ot-report/outputs/aws_pedieat_page_merged.json'
+    try:
+        with open(filename, 'r') as f:
+            raw_data = f.read()
+    except FileNotFoundError:
+        print(f"Error: File not found at {filename}")
+        return
+
+    json_response = json.loads(raw_data)
+    doc = Document(json_response)
     
+    # Get the final structured data
+    pediate_observations = process_document_to_pediate_observations(doc)
+
+    # Output the result
+    print(json.dumps(pediate_observations, indent=4))
 
 
-create_json_structure()
-calculate_total_scores()
-
-print(f"\n\n {pediate_observations}, {type(pediate_observations)}")
-
-print(json.dumps(pediate_observations, indent=4))
+if __name__ == "__main__":
+    main()
 
 
 
