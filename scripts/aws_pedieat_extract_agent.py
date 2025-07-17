@@ -159,6 +159,7 @@ def merge_textract_responses(responses: List[Dict[str, Any]]) -> Dict[str, Any]:
 class Observation(TypedDict):
     description: str
     score: str
+    score_string: str
 
 class ScoringData(TypedDict):
     observations: list[Observation]
@@ -179,14 +180,24 @@ def get_selected(text: str) -> str | None:
 def clean_sentence(text: str) -> str:
     return re.sub(r'^\d+\.\s+', '', text).strip()
 
-def extract_observation_score(row: dict[str, str], scores: dict[str, str]) -> list[str] | None:
+def extract_observation_score(
+    row: dict[str, str],
+    scores: dict[str, str],
+    scores_reverse: dict[str, str],
+    reverse_scoring_questions: list[str]
+) -> list[str] | None:
     observation = row.get('Observations')
     if not observation:
         return None
+
+    cleaned_observation = clean_sentence(observation)
+    scoring_dict = scores_reverse if cleaned_observation in reverse_scoring_questions else scores
+    # print(f"################################\n{scoring_dict}\n")
+
     for key, value in row.items():
-        if key in scores and "SELECTED" in value and "NOT_SELECTED" not in value:
+        if key in scoring_dict and "SELECTED" in value and "NOT_SELECTED" not in value:
             if get_selected(value) == "SELECTED":
-                return [observation, scores[key]]
+                return [observation, scoring_dict[key], key]
     return None
 
 def categorize_observation(
@@ -196,10 +207,11 @@ def categorize_observation(
 ) -> tuple[str, str, dict[str, str]] | None:
     ob_sentence = clean_sentence(observation_score[0])
     ob_score = observation_score[1]
+    ob_score_str = observation_score[2]
     for category, questions in categories.items():
         if ob_sentence in questions:
             scoring_type = 'desc_scoring' if ob_sentence in reverse_scoring_questions else 'asc_scoring'
-            return category, scoring_type, {'description': ob_sentence, "score": ob_score}
+            return category, scoring_type, {'description': ob_sentence, "score": ob_score, "score_string": ob_score_str}
     return None
 
 # --- Main Data Processing Function ---
@@ -210,6 +222,14 @@ def process_document_to_pediate_observations(doc: Document) -> PediateObservatio
         "Never": "0", "Almost Never": "1", "Sometimes": "2",
         "Often": "3", "Almost Always": "4", "Always": "5"
     }
+    scores_reverse = {
+        "Never": "5",
+        "Almost Never": "4",
+        "Sometimes": "3",
+        "Often": "2",
+        "Almost Always": "1",
+        "Always": "0"
+    }
 
     csv_data = [
         {col: cell.text for col, cell in zip(columns, row.cells)}
@@ -218,7 +238,7 @@ def process_document_to_pediate_observations(doc: Document) -> PediateObservatio
 
     observation_scores = [
         score for row in csv_data
-        if (score := extract_observation_score(row, scores)) is not None
+        if (score := extract_observation_score(row, scores, scores_reverse, REVERSE_SCORING_QUESTION)) is not None
     ]
     
     pediate_observations: PediateObservations = {
@@ -323,13 +343,13 @@ OBSERVATION_CATEGORIES = {
 
 def main():
     """Main function to run the data extraction and processing pipeline."""
-    parser = argparse.ArgumentParser(description='Analyze a Pedi-EAT PDF document using AWS Textract.')
-    parser.add_argument('pdf_path', help='Path to the PDF file to analyze')
-    args = parser.parse_args()
+    # parser = argparse.ArgumentParser(description='Analyze a Pedi-EAT PDF document using AWS Textract.')
+    # parser.add_argument('pdf_path', help='Path to the PDF file to analyze')
+    # args = parser.parse_args()
 
-    if not os.path.exists(args.pdf_path):
-        print(f"❌ Error: PDF file '{args.pdf_path}' not found.")
-        sys.exit(1)
+    # if not os.path.exists(args.pdf_path):
+    #     print(f"❌ Error: PDF file '{args.pdf_path}' not found.")
+    #     sys.exit(1)
 
     try:
         # Step 1: Initialize the analyzer
@@ -340,10 +360,13 @@ def main():
         )
 
         # Step 2: Get raw Textract responses for each page
-        raw_responses = analyzer.get_raw_page_responses(args.pdf_path)
+        # raw_responses = analyzer.get_raw_page_responses(args.pdf_path)
 
         # Step 3: Merge the responses into a single object
-        merged_response = merge_textract_responses(raw_responses)
+        # merged_response = merge_textract_responses(raw_responses)
+        with open("outputs/aws_pedieat_page_merged.json") as f:
+            merged_response = f.read()
+        merged_response = json.loads(merged_response)
         
         # Optional: Save the merged response for debugging
         # with open('outputs/aws_pedieat_page_merged_from_agent.json', 'w') as f:
@@ -355,7 +378,12 @@ def main():
 
         # Step 5: Output the final result
         print("\n🎉 Analysis complete! Final structured JSON output:\n")
-        print(json.dumps(final_structured_data, indent=4))
+        save_file = 'outputs/aws_pedieat_extract.json'
+        # print(json.dumps(final_structured_data, indent=4))
+        with open(save_file, 'w+') as f:
+            f.write(json.dumps(final_structured_data, indent=4))
+        logging.info("Saved response to: {}".format(save_file))
+
 
     except Exception as e:
         logging.exception("An error occurred during the extraction pipeline.")
