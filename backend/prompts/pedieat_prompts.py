@@ -13,6 +13,8 @@ async def get_pedieat_prompt(extracted_data: dict, json_format=False) -> str:
     print(chomps_dict)
     print("$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$")
 
+
+
     pedieat_formatted_data = format_pediaeat_prompt(pedieat_dict)
 
     pedieat = False
@@ -21,18 +23,20 @@ async def get_pedieat_prompt(extracted_data: dict, json_format=False) -> str:
 
     chomps = False
     if chomps_dict:
-        chomps_dict = True
+        chomps = True
+
+    print(f"\nPedieat: {pedieat}, Chomps: {chomps}\n")
 
     if json_format:
         pedieat_prompt = f"""
-        You are a highly experienced occupational therapist with specialized training in pediatric feeding and oral-motor development. Based on the pedieat data provided below, generate a comprehensive, clinical report using professional terminology and a structured format. The tone should be clinical, objective, and precise, appropriate for inclusion in a multidisciplinary medical or therapy report. Provide interpretations and implications where relevant.
+        You are a highly experienced occupational therapist with specialized training in pediatric feeding and oral-motor development. Based on the data provided below, generate a comprehensive, clinical report using professional terminology and a structured format. The tone should be clinical, objective, and precise, appropriate for inclusion in a multidisciplinary medical or therapy report. Provide interpretations and implications where relevant.
         """
         
         if pedieat:
-            pedieat_prompt += f"\nPedieat data: \n{pedieat_formatted_data}\n"
+            pedieat_prompt += f"\nPediEAT data: \n{pedieat_formatted_data}\n"
 
         if chomps:
-            pedieat_prompt += f"\nChomps data: \n{chomps_dict}\n"
+            pedieat_prompt += f"\nChOMPS data: \n{chomps_dict}\n"
         
         pedieat_prompt += """
         
@@ -65,53 +69,85 @@ async def get_pedieat_prompt(extracted_data: dict, json_format=False) -> str:
 
         ---------------------------------------------------------------
 
-        ----------------- Guide for Pediate Score Summary --------------
-        Generate a clinically concise and professional summary paragraph describing a child's global feeding concerns, grounded in the results of the Pediatric Eating Assessment Tool (PediEAT). Use formal clinical language suitable for inclusion in a multidisciplinary report or evaluation summary. Tailor the paragraph based on specific input, such as the total PediEAT score, concern level, and any relevant subscale domains (e.g., physiological, behavioral, sensory, oral-motor).
-
-        The paragraph should include the following components:
-            Identification of the child by first name only (if provided).
-            Overall concern level based on the total PediEAT score and how it compares to normative thresholds (e.g., “High Concern”).
-            Mention of elevated subscale domains, reflecting whether concerns span multiple areas (physiological, behavioral, sensory, oral-motor).
-            Clinical framing, indicating that the data reflects global feeding difficulty and supports need for further assessment/intervention.
-
-        Style Guidelines:
-            Use professional, objective tone.
-            Write in past tense.
-            Avoid speculation or caregiver quotes unless prompted.
-
-        Summarize multiple areas of concern clearly in one paragraph.
-
+        ----------------- Guide for Assessment Overview Paragraph --------------"""
         
-        -------------------- Guide for generating Feeding observation --------------------
-        Generate a detailed clinical paragraph summarizing feeding observations in a pediatric patient, particularly focused on oropharyngeal coordination, respiratory control, and labial function. Use a professional tone suitable for medical records or developmental feeding evaluations. Base the paragraph on observational data, and adapt the language depending on the child’s feeding method (e.g., bottle, breast), behaviors, and age.
+        # Add conditional instructions based on available data
+        if pedieat and chomps:
+            pedieat_prompt += """
+        Generate a comprehensive introductory paragraph that establishes the assessment approach using both ChOMPS and PediEAT tools. The paragraph should:
+            - Identify that the child's feeding abilities were assessed using both the Child Oral and Motor Proficiency Scale (ChOMPS) and the Pediatric Eating Assessment Tool (PediEAT)
+            - Mention completion by caregiver and inclusion of clinical observations during feeding assessment
+            - Present overall summary of significant concerns related to oral-motor coordination and feeding performance
+            - State how these concerns interfere with age-appropriate mealtime routines and feeding independence
+            - Use professional clinical language appropriate for multidisciplinary reports
+            """
+        elif pedieat:
+            pedieat_prompt += """
+        Generate an introductory paragraph focusing on PediEAT assessment. The paragraph should:
+            - Identify that the child's feeding abilities were assessed using the Pediatric Eating Assessment Tool (PediEAT)
+            - Mention completion by caregiver and inclusion of clinical observations during feeding assessment
+            - Present overall summary of concerns related to feeding performance
+            - State how these concerns interfere with age-appropriate mealtime routines
+            - Use professional clinical language appropriate for multidisciplinary reports
+            """
+        elif chomps:
+            pedieat_prompt += """
+        Generate an introductory paragraph focusing on ChOMPS assessment. The paragraph should:
+            - Identify that the child's feeding abilities were assessed using the Child Oral and Motor Proficiency Scale (ChOMPS)
+            - Mention completion by caregiver and inclusion of clinical observations during feeding assessment
+            - Present overall summary of concerns related to oral-motor coordination and feeding performance
+            - State how these concerns interfere with age-appropriate mealtime routines and feeding independence
+            - Use professional clinical language appropriate for multidisciplinary reports
+            """
 
-        The paragraph should include:
-            Breathing-feeding coordination issues, such as:
-            Frequent pauses during feeding to catch breath
-            Signs of respiratory fatigue (e.g., gulping, labored breathing, poor endurance)
-            Immature oropharyngeal coordination or suck-swallow-breathe patterns
+        pedieat_prompt += """
 
-        Labial function/mobility, including:
-            Lip seal issues (e.g., poor anterior lip seal, lip flaring vs. inversion)
-            Upper/lower lip tucking or instability
-            Impact on ability to maintain negative intraoral pressure
-
-        Functional consequences of these issues, such as:
-            Reduced efficiency
-            Inconsistent latch
-            Fatigue during oral feeding
-
-        Style Guidelines:
-            Use objective, clinical language
-            Write in past tense
-            Refer to the child by first name if provided
-            Avoid caregiver impressions unless requested
-
-        No need to reference interventions or treatment plans unless prompted
-
+        ----------------- Guide for ChOMPS Assessment Paragraph --------------"""
         
+        if chomps:
+            pedieat_prompt += """
+        Generate a detailed clinical paragraph analyzing ChOMPS results. The paragraph should include:
+            - Statement that ChOMPS results indicate concerns across relevant domains (complex movement patterns, basic movement patterns, oral-motor coordination, fundamental oral-motor skills)
+            - Analysis of self-feeding abilities, noting hand-to-mouth skills while identifying inefficiencies due to oral control limitations
+            - Detailed description of chewing patterns (vertical vs. rotary movement, jaw stability, tongue lateralization)
+            - Observations of audible behaviors, food retention patterns, and compensatory strategies
+            - Assessment of lip closure consistency and coordination
+            - Description of bolus formation abilities and intraoral awareness
+            - Clinical interpretation linking findings to developmental delays in volitional oral-motor control
+            - Discussion of implications for texture progression and feeding independence
+            - Use professional terminology related to oral-motor development and feeding skills
+            """
+        else:
+            pedieat_prompt += """
+        Note: ChOMPS data not provided - this section will not be included in the assessment paragraph.
+            """
+
+        pedieat_prompt += """
+
+        ----------------- Guide for PediEAT Assessment Paragraph --------------"""
+        
+        if pedieat:
+            pedieat_prompt += """
+        Generate a detailed clinical paragraph analyzing PediEAT results. The paragraph should include:
+            - Statement that PediEAT findings support presence of feeding dysfunction with total score and concern level
+            - Analysis of elevated domain scores (physiologic symptoms, oral processing, selective/restrictive eating, problematic mealtime behaviors)
+            - Detailed description of physiologic symptoms including vomiting, food retention, swallow responses
+            - Assessment of oral processing difficulties including tongue movement, chewing coordination, food manipulation
+            - Analysis of selective/restrictive eating patterns, texture preferences, and refusal behaviors
+            - Discussion of mealtime fatigue and aspiration risk factors
+            - Differentiation between motor-based vs. behavioral origins of feeding difficulties
+            - Clinical interpretation highlighting need for skilled intervention targeting oral-motor development, swallowing safety, and dietary expansion
+            - Use professional terminology related to pediatric dysphagia and feeding disorders
+            """
+        else:
+            pedieat_prompt += """
+        Note: PediEAT data not provided - this section will not be included in the assessment paragraph.
+            """
+
+        pedieat_prompt += """
+
         ------------ Guide for  generating behavioural observations ------------------
-        Generate a detailed clinical paragraph describing a pediatric patient’s behavioral responses during feeding, with a focus on distress behaviors, oral fatigue, and feeding endurance. The paragraph should reflect objective observations and provide clinical insight into how these behaviors may relate to broader feeding difficulties.
+        Generate a detailed clinical paragraph describing a pediatric patient's behavioral responses during feeding, with a focus on distress behaviors, oral fatigue, and feeding endurance. The paragraph should reflect objective observations and provide clinical insight into how these behaviors may relate to broader feeding difficulties.
 
         Include the following elements:
             Behavioral indicators of distress, such as:
@@ -178,32 +214,68 @@ async def get_pedieat_prompt(extracted_data: dict, json_format=False) -> str:
                 "CN XI (Accessory)": "**REPLACE WITH DETAILED INTERPRETATION OF ACCESSORY NERVE FUNCTION. Include neck and shoulder muscle function, head positioning, and their impact on feeding posture and stability.**",
                 "CN XII (Hypoglossal)": "**REPLACE WITH DETAILED INTERPRETATION OF HYPOGLOSSAL NERVE FUNCTION. Include tongue movement, strength, coordination, and their impact on bolus manipulation and swallowing initiation.**"
                 }}
-            }},
-            "intraoral_inspection": {{
-                "type": "paragraph",
-                "content": "**REPLACE WITH DETAILED INTERPRETATION OF INTRAORAL EXAMINATION FINDINGS. Include oral structures, tissue integrity, dental status, frenulum restrictions, and their impact on feeding function and oral-motor development.**"
-            }},
-            "pedieat_score_summary": {{
-                "type": "paragraph",
-                "content": "**REPLACE WITH DETAILED INTERPRETATION OF PEDIEAT TOTAL SCORES AND DOMAIN-SPECIFIC RESULTS. Include overall concern level, elevated subscale domains, percentile rankings, clinical significance, and implications for feeding intervention.**"
-            }},
-            "feeding_and_swallowing_observations": {{
-                "type": "paragraph",
-                "content": "**REPLACE WITH DETAILED INTERPRETATION OF FEEDING AND SWALLOWING OBSERVATIONS. Include oral-motor coordination, swallowing safety, feeding efficiency, behavioral responses, and specific observations during different textures and feeding methods.**"
-            }},
-            "clinical_recommendations": {{
-                "type": "bullet_points",
-                "content": [
-                "**REPLACE WITH SPECIFIC CLINICAL RECOMMENDATIONS BASED ON ASSESSMENT FINDINGS. Include intervention strategies, therapy goals, environmental modifications, and referral recommendations.**"
-                ]
-            }},
-            "safety_considerations": {{
-                "type": "paragraph",
-                "content": "**REPLACE WITH DETAILED INTERPRETATION OF FEEDING SAFETY CONSIDERATIONS. Include aspiration risk, texture modifications, positioning requirements, supervision needs, and emergency protocols.**"
-            }}
-            }}
+            }},"""
         
-        IMPORTANT: Replace all content marked with **REPLACE WITH...** with actual clinical interpretations based on the provided PediEAT and feeding assessment data. Do not output the placeholder instructions literally.
+        # Add conditional assessment paragraphs based on available data
+        if pedieat and chomps:
+            pedieat_prompt += """
+            "assessment_overview": {{
+                "type": "paragraph",
+                "content": "**REPLACE WITH COMPREHENSIVE ASSESSMENT OVERVIEW. Include introduction to both ChOMPS and PediEAT assessments, completion by caregiver, clinical observations, overall concerns about oral-motor coordination and feeding performance, and interference with age-appropriate mealtime routines.**"
+            }},
+            "chomps_assessment": {{
+                "type": "paragraph", 
+                "content": "**REPLACE WITH DETAILED CHOMPS ASSESSMENT ANALYSIS. Include concerns across all four domains, self-feeding abilities and inefficiencies, chewing patterns, tongue lateralization, food retention, compensatory strategies, lip closure, and implications for feeding development.**"
+            }},
+            "pedieat_assessment": {{
+                "type": "paragraph",
+                "content": "**REPLACE WITH DETAILED PEDIEAT ASSESSMENT ANALYSIS. Include total score and concern level, elevated domain scores, physiologic symptoms, oral processing difficulties, selective eating patterns, mealtime behaviors, motor vs behavioral origins, and intervention needs.**"
+            }},"""
+        elif pedieat:
+            pedieat_prompt += """
+            "assessment_overview": {{
+                "type": "paragraph",
+                "content": "**REPLACE WITH PEDIEAT ASSESSMENT OVERVIEW. Include introduction to PediEAT assessment, completion by caregiver, clinical observations, overall concerns about feeding performance, and interference with mealtime routines.**"
+            }},
+            "pedieat_assessment": {{
+                "type": "paragraph",
+                "content": "**REPLACE WITH DETAILED PEDIEAT ASSESSMENT ANALYSIS. Include total score and concern level, elevated domain scores, physiologic symptoms, oral processing difficulties, selective eating patterns, mealtime behaviors, motor vs behavioral origins, and intervention needs.**"
+            }},"""
+        elif chomps:
+            pedieat_prompt += """
+            "assessment_overview": {{
+                "type": "paragraph",
+                "content": "**REPLACE WITH CHOMPS ASSESSMENT OVERVIEW. Include introduction to ChOMPS assessment, completion by caregiver, clinical observations, overall concerns about oral-motor coordination and feeding performance, and interference with age-appropriate mealtime routines.**"
+            }},
+            "chomps_assessment": {{
+                "type": "paragraph",
+                "content": "**REPLACE WITH DETAILED CHOMPS ASSESSMENT ANALYSIS. Include concerns across all four domains, self-feeding abilities and inefficiencies, chewing patterns, tongue lateralization, food retention, compensatory strategies, lip closure, and implications for feeding development.**"
+            }},"""
+
+        # pedieat_prompt += """
+        #     "intraoral_inspection": {{
+        #         "type": "paragraph",
+        #         "content": "**REPLACE WITH DETAILED INTERPRETATION OF INTRAORAL EXAMINATION FINDINGS. Include oral structures, tissue integrity, dental status, frenulum restrictions, and their impact on feeding function and oral-motor development.**"
+        #     }},
+        #     "feeding_and_swallowing_observations": {{
+        #         "type": "paragraph",
+        #         "content": "**REPLACE WITH DETAILED INTERPRETATION OF FEEDING AND SWALLOWING OBSERVATIONS. Include oral-motor coordination, swallowing safety, feeding efficiency, behavioral responses, and specific observations during different textures and feeding methods.**"
+        #     }},
+        #     "clinical_recommendations": {{
+        #         "type": "bullet_points",
+        #         "content": [
+        #         "**REPLACE WITH SPECIFIC CLINICAL RECOMMENDATIONS BASED ON ASSESSMENT FINDINGS. Include intervention strategies, therapy goals, environmental modifications, and referral recommendations.**"
+        #         ]
+        #     }},
+        #     "safety_considerations": {{
+        #         "type": "paragraph",
+        #         "content": "**REPLACE WITH DETAILED INTERPRETATION OF FEEDING SAFETY CONSIDERATIONS. Include aspiration risk, texture modifications, positioning requirements, supervision needs, and emergency protocols.**"
+        #     }}
+        #     }}
+        # """
+
+        pedieat_prompt += """
+        IMPORTANT: Replace all content marked with **REPLACE WITH...** with actual clinical interpretations based on the provided assessment data. Do not output the placeholder instructions literally.
         
         Ensure the response is valid JSON and all required sections are populated with clinical-level detail.
         """

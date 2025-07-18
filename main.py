@@ -431,6 +431,7 @@ async def upload_files(
 
         # Process CHOMPS assessment if file is provided
         chomps_results = {}
+        chomps_observation_score = {}
         if 'chomps' in uploaded_files:
             try:
                 logger.info("🧠 Processing CHOMPS assessment with chomps agent...")
@@ -444,6 +445,7 @@ async def upload_files(
                 
                 if chomps_result.get("status"):
                     chomps_results = chomps_result.get("full_response", {})
+                    chomps_observation_score = chomps_result.get("observation_data", {})
                     logger.info("✅ CHOMPS processing complete with chomps agent")
                 else:
                     logger.error(f"❌ CHOMPS processing failed: {chomps_result.get('error')}")
@@ -472,6 +474,9 @@ async def upload_files(
                 "sp2": sp2_results,
                 "pedieat": pedieat_results,
                 "chomps": chomps_results
+            },
+            "scores": {
+                "chomps": chomps_observation_score
             },
             "report_preferences": {
                 "output_format": output_format,

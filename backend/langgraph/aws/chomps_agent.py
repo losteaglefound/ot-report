@@ -482,6 +482,7 @@ def aws_chomps_data_extract_agent(pdf_path: str, /):
 
     final_state = graph.invoke(state)
     full_response = final_state['contextual_report']
+    observation_data = final_state['observation_data']
 
     if final_state.get('status') == 'error':
         return {
@@ -495,7 +496,8 @@ def aws_chomps_data_extract_agent(pdf_path: str, /):
 
     return {
         "status": final_state['status'],
-        "full_response": full_response
+        "full_response": full_response,
+        "observation_data": observation_data
     }
 
 

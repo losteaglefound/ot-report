@@ -48,6 +48,9 @@ from reportlab.lib import colors
 from backend.common.logging import logging
 from backend.prompts import save_response, remove_lang_tags, get_prompt
 from backend.utils.response import format_data_for_pdf, format_bayley_data_for_pdf, format_pedieat_data_for_pdf
+from backend.utils.chomps_score_calculator import parse_chomps_domain_scores
+from backend.utils.pedieat_score_calculate import parse_pedieat_domain_scores
+from backend.utils.table import create_chomps_concern_table
 from backend.langgraph import graph_invoke
 
 # Import sensory image extractor
@@ -2521,10 +2524,27 @@ class OpenAIEnhancedReportGenerator:
 
 
         if "chomps" in uploaded_files:
-            pass
+
+            # section header
+            elements.append(self._section_header("Child Oral and Motor Proficiency Scale (ChOMPS)"))
+            elements.append(Spacer(0, 10))
+
+            # observation score table
+            chomps_domain_score = parse_chomps_domain_scores(report_data)
+            chomps_score_table = create_chomps_concern_table(chomps_domain_score)
+            elements.append(chomps_score_table)
 
         if "pedieat" in uploaded_files:
-            pass
+
+            # section header
+            elements.append(self._section_header("PEDIATRIC EATING ASSESSMENT TOOL (PediEAT)"))
+            elements.append(Spacer(0, 10))
+
+            # observation score table
+            pedieat_domain_score = parse_pedieat_domain_scores(report_data)
+            pedieat_score_table = create_chomps_concern_table(pedieat_domain_score)
+            elements.append(pedieat_score_table)
+
         
         return elements
 
