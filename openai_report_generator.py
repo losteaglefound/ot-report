@@ -2,7 +2,7 @@ from datetime import datetime
 from dateutil import parser
 import io
 import json
-import logging
+# import logging
 import os
 import re
 from traceback import format_exc
@@ -19,12 +19,6 @@ except ImportError:
     OPENAI_AVAILABLE = False
 
 # Configure logging for this module (after imports)
-logger = logging.getLogger(__name__)
-
-if OPENAI_AVAILABLE:
-    logger.info("✅ OpenAI library imported successfully")
-else:
-    logger.warning("⚠️ OpenAI library not available - install with: pip install openai")
 
 import aiofiles
 from PIL import Image as PILImage
@@ -51,6 +45,7 @@ from reportlab.platypus import (
 from reportlab.lib.enums import TA_LEFT, TA_CENTER, TA_JUSTIFY
 from reportlab.lib import colors
 
+from backend.common.logging import logging
 from backend.prompts import save_response, remove_lang_tags, get_prompt
 from backend.utils.response import format_data_for_pdf, format_bayley_data_for_pdf, format_pedieat_data_for_pdf
 from backend.langgraph import graph_invoke
@@ -76,6 +71,17 @@ registerFontFamily(
 # addMapping('TimesNewRoman-Bold', 0, 1, 'TimesNewRoman-Bold')
 # addMapping('TimesNewRoman-Italic', 1, 0, 'TimesNewRoman-Italic')
 # addMapping('TimesNewRoman-Bold-Italic', 1, 1, 'TimesNewRoman-Bold-Italic')
+
+
+logger = logging.getLogger(__name__)
+
+
+if OPENAI_AVAILABLE:
+    logger.info("✅ OpenAI library imported successfully")
+else:
+    logger.warning("⚠️ OpenAI library not available - install with: pip install openai")
+
+
 
 class OpenAIEnhancedReportGenerator:
     """Professional OT Report Generator using OpenAI for clinical narratives"""
@@ -1667,7 +1673,7 @@ class OpenAIEnhancedReportGenerator:
         #     elements.extend(await self._create_chomps_detailed_section(report_data))
         
         # PediEAT detailed results - only if pedieat file was uploaded
-        print(f"######################################## pedieat: {extracted_data['pedieat']}, chomps: {extracted_data['chomps']}")
+        # print(f"######################################## pedieat: {extracted_data['pedieat']}, chomps: {extracted_data['chomps']}")
         if extracted_data.get("pedieat") or extracted_data.get('chomps'):
             print("#---------------------------------------------------")
             elements.extend(await self._create_pedieat_detailed_section(extracted_data))
@@ -1840,9 +1846,10 @@ class OpenAIEnhancedReportGenerator:
         
         pedieat_prompt = await get_prompt(prompt_type="pedieat", report_data=extracted_data, json_format=True)
 
-        pedieat_response = await self._generate_with_openai(pedieat_prompt, max_tokens=1000)
-        pedieat_response = remove_lang_tags(pedieat_response)
+        
         try:
+            pedieat_response = await self._generate_with_openai(pedieat_prompt, max_tokens=1000)
+            pedieat_response = remove_lang_tags(pedieat_response)
             pedieat_response = json.loads(pedieat_response)
             await save_response(pedieat_response, file_name="pedieat", json_format=True)
         except json.JSONDecodeError as e:

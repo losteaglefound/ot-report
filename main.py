@@ -22,6 +22,7 @@ from config import (
     get_app_port
 )
 from backend.langgraph.aws.chomps_agent import aws_chomps_data_extract_agent
+from backend.langgraph.pedieat.contextual_agent import pedieat_contextual_agent
 from backend.langgraph.bayley4_cognitive_context_generate_agent import cognitive_and_motor_context_agent
 from backend.langgraph.bayley4_social_context_generate_agent import social_adaptive_context_agent
 from backend.common.logging import logging
@@ -411,11 +412,12 @@ async def upload_files(
         if 'pedieat' in uploaded_files:
             try:
                 logger.info("🧠 Processing PediEAT assessment with pedieat agent...")
-                pedieat_result = extract_pedieat_data(uploaded_files['pedieat'])
-                await save_json_data(pedieat_result, "pedieat_result", extension="json")
+                # pedieat_result = extract_pedieat_data(uploaded_files['pedieat'])
 
                 uploaded_files_pdf_images['pedieat'] = pdf_convert_to_image(uploaded_files['pedieat'], session_dir)
-                
+                pedieat_result = pedieat_contextual_agent(uploaded_files_pdf_images['pedieat'])
+                await save_json_data(pedieat_result, "pedieat_result", extension="json")
+
                 if pedieat_result.get("success"):
                     pedieat_results = pedieat_result.get("pedieat_data", {})
                     logger.info("✅ PediEAT processing complete with pedieat agent")

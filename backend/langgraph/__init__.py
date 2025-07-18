@@ -71,7 +71,7 @@ def validate_json(state):
         return {**state, "valid": True}
     except json.JSONDecodeError as e:
         print(f"JSON validation failed (attempt {retry_count + 1}): {e}")
-        print(f"Response was: {output[:200]}...")
+        print(f"Response was: {output}...")
         
         # If we've tried too many times, accept the response as-is
         if retry_count >= 2:

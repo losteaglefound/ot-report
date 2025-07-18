@@ -1,7 +1,19 @@
+import json
+
+from ..utils.pedieat import format_pediaeat_prompt
+
 async def get_pedieat_prompt(extracted_data: dict, json_format=False) -> str:
 
     pedieat_dict = extracted_data.get('pedieat', {})
     chomps_dict = extracted_data.get('chomps', {})
+
+    print("$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$")
+    print(pedieat_dict)
+    print("$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$")
+    print(chomps_dict)
+    print("$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$")
+
+    pedieat_formatted_data = format_pediaeat_prompt(pedieat_dict)
 
     pedieat = False
     if pedieat_dict:
@@ -17,10 +29,10 @@ async def get_pedieat_prompt(extracted_data: dict, json_format=False) -> str:
         """
         
         if pedieat:
-            pedieat_prompt += f"Pedieat data: {pedieat_dict}\n"
+            pedieat_prompt += f"\nPedieat data: \n{pedieat_formatted_data}\n"
 
         if chomps:
-            pedieat_prompt += f"Chomps data: {chomps_dict}\n"
+            pedieat_prompt += f"\nChomps data: \n{chomps_dict}\n"
         
         pedieat_prompt += """
         
@@ -195,6 +207,11 @@ async def get_pedieat_prompt(extracted_data: dict, json_format=False) -> str:
         
         Ensure the response is valid JSON and all required sections are populated with clinical-level detail.
         """
+
+        with open("outputs/pedieat_formatted_prompt.txt", 'w+') as f:
+            f.write(pedieat_prompt)
+
+
         return pedieat_prompt
     
     pedieat_prompt = f"""
