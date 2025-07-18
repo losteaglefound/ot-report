@@ -2,7 +2,7 @@ import asyncio
 from datetime import datetime
 import os
 import shutil
-from typing import Dict, Any, Optional
+from typing import Dict, Any, Optional, List
 from traceback import format_exc
 import sys
 import uuid
@@ -604,13 +604,44 @@ async def upload_files(
                 if not primary_report_url:
                     primary_report_url = output_links.get("pdf", "Report generated successfully")
                 
-                # Send the completion notification
+                # Prepare attachment files
+                attachment_files = []
+                if output_format in ["pdf", "both"]:
+                    # Find the generated PDF file
+                    outputs_dir = "outputs"
+                    potential_files = [
+                        f"professional_ot_report_{session_id}.pdf",
+                        f"ot_evaluation_report_{session_id}.pdf",
+                        f"Professional_OT_Report_{datetime.now().strftime('%Y%m%d')}.pdf"
+                    ]
+                    
+                    for filename in potential_files:
+                        file_path = os.path.join(outputs_dir, filename)
+                        if os.path.exists(file_path):
+                            attachment_files.append(file_path)
+                            logger.info(f"📎 Will attach PDF report: {filename}")
+                            break
+                    
+                    # If no specific file found, try to find the most recent PDF
+                    if not attachment_files:
+                        try:
+                            pdf_files = [f for f in os.listdir(outputs_dir) if f.endswith('.pdf')]
+                            if pdf_files:
+                                latest_file = max(pdf_files, key=lambda f: os.path.getctime(os.path.join(outputs_dir, f)))
+                                file_path = os.path.join(outputs_dir, latest_file)
+                                attachment_files.append(file_path)
+                                logger.info(f"📎 Will attach latest PDF report: {latest_file}")
+                        except Exception as e:
+                            logger.warning(f"⚠️ Could not find PDF file to attach: {e}")
+                
+                # Send the completion notification with attachments
                 email_sent = await email_notifier.send_completion_notification(
                     recipient_email=notify_email,
                     patient_name=patient_name,
                     doc_url=primary_report_url,
                     session_id=session_id,
-                    additional_info=additional_info
+                    additional_info=additional_info,
+                    attachment_files=attachment_files  # New parameter
                 )
                 
                 if email_sent:
@@ -668,7 +699,8 @@ async def download_report(session_id: str):
             file_size = os.path.getsize(file_path) / 1024 / 1024  # MB
             logger.info(f"✅ Serving report: {filename}")
             logger.info(f"📁 File size: {file_size:.2f} MB")
-            
+
+            print(file_path)       
             return FileResponse(
                 path=file_path,
                 filename=f"OT_Evaluation_Report_{datetime.now().strftime('%Y%m%d')}.pdf",

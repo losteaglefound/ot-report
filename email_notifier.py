@@ -1,7 +1,7 @@
 import os
 import logging
 import smtplib
-from typing import Dict, Any
+from typing import Dict, Any, List
 from datetime import datetime
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
@@ -133,12 +133,23 @@ class EmailNotifier:
         patient_name: str, 
         doc_url: str, 
         session_id: str,
-        additional_info: Dict[str, Any] = None
+        additional_info: Dict[str, Any] = None,
+        attachment_files: List[str] = None  # New parameter for attachment file paths
     ) -> bool:
         """Send email notification when report is completed"""
         self.logger.info(f"📧 Sending completion notification for {patient_name}")
         self.logger.info(f"📮 Recipient: {recipient_email}")
         self.logger.info(f"🔗 Document URL: {doc_url}")
+        
+        # Log attachment info
+        if attachment_files:
+            self.logger.info(f"📎 Attachments: {len(attachment_files)} file(s)")
+            for file_path in attachment_files:
+                if os.path.exists(file_path):
+                    file_size = os.path.getsize(file_path) / 1024 / 1024  # MB
+                    self.logger.info(f"   📄 {os.path.basename(file_path)} ({file_size:.2f} MB)")
+                else:
+                    self.logger.warning(f"   ⚠️ Attachment file not found: {file_path}")
         
         try:
             subject = f"Pediatric OT Report Completed - {patient_name}"
@@ -158,7 +169,7 @@ class EmailNotifier:
             if self.yag:
                 self.logger.info("📧 Sending email via yagmail...")
                 success = await self._send_with_yagmail(
-                    recipient_email, subject, html_content, text_content
+                    recipient_email, subject, html_content, text_content, attachment_files
                 )
                 if success:
                     return True
@@ -166,7 +177,7 @@ class EmailNotifier:
             # Fallback to standard SMTP
             self.logger.info("📧 Sending email via standard SMTP...")
             success = await self._send_with_smtp(
-                recipient_email, subject, html_content, text_content
+                recipient_email, subject, html_content, text_content, attachment_files
             )
             return success
             
@@ -465,16 +476,29 @@ Generated on {datetime.now().strftime('%B %d, %Y at %I:%M %p')}
         recipient: str, 
         subject: str, 
         html_content: str, 
-        text_content: str
+        text_content: str,
+        attachment_files: List[str] = None
     ) -> bool:
         """Send email using yagmail"""
         try:
             self.logger.info("📤 Attempting to send via yagmail...")
             
+            # Prepare contents list
+            contents = [text_content, html_content]
+            
+            # Add attachments if provided
+            if attachment_files:
+                for file_path in attachment_files:
+                    if os.path.exists(file_path):
+                        contents.append(file_path)
+                        self.logger.info(f"📎 Added attachment: {os.path.basename(file_path)}")
+                    else:
+                        self.logger.warning(f"⚠️ Skipping missing attachment: {file_path}")
+            
             self.yag.send(
                 to=recipient,
                 subject=subject,
-                contents=[text_content, html_content]
+                contents=contents
             )
             
             self.logger.info("✅ Email sent successfully via yagmail")
@@ -489,7 +513,8 @@ Generated on {datetime.now().strftime('%B %d, %Y at %I:%M %p')}
         recipient: str, 
         subject: str, 
         html_content: str, 
-        text_content: str
+        text_content: str,
+        attachment_files: List[str] = None
     ) -> bool:
         """Send email using standard SMTP"""
         if not self.email_user or not self.email_password:
@@ -500,18 +525,32 @@ Generated on {datetime.now().strftime('%B %d, %Y at %I:%M %p')}
             self.logger.info("📤 Attempting to send via SMTP...")
             self.logger.info(f"🔗 Connecting to {self.smtp_server}:{self.smtp_port}")
 
-            # Create message
-            msg = MIMEMultipart('alternative')
+            # Create message - use 'mixed' to support attachments
+            msg = MIMEMultipart('mixed')
             msg['Subject'] = subject
             msg['From'] = self.from_email
             msg['To'] = recipient
 
+            # Create alternative container for text and HTML
+            msg_alternative = MIMEMultipart('alternative')
+            
             # Add both plain and HTML parts
             text_part = MIMEText(text_content, 'plain')
             html_part = MIMEText(html_content, 'html')
+            
+            msg_alternative.attach(text_part)
+            msg_alternative.attach(html_part)
+            
+            # Attach the alternative container to main message
+            msg.attach(msg_alternative)
 
-            msg.attach(text_part)
-            msg.attach(html_part)
+            # Add file attachments if provided
+            if attachment_files:
+                for file_path in attachment_files:
+                    if os.path.exists(file_path):
+                        self._attach_file_to_message(msg, file_path)
+                    else:
+                        self.logger.warning(f"⚠️ Skipping missing attachment: {file_path}")
 
             # Send via SMTP with proper SSL/TLS handling
             server = None
@@ -541,24 +580,53 @@ Generated on {datetime.now().strftime('%B %d, %Y at %I:%M %p')}
 
         except smtplib.SMTPAuthenticationError as e:
             self.logger.error(f"❌ SMTP authentication failed: {e}")
-            self.logger.info("💡 Tips for Gmail:")
-            self.logger.info("   - Use an App Password, not your regular Gmail password")
-            self.logger.info("   - Enable 2-factor authentication first")
-            self.logger.info("   - Generate App Password at: https://myaccount.google.com/apppasswords")
-            return False
-        except smtplib.SMTPConnectError as e:
-            self.logger.error(f"❌ SMTP connection failed: {e}")
-            self.logger.info("💡 Check SMTP server and port configuration")
-            return False
-        except smtplib.SMTPServerDisconnected as e:
-            self.logger.error(f"❌ SMTP server disconnected: {e}")
-            return False
-        except smtplib.SMTPException as e:
-            self.logger.error(f"❌ SMTP error: {e}")
             return False
         except Exception as e:
             self.logger.error(f"❌ SMTP sending failed: {e}")
             return False
+
+    def _attach_file_to_message(self, msg: MIMEMultipart, file_path: str):
+        """Attach a file to the email message"""
+        try:
+            filename = os.path.basename(file_path)
+            
+            # Determine the content type based on file extension
+            content_type = self._get_content_type(file_path)
+            main_type, sub_type = content_type.split('/', 1)
+            
+            with open(file_path, 'rb') as attachment:
+                part = MIMEBase(main_type, sub_type)
+                part.set_payload(attachment.read())
+            
+            # Encode file in ASCII characters to send by email
+            encoders.encode_base64(part)
+            
+            # Add header as key/value pair to attachment part
+            part.add_header(
+                'Content-Disposition',
+                f'attachment; filename= {filename}',
+            )
+            
+            # Attach the part to message
+            msg.attach(part)
+            
+            file_size = os.path.getsize(file_path) / 1024 / 1024  # MB
+            self.logger.info(f"📎 Attached file: {filename} ({file_size:.2f} MB)")
+            
+        except Exception as e:
+            self.logger.error(f"❌ Failed to attach file {file_path}: {e}")
+
+    def _get_content_type(self, file_path: str) -> str:
+        """Determine MIME content type based on file extension"""
+        import mimetypes
+        
+        content_type, _ = mimetypes.guess_type(file_path)
+        
+        if content_type is None:
+            # Default to application/octet-stream for unknown types
+            content_type = 'application/octet-stream'
+        
+        return content_type
     
     def _log_notification(self, recipient: str, subject: str, content: str) -> bool:
         """Log notification instead of sending (fallback)"""
@@ -702,9 +770,12 @@ For technical support, please provide the Session ID and error details above.
         
         return status
     
-    async def send_test_email(self, recipient_email: str, test_message: str = None):
+    async def send_test_email(self, recipient_email: str, test_message: str = None, attachment_files: List[str] = None):
         """Send a test email to verify email configuration"""
         self.logger.info(f"🧪 Sending test email to {recipient_email}")
+        
+        if attachment_files:
+            self.logger.info(f"📎 Including {len(attachment_files)} test attachment(s)")
         
         if not test_message:
             test_message = "This is a test email from the OT Report Generator system."
@@ -775,10 +846,10 @@ If you received this email unexpectedly, please contact your system administrato
             # Try yagmail first if available
             if self.yag:
                 self.logger.info("📧 Sending test email via yagmail...")
-                result = await self._send_with_yagmail(recipient_email, subject, html_body, text_body)
+                result = await self._send_with_yagmail(recipient_email, subject, html_body, text_body, attachment_files)
             elif self.email_user and self.email_password:
                 self.logger.info("📧 Sending test email via standard SMTP...")
-                result = await self._send_with_smtp(recipient_email, subject, html_body, text_body)
+                result = await self._send_with_smtp(recipient_email, subject, html_body, text_body, attachment_files)
             else:
                 self.logger.warning("⚠️ No email configuration available - logging test email")
                 result = self._log_notification(recipient_email, subject, text_body)
