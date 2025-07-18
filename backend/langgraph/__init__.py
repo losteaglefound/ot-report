@@ -5,28 +5,39 @@ from langgraph.graph import START, StateGraph, END
 from langchain.chat_models import init_chat_model
 from langchain.prompts import ChatPromptTemplate
 
-from backend.prompts import remove_lang_tags
+from ..prompts import remove_lang_tags
+from ..common.logging import logging
 # from .ocr_agent import LangGraphOCRAgent
+
+
+logger = logging.getLogger(__name__)
 
 # Shared state keys
 STATE_KEYS = ["prompt", "output", "valid", "json_required", "retry_count"]
 
+
 # Initialize the LLM
 llm = init_chat_model(f"openai:gpt-4o")
 
-# Prompt template
 prompt_template = ChatPromptTemplate.from_messages([
     ("system", "You are a professional pediatric occupational therapist writing clinical evaluation reports. Use sophisticated clinical terminology, evidence-based interpretations, and maintain a professional, objective tone. Base your responses on standard pediatric developmental assessments and best practices in occupational therapy. When JSON format is requested, ALWAYS return valid JSON that can be parsed directly."),
     ("human", "{prompt}")
 ])
+# Prompt template
 
 def generate_response(state):
     """Generate response using the language model."""
     try:
         prompt = state.get("prompt", "")
+        retry_count = state.get("retry_count", 0)
+        
+        logger.info(f"🤖 Generating response (attempt {retry_count + 1})")
         
         # Check if JSON format is required
         json_required = "json" in prompt.lower() and ("json response format" in prompt.lower() or "return the output as a valid json" in prompt.lower())
+        
+        if json_required:
+            logger.info("📋 JSON format detected - enforcing JSON response")
         
         # Add JSON enforcement if needed
         if json_required:
@@ -34,11 +45,18 @@ def generate_response(state):
         
         # Generate response
         messages = prompt_template.format_messages(prompt=prompt)
-        response = llm.invoke(messages)
+        response = llm.invoke(
+            messages, 
+            # config={
+            #     "max_tokens": 2000
+            # }
+        )
         
         # Clean the response
         output = response.content.strip()
         output = remove_lang_tags(output)
+        
+        logger.info(f"✅ Response generated successfully ({len(output)} characters)")
         
         return {
             **state,
@@ -47,7 +65,7 @@ def generate_response(state):
             "retry_count": state.get("retry_count", 0)
         }
     except Exception as e:
-        print(f"Error in generate_response: {e}")
+        logger.error(f"❌ Error in generate_response: {e}")
         return {
             **state,
             "output": f"Error generating response: {str(e)}",
@@ -63,33 +81,41 @@ def validate_json(state):
     
     if not json_required:
         # Non-JSON prompts are always valid
+        logger.info("✅ Non-JSON response - validation passed")
         return {**state, "valid": True}
+    
+    logger.info(f"🔍 Validating JSON response (attempt {retry_count + 1})")
     
     try:
         # Try to parse as JSON
         json.loads(output)
+        logger.info("✅ JSON validation successful")
         return {**state, "valid": True}
     except json.JSONDecodeError as e:
-        print(f"JSON validation failed (attempt {retry_count + 1}): {e}")
-        print(f"Response was: {output}...")
+        logger.error(f"❌ JSON validation failed (attempt {retry_count + 1}): {e}")
+        logger.error(f"Response preview: {output[:200]}...")
         
         # If we've tried too many times, accept the response as-is
         if retry_count >= 2:
-            print("Max retries reached, accepting response")
+            logger.info("⚠️ Max retries reached, accepting response as-is")
             return {**state, "valid": True}
         
         # Try to fix common JSON issues
+        logger.info("🔧 Attempting to fix common JSON issues...")
         fixed_output = _fix_common_json_issues(output)
         try:
             json.loads(fixed_output)
-            print("Successfully fixed JSON issues")
+            logger.info("✅ Successfully fixed JSON issues")
             return {**state, "output": fixed_output, "valid": True}
         except:
             # Still invalid, mark for retry
+            logger.error("❌ Failed to fix JSON issues - marking for retry")
             return {**state, "valid": False, "retry_count": retry_count + 1}
 
 def _fix_common_json_issues(output: str) -> str:
     """Attempt to fix common JSON formatting issues."""
+    logger.info("🔧 Applying JSON fixes...")
+    
     # Remove any leading/trailing text that's not JSON
     output = output.strip()
     
@@ -97,12 +123,14 @@ def _fix_common_json_issues(output: str) -> str:
     json_match = re.search(r'\{.*\}', output, re.DOTALL)
     if json_match:
         output = json_match.group(0)
+        logger.info("📄 Extracted JSON content from response")
     
     # Fix common issues
     output = output.replace("'", '"')  # Single to double quotes
     output = re.sub(r',\s*}', '}', output)  # Remove trailing commas
     output = re.sub(r',\s*]', ']', output)  # Remove trailing commas in arrays
     
+    logger.info("🔧 Applied common JSON fixes")
     return output
 
 def route_by_validation(state):
@@ -116,9 +144,16 @@ def route_by_validation(state):
     # 2. Too many retries
     # 3. JSON not required
     if is_valid or retry_count >= 3 or not json_required:
+        if is_valid:
+            logger.info("✅ Validation passed - ending workflow")
+        elif retry_count >= 3:
+            logger.info("⚠️ Max retries reached - ending workflow")
+        else:
+            logger.info("✅ JSON not required - ending workflow")
         return END
     
     # Otherwise, retry generation
+    logger.info("🔄 Validation failed - retrying generation")
     return "generate_response"
 
 # Build the LangGraph
@@ -144,6 +179,9 @@ def graph_invoke(prompt: str):
         str: The generated response
     """
     try:
+        logger.info("🚀 Starting LangGraph agent workflow")
+        logger.info(f"📝 Prompt length: {len(prompt)} characters")
+        
         final_state = graph.invoke(
             {
                 "prompt": prompt, 
@@ -154,10 +192,13 @@ def graph_invoke(prompt: str):
             }
         )
         
-        return final_state.get("output", "")
+        output = final_state.get("output", "")
+        logger.info(f"✅ LangGraph workflow completed successfully ({len(output)} characters)")
+        
+        return output
         
     except Exception as e:
-        print(f"Error in graph_invoke: {e}")
+        logger.error(f"❌ Error in graph_invoke: {e}")
         return f"Error generating response: {str(e)}"
 
 

@@ -18,7 +18,7 @@ def pdf_convert_to_image(
 
     """
     basename = os.path.basename(file_path)
-    basename = "image" + basename
+    basename = "image_" + basename
     output_path = os.path.join(session_dir, basename)
 
     images = convert_from_path(file_path)

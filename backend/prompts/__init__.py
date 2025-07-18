@@ -34,18 +34,17 @@ PromptType = Literal[
 ]
 
 PromptDict = {
-    'chomps': get_chomps_prompt,
-    'pedieat': get_pedieat_prompt,
     "background": get_background_prompt,
-    "caregiver_concerns": get_caregiver_concerns_prompt,
-    "clinical_observations": get_clinical_observations_prompt,
-    "professional_summary": get_professional_summary_prompt,
-    "recommendations": get_recommendations_prompt,
-    "ot_goals": get_ot_goals_prompt,
     "bayley4": get_bayley4_prompt,
     "bayley4-social-and-adaptive": get_bayley4_social_adaptive_prompt,
+    "caregiver_concerns": get_caregiver_concerns_prompt,
+    'chomps': get_chomps_prompt,
+    "clinical_observations": get_clinical_observations_prompt,
+    "ot_goals": get_ot_goals_prompt,
+    'pedieat': get_pedieat_prompt,
+    "professional_summary": get_professional_summary_prompt,
+    "recommendations": get_recommendations_prompt,
     "sp2": get_sp2_prompt,
-    
 }
 
 
@@ -81,24 +80,24 @@ async def get_prompt(prompt_type: str, report_data: Dict[str, Any], json_format:
         Formatted prompt string
     """
     
-    prompt_functions = {
-        'background': get_background_prompt,
-        'caregiver_concerns': get_caregiver_concerns_prompt,
-        'clinical_observations': get_clinical_observations_prompt,
-        'professional_summary': get_professional_summary_prompt,
-        'recommendations': get_recommendations_prompt,
-        'ot_goals': get_ot_goals_prompt,
-        'bayley4': get_bayley4_prompt,
-        "bayley4-social-and-adaptive": get_bayley4_social_adaptive_prompt,
-        'sp2': get_sp2_prompt,
-        'chomps': get_chomps_prompt,
-        'pedieat': get_pedieat_prompt,
-    }
+    # prompt_functions = {
+    #     'bayley4': get_bayley4_prompt,
+    #     "bayley4-social-and-adaptive": get_bayley4_social_adaptive_prompt,
+    #     'background': get_background_prompt,
+    #     'caregiver_concerns': get_caregiver_concerns_prompt,
+    #     'chomps': get_chomps_prompt,
+    #     'clinical_observations': get_clinical_observations_prompt,
+    #     'ot_goals': get_ot_goals_prompt,
+    #     'pedieat': get_pedieat_prompt,
+    #     'professional_summary': get_professional_summary_prompt,
+    #     'recommendations': get_recommendations_prompt,
+    #     'sp2': get_sp2_prompt,
+    # }
     
-    if prompt_type not in prompt_functions:
+    if prompt_type not in PromptDict:
         raise ValueError(f"Unknown prompt type: {prompt_type}")
     
-    prompt_function = prompt_functions[prompt_type]
+    prompt_function = PromptDict[prompt_type]
     
     # Handle special cases for prompts that need different parameters
     if prompt_type in ['chomps', 'pedieat']:
@@ -121,15 +120,13 @@ async def save_response(data: str, /, *,file_name: PromptType, json_format: bool
         None
     """
     if json_format:
-        prompt = await PromptDict[file_name](data, json_format)
         file_name = os.path.join(config.get_ai_save_response_dir(), f"{file_name}_response.json")
         with open(file_name, 'w') as f:
             f.write(json.dumps(data, indent=4))
     else:
-        prompt = await PromptDict[file_name](data)
         file_name = os.path.join(config.get_ai_save_response_dir(), f"{file_name}_response.txt")
         with open(file_name, 'w') as f:
-            f.write(prompt)
+            f.write(json.dumps(data))
 
 
 # Export all functions for direct use if needed
