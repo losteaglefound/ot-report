@@ -444,7 +444,7 @@ class OpenAIEnhancedReportGenerator:
         report_data_path = os.path.join("outputs", f"report_data_{session_id}.json")
         try:
             with open(report_data_path, 'w') as f:
-                json.dump(report_data, f)
+                json.dump(report_data, f, indent=4)
             self.logger.info(f"💾 Saved report data for regeneration: {report_data_path}")
         except Exception as e:
             self.logger.warning(f"⚠️ Failed to save report data: {e}")
@@ -462,7 +462,7 @@ class OpenAIEnhancedReportGenerator:
         report_data_path = os.path.join("outputs", f"enchaned_data_{session_id}.json")
         async with aiofiles.open(report_data_path, 'w') as f:
             # json.dump(report_data, f, indent=4)
-            await f.write(json.dumps(report_data, indent=4))
+            await f.write(json.dumps(enhanced_data, indent=4))
         logger.info("✅ Report data compiled")
 
         
@@ -1252,7 +1252,7 @@ class OpenAIEnhancedReportGenerator:
         analysis = {}
         
         # Bayley-4 detailed analysis
-        analysis["bayley4"] = await self._analyze_bayley4_detailed(extracted_data)
+        analysis["bayley4"] = await self._analyze_bayley4_detailed(report_data)
         
         # SP2 analysis
         analysis["sp2"] = await self._analyze_sp2_detailed(extracted_data)
@@ -1265,31 +1265,173 @@ class OpenAIEnhancedReportGenerator:
         
         return analysis
     
-    async def _analyze_bayley4_detailed(self, extracted_data: Dict[str, Any]) -> Dict[str, Any]:
+    async def _analyze_bayley4_detailed(self, report_data: Dict[str, Any]) -> Dict[str, Any]:
         """Detailed Bayley-4 analysis with rich clinical interpretation"""
-        bayley_cognitive = extracted_data.get("bayley4_cognitive", {})
-        bayley_social = extracted_data.get("bayley4_social", {})
+        # Get cognitive and motor data from correct path
+        cognitive_and_motor = report_data.get("bayley", {}).get("cognitive_and_motor", {})
+        bayley_social = report_data.get("bayley", {}).get("social_and_adaptive", {})
         
         analysis = {
             "cognitive_analysis": {},
             "social_emotional_analysis": {},
             "motor_analysis": {},
-            "language_analysis": {}
+            "language_analysis": {},
+            "adaptive_behavior_analysis": {}
         }
         
-        # Detailed cognitive analysis
-        if bayley_cognitive.get("scaled_scores"):
-            for domain, score in bayley_cognitive["scaled_scores"].items():
-                interpretation = self._get_bayley_score_interpretation(domain, score)
-                analysis["cognitive_analysis"][domain] = interpretation
+        # Process cognitive domain
+        if cognitive_and_motor.get("cognitive"):
+            cognitive_items = cognitive_and_motor["cognitive"]
+            cognitive_analysis = self._analyze_cognitive_domain(cognitive_items)
+            analysis["cognitive_analysis"] = cognitive_analysis
         
-        # Detailed social-emotional analysis
-        if bayley_social.get("scaled_scores"):
-            for domain, score in bayley_social["scaled_scores"].items():
-                interpretation = self._get_bayley_score_interpretation(domain, score)
-                analysis["social_emotional_analysis"][domain] = interpretation
+        # Process receptive communication
+        if cognitive_and_motor.get("receptive_communication"):
+            receptive_items = cognitive_and_motor["receptive_communication"]
+            receptive_analysis = self._analyze_receptive_communication_domain(receptive_items)
+            analysis["language_analysis"]["receptive_communication"] = receptive_analysis
+        
+        # Process expressive communication
+        if cognitive_and_motor.get("expressive_communication"):
+            expressive_items = cognitive_and_motor["expressive_communication"]
+            expressive_analysis = self._analyze_expressive_communication_domain(expressive_items)
+            analysis["language_analysis"]["expressive_communication"] = expressive_analysis
+        
+        # Process fine motor
+        if cognitive_and_motor.get("fine_motor"):
+            fine_motor_items = cognitive_and_motor["fine_motor"]
+            fine_motor_analysis = self._analyze_fine_motor_domain(fine_motor_items)
+            analysis["motor_analysis"]["fine_motor"] = fine_motor_analysis
+        
+        # Process gross motor
+        if cognitive_and_motor.get("gross_motor"):
+            gross_motor_items = cognitive_and_motor["gross_motor"]
+            gross_motor_analysis = self._analyze_gross_motor_domain(gross_motor_items)
+            analysis["motor_analysis"]["gross_motor"] = gross_motor_analysis
+        
+        # Process social-emotional from social_and_adaptive data
+        if bayley_social.get("social_emotional", {}).get("observations"):
+            social_emotional_items = bayley_social["social_emotional"]["observations"]
+            social_emotional_analysis = self._analyze_social_emotional_domain(social_emotional_items)
+            analysis["social_emotional_analysis"] = social_emotional_analysis
+        
+        # Process adaptive behavior subdomains
+        if bayley_social.get("adaptive_behavior", {}).get("subdomains"):
+            adaptive_subdomains = bayley_social["adaptive_behavior"]["subdomains"]
+            adaptive_analysis = self._analyze_adaptive_behavior_domains(adaptive_subdomains)
+            analysis["adaptive_behavior_analysis"] = adaptive_analysis
         
         return analysis
+
+    def _analyze_cognitive_domain(self, cognitive_items: List[Dict]) -> Dict[str, Any]:
+        """Analyze cognitive domain items and provide detailed interpretation"""
+        total_items = len(cognitive_items)
+        passed_items = len([item for item in cognitive_items if int(item.get("valid_answer", 0)) >= 1])
+        score_percentage = (passed_items / total_items * 100) if total_items > 0 else 0
+        
+        # Identify strengths and concerns
+        strengths = []
+        concerns = []
+        
+        for item in cognitive_items:
+            score = int(item.get("valid_answer", 0))
+            description = item.get("item_description", "")
+            
+            if score == 2:  # Mastered
+                strengths.append(description)
+            elif score == 0:  # Not achieved
+                concerns.append(description)
+        
+        return {
+            "total_items_administered": total_items,
+            "items_passed": passed_items,
+            "score_percentage": round(score_percentage, 1),
+            "performance_level": self._get_performance_level(score_percentage),
+            "strengths": strengths[:5],  # Top 5 strengths
+            "areas_of_concern": concerns[:5],  # Top 5 concerns
+            "clinical_interpretation": self._generate_cognitive_interpretation(score_percentage, strengths, concerns)
+        }
+
+    def _analyze_receptive_communication_domain(self, receptive_items: List[Dict]) -> Dict[str, Any]:
+        """Analyze receptive communication items"""
+        total_items = len(receptive_items)
+        passed_items = len([item for item in receptive_items if int(item.get("valid_answer", 0)) >= 1])
+        score_percentage = (passed_items / total_items * 100) if total_items > 0 else 0
+        
+        return {
+            "total_items_administered": total_items,
+            "items_passed": passed_items,
+            "score_percentage": round(score_percentage, 1),
+            "performance_level": self._get_performance_level(score_percentage),
+            "clinical_interpretation": f"Receptive communication skills at {score_percentage:.1f}% mastery level"
+        }
+
+    def _analyze_expressive_communication_domain(self, expressive_items: List[Dict]) -> Dict[str, Any]:
+        """Analyze expressive communication items"""
+        total_items = len(expressive_items)
+        passed_items = len([item for item in expressive_items if int(item.get("valid_answer", 0)) >= 1])
+        score_percentage = (passed_items / total_items * 100) if total_items > 0 else 0
+        
+        return {
+            "total_items_administered": total_items,
+            "items_passed": passed_items,
+            "score_percentage": round(score_percentage, 1),
+            "performance_level": self._get_performance_level(score_percentage),
+            "clinical_interpretation": f"Expressive communication skills at {score_percentage:.1f}% mastery level"
+        }
+
+    def _analyze_fine_motor_domain(self, fine_motor_items: List[Dict]) -> Dict[str, Any]:
+        """Analyze fine motor items"""
+        total_items = len(fine_motor_items)
+        passed_items = len([item for item in fine_motor_items if int(item.get("valid_answer", 0)) >= 1])
+        score_percentage = (passed_items / total_items * 100) if total_items > 0 else 0
+        
+        return {
+            "total_items_administered": total_items,
+            "items_passed": passed_items,
+            "score_percentage": round(score_percentage, 1),
+            "performance_level": self._get_performance_level(score_percentage),
+            "clinical_interpretation": f"Fine motor skills at {score_percentage:.1f}% mastery level"
+        }
+
+    def _analyze_gross_motor_domain(self, gross_motor_items: List[Dict]) -> Dict[str, Any]:
+        """Analyze gross motor items"""
+        total_items = len(gross_motor_items)
+        passed_items = len([item for item in gross_motor_items if int(item.get("valid_answer", 0)) >= 1])
+        score_percentage = (passed_items / total_items * 100) if total_items > 0 else 0
+        
+        return {
+            "total_items_administered": total_items,
+            "items_passed": passed_items,
+            "score_percentage": round(score_percentage, 1),
+            "performance_level": self._get_performance_level(score_percentage),
+            "clinical_interpretation": f"Gross motor skills at {score_percentage:.1f}% mastery level"
+        }
+
+    def _get_performance_level(self, percentage: float) -> str:
+        """Convert percentage to performance level"""
+        if percentage >= 80:
+            return "Above Average"
+        elif percentage >= 60:
+            return "Average"
+        elif percentage >= 40:
+            return "Below Average"
+        else:
+            return "Significantly Below Average"
+
+    def _generate_cognitive_interpretation(self, score_percentage: float, strengths: List[str], concerns: List[str]) -> str:
+        """Generate detailed cognitive interpretation"""
+        performance_level = self._get_performance_level(score_percentage)
+        
+        interpretation = f"Cognitive development shows {performance_level.lower()} performance with {score_percentage:.1f}% of items mastered. "
+        
+        if strengths:
+            interpretation += f"Strengths include {', '.join(strengths[:3])}. "
+        
+        if concerns:
+            interpretation += f"Areas needing support include {', '.join(concerns[:3])}."
+        
+        return interpretation
     
     def _get_bayley_score_interpretation(self, domain: str, scaled_score: int) -> Dict[str, Any]:
         """Get detailed interpretation for Bayley scaled scores"""
@@ -1698,8 +1840,8 @@ class OpenAIEnhancedReportGenerator:
         except json.JSONDecodeError as e:
             print(format_exc())
             await save_response(response, file_name="bayley4", json_format=True)
-            self.logger.error(f"❌ SP2 response parsing failed: {e}")
-            raise
+            self.logger.error(f"❌ Bayley4 response parsing failed: {e}")
+            raise RuntimeError(f"Error while Parsing Bayley4 response: {str(e)}") from e
         body = await format_bayley_data_for_pdf(response)
         elements.extend(body)
         
@@ -3293,3 +3435,144 @@ class OpenAIEnhancedReportGenerator:
             ]
         
         return goals[:4]
+
+    def _analyze_social_emotional_domain(self, social_emotional_items: List[Dict]) -> Dict[str, Any]:
+        """Analyze social-emotional domain items"""
+        total_items = len(social_emotional_items)
+        passed_items = len([item for item in social_emotional_items if int(item.get("valid_answer", 0)) >= 3])
+        score_percentage = (passed_items / total_items * 100) if total_items > 0 else 0
+        
+        # Calculate average score
+        total_score = sum([int(item.get("valid_answer", 0)) for item in social_emotional_items])
+        average_score = total_score / total_items if total_items > 0 else 0
+        
+        # Identify strengths and concerns based on scoring criteria (1-5 scale)
+        strengths = []
+        concerns = []
+        
+        for item in social_emotional_items:
+            score = int(item.get("valid_answer", 0))
+            description = item.get("description", "")
+            
+            if score >= 4:  # Most/All of the time
+                strengths.append(description)
+            elif score <= 2:  # Some/None of the time
+                concerns.append(description)
+        
+        return {
+            "total_items_administered": total_items,
+            "items_above_average": passed_items,
+            "score_percentage": round(score_percentage, 1),
+            "average_score": round(average_score, 1),
+            "performance_level": self._get_social_emotional_performance_level(average_score),
+            "strengths": strengths[:5],  # Top 5 strengths
+            "areas_of_concern": concerns[:5],  # Top 5 concerns
+            "clinical_interpretation": self._generate_social_emotional_interpretation(average_score, strengths, concerns)
+        }
+
+    def _analyze_adaptive_behavior_domains(self, adaptive_subdomains: Dict[str, Any]) -> Dict[str, Any]:
+        """Analyze all adaptive behavior subdomains"""
+        subdomain_analyses = {}
+        
+        for subdomain_name, subdomain_data in adaptive_subdomains.items():
+            if subdomain_data.get("observations"):
+                observations = subdomain_data["observations"]
+                subdomain_analysis = self._analyze_adaptive_subdomain(observations, subdomain_name)
+                subdomain_analyses[subdomain_name] = subdomain_analysis
+        
+        # Calculate overall adaptive behavior performance
+        overall_analysis = self._calculate_overall_adaptive_performance(subdomain_analyses)
+        
+        return {
+            "subdomains": subdomain_analyses,
+            "overall_performance": overall_analysis
+        }
+
+    def _analyze_adaptive_subdomain(self, observations: List[Dict], subdomain_name: str) -> Dict[str, Any]:
+        """Analyze individual adaptive behavior subdomain"""
+        total_items = len(observations)
+        passed_items = len([item for item in observations if int(item.get("valid_answer", 0)) >= 2])
+        score_percentage = (passed_items / total_items * 100) if total_items > 0 else 0
+        
+        # Calculate average score (0-2 scale for adaptive behavior)
+        total_score = sum([int(item.get("valid_answer", 0)) for item in observations])
+        average_score = total_score / total_items if total_items > 0 else 0
+        
+        # Identify strengths and concerns based on scoring criteria (0-2 scale)
+        strengths = []
+        concerns = []
+        
+        for item in observations:
+            score = int(item.get("valid_answer", 0))
+            description = item.get("description", "")
+            
+            if score == 2:  # Usually/Often
+                strengths.append(description)
+            elif score == 0:  # Never
+                concerns.append(description)
+        
+        return {
+            "subdomain_name": subdomain_name.replace("_", " ").title(),
+            "total_items_administered": total_items,
+            "items_mastered": passed_items,
+            "score_percentage": round(score_percentage, 1),
+            "average_score": round(average_score, 1),
+            "performance_level": self._get_adaptive_performance_level(average_score),
+            "strengths": strengths[:3],  # Top 3 strengths per subdomain
+            "areas_of_concern": concerns[:3],  # Top 3 concerns per subdomain
+            "clinical_interpretation": f"{subdomain_name.replace('_', ' ').title()} skills at {score_percentage:.1f}% mastery level"
+        }
+
+    def _calculate_overall_adaptive_performance(self, subdomain_analyses: Dict[str, Any]) -> Dict[str, Any]:
+        """Calculate overall adaptive behavior performance across all subdomains"""
+        if not subdomain_analyses:
+            return {}
+        
+        total_percentage = sum([analysis.get("score_percentage", 0) for analysis in subdomain_analyses.values()])
+        average_percentage = total_percentage / len(subdomain_analyses)
+        
+        total_avg_score = sum([analysis.get("average_score", 0) for analysis in subdomain_analyses.values()])
+        overall_avg_score = total_avg_score / len(subdomain_analyses)
+        
+        return {
+            "overall_percentage": round(average_percentage, 1),
+            "overall_average_score": round(overall_avg_score, 1),
+            "overall_performance_level": self._get_adaptive_performance_level(overall_avg_score),
+            "clinical_interpretation": f"Overall adaptive behavior skills at {average_percentage:.1f}% mastery level across all domains"
+        }
+
+    def _get_social_emotional_performance_level(self, average_score: float) -> str:
+        """Convert social-emotional average score (1-5 scale) to performance level"""
+        if average_score >= 4.0:
+            return "Above Average"
+        elif average_score >= 3.0:
+            return "Average"
+        elif average_score >= 2.0:
+            return "Below Average"
+        else:
+            return "Significantly Below Average"
+
+    def _get_adaptive_performance_level(self, average_score: float) -> str:
+        """Convert adaptive behavior average score (0-2 scale) to performance level"""
+        if average_score >= 1.5:
+            return "Above Average"
+        elif average_score >= 1.0:
+            return "Average"
+        elif average_score >= 0.5:
+            return "Below Average"
+        else:
+            return "Significantly Below Average"
+
+    def _generate_social_emotional_interpretation(self, average_score: float, strengths: List[str], concerns: List[str]) -> str:
+        """Generate detailed social-emotional interpretation"""
+        performance_level = self._get_social_emotional_performance_level(average_score)
+        
+        interpretation = f"Social-emotional development shows {performance_level.lower()} performance with an average score of {average_score:.1f}/5.0. "
+        
+        if strengths:
+            interpretation += f"Strengths include {', '.join(strengths[:3])}. "
+        
+        if concerns:
+            interpretation += f"Areas needing support include {', '.join(concerns[:3])}."
+        
+        return interpretation

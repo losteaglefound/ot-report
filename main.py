@@ -490,7 +490,9 @@ async def upload_files(
         # Process Bayley-4 assessment if file is provided
         bayley_results = {}
         if 'bayley4_cognitive' in uploaded_files:
+            # Generate detailed context
             try:
+                logger.info("Generating context for bayley4 cognitive and motor")
                 cognitive_and_motor_context = cognitive_and_motor_context_agent(report_data)
                 report_data['bayley']['cognitive_and_motor'] = cognitive_and_motor_context
             except Exception as e:
@@ -499,7 +501,9 @@ async def upload_files(
         
         # Process Bayley-4 social and adaptive behavior assessment if file is provided
         if 'bayley4_social' in uploaded_files:
+            # generate detailed context
             try:
+                logger.info("Generating context for bayley4 social and adaptive")
                 social_and_adaptive_context = social_adaptive_context_agent(report_data)
                 report_data['bayley']['social_and_adaptive'] = social_and_adaptive_context
                     
@@ -509,12 +513,12 @@ async def upload_files(
 
 
         # Save report data for potential regeneration
-        report_data_path = os.path.join("outputs", f"report_data_{session_id}.json")
-        logger.info(f"Saved report data to: {report_data_path}")
-        async with aiofiles.open(report_data_path, 'w') as f:
-            # json.dump(report_data, f, indent=4)
-            await f.write(json.dumps(report_data, indent=4))
-        logger.info("✅ Report data compiled")
+        # report_data_path = os.path.join("outputs", f"report_data_{session_id}.json")
+        # logger.info(f"Saved report data to: {report_data_path}")
+        # async with aiofiles.open(report_data_path, 'w') as f:
+        #     # json.dump(report_data, f, indent=4)
+        #     await f.write(json.dumps(report_data, indent=4))
+        # logger.info("✅ Report data compiled")
         
 
         # raise RuntimeError("Intentional error.")

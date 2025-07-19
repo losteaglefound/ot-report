@@ -186,7 +186,7 @@ def graph_invoke(prompt: str):
             {
                 "prompt": prompt, 
                 "retry_count": 0,
-                "json_required": False,
+                "json_required": True,
                 "valid": False,
                 "output": ""
             }
