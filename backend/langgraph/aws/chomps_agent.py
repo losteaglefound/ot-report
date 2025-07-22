@@ -423,6 +423,7 @@ def get_context(state: State) -> State:
     
     except Exception as e:
         logger.error(f"Error in Get contextual data: {str(e)}")
+        state['status'] = 'error'
         state['error'] = f"An unexpected error occurred: {e}"
         return state
 
@@ -481,13 +482,16 @@ def aws_chomps_data_extract_agent(pdf_path: str, /):
     state['pdf_path'] = pdf_path
 
     final_state = graph.invoke(state)
+    
+    if final_state.get('status') == 'error':
+        return {
+            "status": final_state['status'],
+            "error": final_state['error']
+        }
+    
     full_response = final_state['contextual_report']
     observation_data = final_state['observation_data']
 
-    if final_state.get('status') == 'error':
-        return {
-            "status": final_state['status']
-        }
 
     with open("outputs/aws_final_full_response.json", 'w+') as f:
         json.dump(full_response, f, indent=4)

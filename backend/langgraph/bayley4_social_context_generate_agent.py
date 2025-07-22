@@ -127,7 +127,7 @@ def generate_bulk_observations(patient_name: str, pronouns: Tuple[str, str, str]
 
 def load_data(state: GraphState) -> GraphState:
     """Loads the report data from the input JSON file."""
-    logging.info(f"Loading data from {state['input_file']}...")
+    # logging.info(f"Loading data from {state['input_file']}...")
     try:
         # with open(state['input_file'], 'r') as f:
             # state["report_data"] = json.load(f)

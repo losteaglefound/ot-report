@@ -129,6 +129,21 @@ async def save_response(data: str, /, *,file_name: PromptType, json_format: bool
             f.write(json.dumps(data))
 
 
+async def save_prompt(data: str, /, *, file_name: PromptType, json_format: bool = False):
+    """
+    Save the response to a file. Data must be json parsed.
+    Args:
+        data: The data to save.
+        file_name: The name of the file to save.
+        json_format: Whether to save the prompt in JSON format.
+    Returns:
+        None
+    """
+    file_name = os.path.join(config.get_ai_save_prompt_dir(), f"{file_name}_response.txt")
+    with open(file_name, 'w') as f:
+        f.write(json.dumps(data))
+
+
 # Export all functions for direct use if needed
 __all__ = [
     'get_prompt',

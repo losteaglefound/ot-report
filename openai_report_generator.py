@@ -46,7 +46,12 @@ from reportlab.lib.enums import TA_LEFT, TA_CENTER, TA_JUSTIFY
 from reportlab.lib import colors
 
 from backend.common.logging import logging
-from backend.prompts import save_response, remove_lang_tags, get_prompt
+from backend.prompts import (
+    get_prompt,
+    remove_lang_tags,
+    save_prompt,
+    save_response,
+)
 from backend.utils.response import format_data_for_pdf, format_bayley_data_for_pdf, format_pedieat_data_for_pdf
 from backend.utils.chomps_score_calculator import parse_chomps_domain_scores
 from backend.utils.pedieat_score_calculate import parse_pedieat_domain_scores
@@ -1831,6 +1836,7 @@ class OpenAIEnhancedReportGenerator:
 
         # Generate comprehensive Bayley interpretation
         prompt = await get_prompt(prompt_type="bayley4", report_data=report_data, json_format=True)
+        save_prompt(prompt, file_name='bayley4')
 
         response = await self._generate_with_openai(prompt, max_tokens=1000)
         response = remove_lang_tags(response)
@@ -2675,6 +2681,7 @@ class OpenAIEnhancedReportGenerator:
             chomps_domain_score = parse_chomps_domain_scores(report_data)
             chomps_score_table = create_chomps_concern_table(chomps_domain_score)
             elements.append(chomps_score_table)
+            elements.append(Spacer(0, 20))
 
         if "pedieat" in uploaded_files:
 
@@ -2686,6 +2693,7 @@ class OpenAIEnhancedReportGenerator:
             pedieat_domain_score = parse_pedieat_domain_scores(report_data)
             pedieat_score_table = create_chomps_concern_table(pedieat_domain_score)
             elements.append(pedieat_score_table)
+            elements.append(Spacer(0, 20))
 
         
         return elements

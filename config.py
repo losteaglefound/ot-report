@@ -182,6 +182,10 @@ class Config:
         """Return the AI response directory"""
         return os.path.join(BASE_DIR, 'assets', 'responses')
     
+    def get_ai_save_prompt_dir(self) -> str:
+        """Return the AI prompt directory"""
+        return os.path.join(BASE_DIR, 'assets', 'prompt')
+    
     
     def get_feature_status(self) -> Dict[str, bool]:
         """Get status of all features"""
