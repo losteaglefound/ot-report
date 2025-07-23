@@ -130,7 +130,7 @@ def generate_bulk_observations(patient_name: str, pronouns: Tuple[str, str, str]
         response_content = response_content.replace("```json", "").replace("```", "")
         response_data = json.loads(response_content)
         
-        print("Response data: ", response_data)
+        # print("Response data: ", response_data)
         
         observations_list = []
         for key, value in response_data.items():

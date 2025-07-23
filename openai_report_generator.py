@@ -1836,7 +1836,7 @@ class OpenAIEnhancedReportGenerator:
 
         # Generate comprehensive Bayley interpretation
         prompt = await get_prompt(prompt_type="bayley4", report_data=report_data, json_format=True)
-        save_prompt(prompt, file_name='bayley4')
+        await save_prompt(prompt, file_name='bayley4')
 
         response = await self._generate_with_openai(prompt, max_tokens=1000)
         response = remove_lang_tags(response)

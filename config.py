@@ -184,7 +184,7 @@ class Config:
     
     def get_ai_save_prompt_dir(self) -> str:
         """Return the AI prompt directory"""
-        return os.path.join(BASE_DIR, 'assets', 'prompt')
+        return os.path.join(BASE_DIR, 'assets', 'prompts')
     
     
     def get_feature_status(self) -> Dict[str, bool]:

@@ -141,7 +141,7 @@ async def save_prompt(data: str, /, *, file_name: PromptType, json_format: bool 
     """
     file_name = os.path.join(config.get_ai_save_prompt_dir(), f"{file_name}_response.txt")
     with open(file_name, 'w') as f:
-        f.write(json.dumps(data))
+        f.write(data)
 
 
 # Export all functions for direct use if needed
