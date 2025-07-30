@@ -51,6 +51,11 @@ quandrant_prompt = """
         "found": "REPLACE THE CONTENT WITH True IF IMAGE IS FOUND ELSE False"
     }}
 
+
+
+IMPORTANT:
+- Return True / False in string form like 'True' / 'False'.
+
 """
 
 social_and_behavioural_prompt = f"""
@@ -78,6 +83,9 @@ RESPONSE FORMAT:
 {{
     "found": "REPLACE THE CONTENT WITH 'True' IF IMAGE IS FOUND ELSE 'False'"
 }}
+
+IMPORTANT:
+- Return True / False in string form like 'True' / 'False'.
     """
 
 
@@ -186,7 +194,7 @@ def find_quadrant_image(state: State):
                 print(result_json)
             except json.JSONDecodeError as e:
                 print("json decode error")
-                print(result)
+                print("error result:", result)
 
             if result_json:
                 if (

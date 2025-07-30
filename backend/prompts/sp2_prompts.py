@@ -9,66 +9,52 @@ async def get_sp2_prompt(report_data: dict, json_format: bool = False) -> str:
     
     if json_format:
         prompt = f"""
-        Write a detailed Sensory Profile 2 (SP2) interpretation for a pediatric OT report.
+        Write a detailed Sensory Profile 2 (SP2) interpretation for a pediatric occupational therapy report.
+
+        Use the provided extracted SP2 data to generate clinically relevant interpretation paragraphs in the following order. Each paragraph should reflect the complexity, tone, and detail of a formal pediatric OT report. Use clear, professional sensory integration terminology, and link sensory behaviors to functional impact.
 
         Extracted SP2 Data: {extracted_sp2_data}
         SP2 Analysis: {sp2_analysis}
 
-        Output Requirements:
-        - Return the output as a valid JSON object with multiple sections.
-        - Use appropriate "type" for each section: "header", "paragraph", "table", or "bullet_points".
-        - Create a comprehensive sensory processing interpretation.
-
-        Content Requirements:
-        - Explain Seeking, Avoiding, Sensitivity, and Registration scores
-        - Include specific score interpretations and quadrant analysis
-        - Provide real-world implications for grooming, play, and feeding
-        - Describe sensory processing patterns and their impact
-        - Include recommendations for sensory strategies
-        - Use professional sensory integration terminology
-        - Connect findings to functional performance in daily activities
-
-        Focus on how sensory processing affects daily living skills and participation.
-
-        JSON response format:
+        📄 Output Format:
+        Return your response as a valid JSON object with this exact structure:
         {{
-            "assessment_description": {{
+            "sensory_overview_summary": {{
                 "type": "paragraph",
-                "content": "The Sensory Profile 2 is a standardized assessment that evaluates sensory processing patterns and their impact on daily functioning. The assessment examines four sensory processing quadrants: Seeking, Avoiding, Sensitivity, and Registration."
-            }},
-            "sensory_overview": {{
-                "type": "paragraph",
-                "content": "**REPLACE WITH DETAILS INTERPRETATION OF WHOLE SENSORY ASSESSMENT.**"
+                "content": "**REPLACE WITH PARAGRAPH 1: Overall summary of child’s sensory profile. Highlight high/low responses, their quadrant context, and global effects on calmness, play, routines. Use data from all categories. If there is both under-responsiveness (e.g., low seeking/visual) and over-responsiveness (e.g., high sensitivity/avoidance), describe it as a "complex sensory profile.""
             }},
             "touch_processing_domain": {{
                 "type": "paragraph",
-                "content": "**REPLACE WITH DETAILED INTERPRETATION OF TOUCH PROCESSING SCORES AND RESULTS. Include specific score values, percentile ranges, clinical significance, and functional implications for daily activities.**"
+                "content": "**REPLACE WITH PARAGRAPH 2: Focus on low sensory seeking and reduced visual engagement. Mention examples (e.g., shiny/spinning objects, TV screens) and impact on play, learning, and attention. If Seeking is low, explicitly mention the quadrant score range (e.g., "Less Than Others") and describe how low sensory seeking affects exploration, engagement, and attention in early play."
             }},
             "oral_sensory_domain": {{
                 "type": "paragraph",
-                "content": "**REPLACE WITH DETAILED INTERPRETATION OF ORAL SENSORY SCORES AND RESULTS. Include specific score values, percentile ranges, clinical significance, and impact on feeding and oral motor skills.**"
+                "content": "**REPLACE WITH PARAGRAPH 3: Focus on high avoidance and tactile sensitivity. Include examples (e.g., clothing, grooming, messy textures) and how these affect bathing, dressing, and play. If oral or tactile avoidance is high, include examples of grooming resistance, food selectivity, and physical defensiveness. Mention quadrant score classification (e.g., “Much More Than Others”). Describe how these behaviors interfere with self-care routines and messy or sensory-rich play."
             }},
             "auditory_processing_domain": {{
                 "type": "paragraph",
-                "content": "**REPLACE WITH DETAILED INTERPRETATION OF AUDITORY PROCESSING SCORES AND RESULTS. Include specific score values, percentile ranges, clinical significance, and impact on attention and environmental response.**"
+                "content": "**REPLACE WITH PARAGRAPH 4: Describe how auditory, movement, and oral sensory responses may fall in the typical range, but the child shows elevated sensitivity to routine change. Include behavioral manifestations such as tantrums, clinginess, and difficulty calming. If scoring indicates (e.g., 'Much More Than Others'), mention it. Connect this dysregulation to transitions and difficulty adapting to new settings, and root it in the broader pattern of sensitivity and avoidance.**"
             }},
             "visual_and_movement_processing": {{
                 "type": "paragraph",
-                "content": "**REPLACE WITH DETAILED INTERPRETATION OF VISUAL AND MOVEMENT PROCESSING SCORES AND RESULTS. Include specific score values, percentile ranges, clinical significance, and impact on motor planning and spatial awareness.**"
-            }},
-            "behavioural_response_domain": {{
-                "type": "paragraph",
-                "content": "**REPLACE WITH DETAILED INTERPRETATION OF BEHAVIOURAL RESPONSE SCORES AND RESULTS. Include specific score values, percentile ranges, clinical significance, and impact on self-regulation and adaptive behavior.**"
+                "content": "**REPLACE WITH PARAGRAPH 5: Provide a summary of the sensory profile, clearly identifying both under-responsiveness (e.g., low seeking/visual engagement) and over-responsiveness (e.g., tactile, auditory, sensitivity). Use quadrant terms when possible. Explain how these mixed patterns may impact self-regulation, transitions, family routines, social participation, and play. End with 1–2 general, actionable recommendations such as routine-based interventions, environmental strategies, or sensory diets to support participation and emotional regulation.**"
             }},
             "summary": {{
                 "type": "paragraph",
-                "content": "**REPLACE WITH COMPREHENSIVE SUMMARY OF ALL SP2 FINDINGS. Include overall sensory processing patterns, key areas of concern, functional implications, and recommendations for intervention strategies.**"
+                "content": "**Duplicate of paragraph 5 or expanded summary across domains. Optional."
             }}
         }}
 
-        IMPORTANT: Replace all content marked with **REPLACE WITH...** with actual clinical interpretations based on the provided SP2 data. Do not output the placeholder instructions literally.
+        🔎 Interpretation Guidelines:
+        - Use extracted sensory examples (e.g., Seeking, Avoiding, Sensitivity) to support each paragraph.
+        - Identify quadrant patterns (e.g., low Seeking, high Avoiding).
+        - Include at least 2–4 behavior examples per paragraph when relevant.
+        - Emphasize functional implications: grooming, feeding, transitions, play, attention.
+        - Avoid generic language. Be specific and aligned with clinical standards.
 
-        Ensure the response is valid JSON and follows this exact structure.
+        IMPORTANT:
+        - Replace all **REPLACE WITH...** sections with final text.
+        - Maintain valid JSON format and section order.
         """
         return prompt
     

@@ -10,6 +10,10 @@ import json
 
 
 import aiofiles
+from fastapi import FastAPI, File, UploadFile, Form, Request, HTTPException
+from fastapi.responses import HTMLResponse, FileResponse
+from fastapi.staticfiles import StaticFiles
+from fastapi.templating import Jinja2Templates
 
 
 # Load configuration first
@@ -29,6 +33,11 @@ from backend.common.logging import logging
 from backend.domain_detector_bayley4_social_adaptive import process_bayley_social_adaptive_assessment
 from backend.utils.pdf import pdf_convert_to_image
 from backend.utils.save_json import save_json_data
+# from backend.langgraph.sensory_agent import extract_sp2_data
+from backend.langgraph.aws.sensory_data_extraction_agent import extract_sp2_data
+from backend.langgraph.pedieat_agent import extract_pedieat_data
+from backend.langgraph.chomps_agent import extract_chomps_data_wrapper
+from pdf_processor import EnhancedPDFProcessor
 
 
 sys.stdout.reconfigure(encoding='utf-8')
@@ -51,17 +60,6 @@ sys.stdout.reconfigure(encoding='utf-8')
 # Configure module logger
 logger = logging.getLogger(__name__)
 
-# FastAPI imports
-from fastapi import FastAPI, File, UploadFile, Form, Request, HTTPException
-from fastapi.responses import HTMLResponse, FileResponse
-from fastapi.staticfiles import StaticFiles
-from fastapi.templating import Jinja2Templates
-
-# Import modules based on configuration
-from pdf_processor import EnhancedPDFProcessor
-from backend.langgraph.sensory_agent import extract_sp2_data
-from backend.langgraph.pedieat_agent import extract_pedieat_data
-from backend.langgraph.chomps_agent import extract_chomps_data_wrapper
 
 # Conditional imports based on configuration
 if is_openai_enabled():
@@ -392,11 +390,12 @@ async def upload_files(
         if 'sp2' in uploaded_files:
             try:
                 logger.info("🧠 Processing SP2 assessment with sensory agent...")
-                sp2_result = extract_sp2_data(uploaded_files['sp2'])
+                # sp2_result = extract_sp2_data(uploaded_files['sp2'])
 
                 uploaded_files_pdf_images['sp2'] = pdf_convert_to_image(uploaded_files['sp2'], session_dir)
-                
-                if sp2_result.get("success"):
+                sp2_result = extract_sp2_data(uploaded_files_pdf_images['sp2'])
+
+                if sp2_result.get("status"):
                     sp2_results = sp2_result.get("sp2_data", {})
                     logger.info("✅ SP2 processing complete with sensory agent")
                 else:

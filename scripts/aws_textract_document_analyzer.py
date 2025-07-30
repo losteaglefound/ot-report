@@ -154,7 +154,7 @@ class AWSTextractOCRTableAnalyzer:
                         FeatureTypes=['TABLES', 'FORMS']
                     )
 
-                    with open(f"outputs/aws_chomps_page_{page_num}.json", 'w+') as f:
+                    with open(f"outputs/aws_sp2_page_{page_num}.json", 'w+') as f:
                         f.write(json.dumps(response, indent=4))
 
                     json_data = parse_chomps_json(response)

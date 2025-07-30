@@ -30,7 +30,8 @@ PromptType = Literal[
     'professional_summary', 
     'recommendations', 
     'ot_goals', 
-    'bayley4'
+    'bayley4', 
+    'bayley4-social-and-adaptive'
 ]
 
 PromptDict = {

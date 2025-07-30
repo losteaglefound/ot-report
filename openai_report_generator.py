@@ -52,7 +52,12 @@ from backend.prompts import (
     save_prompt,
     save_response,
 )
-from backend.utils.response import format_data_for_pdf, format_bayley_data_for_pdf, format_pedieat_data_for_pdf
+from backend.utils.response import (
+    format_data_for_pdf, 
+    format_bayley_data_for_pdf, 
+    format_pedieat_data_for_pdf,
+    format_sensory_assistant_data
+)
 from backend.utils.chomps_score_calculator import parse_chomps_domain_scores
 from backend.utils.pedieat_score_calculate import parse_pedieat_domain_scores
 from backend.utils.table import create_chomps_concern_table
@@ -62,6 +67,7 @@ from backend.langgraph import graph_invoke
 from backend.langgraph.bayley4_cognitive_image_extract_agent import bayley4_cognitive_image_extract
 from backend.langgraph.bayley4_social_image_extract_agent import bayley4_social_image_extract
 from backend.langgraph.sensory_image_extraction_agent import sensory_image_extract
+from backend.openai_assistant.sensory_profile_openai_assistant import sensory_assistant
 
 
 pdfmetrics.registerFont(TTFont('TimesNewRoman-Regular', config.PROJECT_DIR / 'assets/fonts/Times New Roman.ttf'))
@@ -1260,7 +1266,7 @@ class OpenAIEnhancedReportGenerator:
         analysis["bayley4"] = await self._analyze_bayley4_detailed(report_data)
         
         # SP2 analysis
-        analysis["sp2"] = await self._analyze_sp2_detailed(extracted_data)
+        # analysis["sp2"] = await self._analyze_sp2_detailed(extracted_data)
         
         # ChOMPS analysis  
         analysis["chomps"] = await self._analyze_chomps_detailed(extracted_data)
@@ -1798,6 +1804,7 @@ class OpenAIEnhancedReportGenerator:
         # Get extracted data to check for file uploads
         bayley = report_data.get('bayley')
         extracted_data = report_data.get("extracted_data", {})
+        uploaded_files = report_data.get("uploaded_files", {})
         
         if bayley.get('cognitive_and_motor') or bayley.get("social_and_adaptive"):
             elements.append(Spacer(10, 20))
@@ -1815,7 +1822,7 @@ class OpenAIEnhancedReportGenerator:
             elements.extend(await self._create_bayley4_social_and_adaptive_detailed_section(report_data))
         
         # SP2 detailed results - only if sp2 file was uploaded
-        if extracted_data.get("sp2"):
+        if uploaded_files.get("sp2"):
             elements.extend(await self._create_sp2_detailed_section(report_data))
         
         # ChOMPS detailed results - only if chomps file was uploaded
@@ -1859,6 +1866,7 @@ class OpenAIEnhancedReportGenerator:
 
         # Generate comprehensive Bayley interpretation
         prompt = await get_prompt(prompt_type="bayley4-social-and-adaptive", report_data=report_data, json_format=True)
+        await save_prompt(prompt, file_name='bayley4-social-and-adaptive')
 
         response = await self._generate_with_openai(prompt, max_tokens=1000)
         response = remove_lang_tags(response)
@@ -1905,13 +1913,13 @@ class OpenAIEnhancedReportGenerator:
         elements = []
 
         sp2_paragraph_text = f"""
-        <b><i>Sensory Processing:</i></b> Sensory processing is the foundation upon which all developmental skills
+        <i><b>Sensory Processing:</b> Sensory processing is the foundation upon which all developmental skills
         are built. It encompasses the nervous system's capacity to receive, interpret, and respond to
         sensory input from various sources, including touch, sight, sound, taste, smell, and movement.
         This process enables children to engage with their environment effectively and adaptively.
         Occupational therapists working in early intervention focus on understanding how a child's
         sensory processing abilities influence their overall development, including fine motor, visual-
-        motor integration, and feeding skills.
+        motor integration, and feeding skills.</i>
         """
 
         sp2_paragraph = Paragraph(sp2_paragraph_text, ParagraphStyle(
@@ -1924,13 +1932,16 @@ class OpenAIEnhancedReportGenerator:
         elements.append(sp2_paragraph)
         
         # SP2 analysis data
-        sp2_analysis = report_data.get("assessment_analysis", {}).get("sp2", {})
+        # sp2_analysis = report_data.get("assessment_analysis", {}).get("sp2", {})
 
-        prompt = await get_prompt(prompt_type="sp2", report_data=report_data, json_format=True)
+        # prompt = await get_prompt(prompt_type="sp2", report_data=report_data, json_format=True)
 
-        response = await self._generate_with_openai(prompt, max_tokens=1000)
-        response = remove_lang_tags(response)
+        # response = await self._generate_with_openai(prompt, max_tokens=1000)
+        # response = remove_lang_tags(response)
+        sp2_file = report_data.get("uploaded_files").get('sp2')
+        response = sensory_assistant(sp2_file)
         try:
+            response = remove_lang_tags(response)
             response = json.loads(response)
             await save_response(response, file_name="sp2", json_format=True)
         except json.JSONDecodeError as e:
@@ -1938,7 +1949,9 @@ class OpenAIEnhancedReportGenerator:
             await save_response(response, file_name="sp2", json_format=True)
             self.logger.error(f"❌ SP2 response parsing failed: {e}")
             raise
-        body = await format_data_for_pdf(response)
+        # body = await format_data_for_pdf(response)
+        body = await format_sensory_assistant_data(response)
+
         elements.extend(body)
         
         return elements

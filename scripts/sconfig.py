@@ -2,6 +2,9 @@ import os
 from pathlib import Path
 import sys
 
+from dotenv import load_dotenv
+
+assert load_dotenv()
 
 class File:
     filename: str | None = None
@@ -26,6 +29,7 @@ class File:
 class Config:
     BASE_DIR = Path(__file__).resolve().parent
     PROJECT_DIR = BASE_DIR.parent
+    OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
     
     def get_input_file_pdf_image_file(self) -> File:
         return File(

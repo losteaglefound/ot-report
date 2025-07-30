@@ -48,11 +48,11 @@ if __name__ == '__main__':
     # 2. Specify the folder and the pattern to find your files.
     #    Here, we're looking for all .json files in a folder named 'textract_responses'
     folder_path = 'outputs/'
-    json_files = glob.glob(os.path.join(folder_path, 'aws_chomps_page_?.json'))
+    json_files = glob.glob(os.path.join(folder_path, 'aws_sp2_page_*.json'))
     print(json_files)
     
     # 3. Specify the name for the merged output file.
-    merged_output_file = 'outputs/aws_chomps_page_merged.json'
+    merged_output_file = 'outputs/aws_sp2_page_merged.json'
     
 
     # 4. Run the merge function.

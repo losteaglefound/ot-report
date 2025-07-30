@@ -19,7 +19,7 @@ async def get_bayley4_social_adaptive_prompt(report_data: dict, json_format: boo
     adaptive_receptive_data = adaptive_behavior_data.get('subdomains', {}).get("receptive", {}).get('observations', [])
     adaptive_expressive_data = adaptive_behavior_data.get('subdomains', {}).get("expressive", {}).get('observations', [])
     adaptive_personal_data = adaptive_behavior_data.get('subdomains', {}).get("personal", {}).get('observations', [])
-    adaptive_play_data = adaptive_behavior_data.get('subdomains', {}).get("play_and_liesure", {}).get('observations', [])
+    adaptive_play_data = adaptive_behavior_data.get('subdomains', {}).get("play_and_leisure", {}).get('observations', [])
 
     social_emotional_data = [f"- {x['contextual_observation']}" for x in social_emotional_data]
     adaptive_receptive_data = [f"- {x['contextual_observation']}" for x in adaptive_receptive_data]
@@ -29,15 +29,14 @@ async def get_bayley4_social_adaptive_prompt(report_data: dict, json_format: boo
     
 
     social_emotional_context = (
-        "The Social-Emotional Scale assesses your child's ability to engage with others, recognize emotions, "
-        "express feelings, form relationships, and respond to social cues. This includes behaviors such as responding to a caregiver’s smile, "
-        "showing interest in others, and using appropriate emotional expressions. These skills are essential for building trust, developing empathy, and participating in reciprocal relationships."
+        "The Social-Emotional Scale asks caregivers to assess how their child interacts with others, expresses emotions,"
+        " and responds to sensory input such as sounds, touch, and visual stimuli. This scale helps identify age-appropriate"
+        " social-emotional milestones related to attachment, self-regulation, and engagement in early relationships."
     )
 
     adaptive_behavior_context = (
-        "The Adaptive Behavior Scale evaluates daily functional skills such as communication, self-care, following routines, playing appropriately, "
-        "and interacting with others in home and community settings. These behaviors include dressing, feeding, expressing needs, and following safety rules. "
-        "The skills reflect your child’s capacity to function independently and socially within their environment."
+        "The Adaptive Behavior Scale asks caregivers to assess their child's ability to adapt to various demands of normal"
+        " daily living and become more independent."
     )
 
     if json_format:

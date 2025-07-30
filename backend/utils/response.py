@@ -4,6 +4,27 @@ from reportlab.lib.styles import ParagraphStyle, getSampleStyleSheet
 from reportlab.lib.units import cm ,inch
 
 
+async def format_sensory_assistant_data(response: str) -> list:
+    styles = getSampleStyleSheet()
+    elements = []
+    
+    paragraphs = response.get('paragraphs')
+    for p in paragraphs:
+        elements.append(Paragraph(p, ParagraphStyle(
+            name='BodyText',
+            parent=styles['Normal'],
+            fontSize=12,
+            fontName="TimesNewRoman-Regular",
+            leading=14,
+            spaceAfter=6,
+            spaceBefore=12,
+            underlineWidth=1,
+        )))
+        elements.append(Spacer(1, 0.15 * inch))
+    
+    return elements
+
+
 async def format_data_for_pdf(data: dict) -> list:
     """
     Converts structured JSON data into a list of ReportLab flowables.

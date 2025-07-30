@@ -1,7 +1,7 @@
 import json
 
 
-from sconfig import config as script_config
+# from sconfig import config as script_config
 from config import config as server_config
 
 
